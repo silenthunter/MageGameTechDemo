@@ -20,6 +20,7 @@ using PolyVox::SimpleVolume;
 using PolyVox::MaterialDensityPair44;
 using PolyVox::Vector3DInt32;
 using Ogre::Vector3;
+using Ogre::Degree;
 
 int main(int argc, char* argv[])
 {
@@ -59,6 +60,18 @@ int main(int argc, char* argv[])
 		graphicsManager.RenderFrame(elapsed);//Draw frames
 		Ogre::WindowEventUtilities::messagePump();
 		//dbgdraw->step();
+
+		m_Mouse->capture();
+		OIS::MouseState m_MouseState = m_Mouse->getMouseState();
+		OIS::Axis xAxis = m_MouseState.X;
+		OIS::Axis yAxis = m_MouseState.Y;
+
+		Ogre::Vector3 mov(0, 0, 0);
+
+		graphicsManager.GetRoot()->getChild("Player")->yaw(Degree(xAxis.rel / -2));
+		graphicsManager.GetRoot()->getChild("Player")->getChild("main_camera")->pitch(Degree(yAxis.rel / -2));
+
+		mov = graphicsManager.GetPlayerRotation() * mov;
 
 		if(count % 25 == 0)
 		{

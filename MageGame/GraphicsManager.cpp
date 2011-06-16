@@ -98,6 +98,16 @@ Ogre::RenderWindow* GraphicsManager::GetWindow()
 	return window;
 }
 
+Ogre::SceneNode* GraphicsManager::GetRoot()
+{
+	return root_sn;
+}
+
+Ogre::Quaternion GraphicsManager::GetPlayerRotation()
+{
+	return c_sn->getChild(0)->_getDerivedOrientation();
+}
+
 void GraphicsManager::RenderFrame(Ogre::Real timeSinceLastFrame)
 {
 	root->renderOneFrame(timeSinceLastFrame);

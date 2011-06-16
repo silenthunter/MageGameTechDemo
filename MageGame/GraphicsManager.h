@@ -18,6 +18,8 @@ public:
 	void InitVoxels(PolyVox::SimpleVolume<PolyVox::MaterialDensityPair44>& volData, utils::NoiseMap& heightMap);
 	void createSphereInVolume(PolyVox::SimpleVolume<PolyVox::MaterialDensityPair44>& volData, float fRadius, PolyVox::Vector3DFloat& v3dVolCenter);
 	Ogre::RenderWindow *GetWindow();
+	Ogre::SceneNode* GetRoot();
+	Ogre::Quaternion GetPlayerRotation();
 	void RenderFrame(Ogre::Real timeSinceLastFrame);
 
 	//Variables
