@@ -30,37 +30,43 @@ int main(int argc, char* argv[])
 	ParseFile("GameFiles/WorldGeneration.ini", WorldGenerationMap);
 	ParseFile("GameFiles/WaterData.ini", WaterDataMap);
 
+#pragma region Map Generation
 	utils::NoiseMap heightMap = GenerateRandomTerrainMap(-1, 8, 4);
-	SimpleVolume<MaterialDensityPair44> volData(PolyVox::Region(Vector3DInt32(0,0,0), Vector3DInt32(heightMap.GetWidth(), 128, heightMap.GetHeight())));
+#pragma endregion
 
-	#pragma region GraphicsManager
+#pragma region GraphicsManager
 	GraphicsManager graphicsManager;
+	Ogre::SceneNode* player = graphicsManager.GetPlayer();
+	Ogre::SceneNode* c_sn = graphicsManager.GetCamera();
+	Ogre::Root* root = graphicsManager.GetRoot();
 
 	Ogre::RenderWindow* ogreWindow = graphicsManager.GetWindow();
 	size_t hWnd = 0;
 	ogreWindow->getCustomAttribute("WINDOW", &hWnd);
 
+	SimpleVolume<MaterialDensityPair44> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(heightMap.GetWidth(), 128, heightMap.GetHeight())));
 	graphicsManager.InitVoxels(volData, heightMap);
-	#pragma endregion
+	graphicsManager.LoadManualObject(volData, heightMap);
+#pragma endregion
 
-	#pragma region Keyboard and Mouse
+#pragma region Keyboard and Mouse
 	OIS::InputManager *m_InputManager = OIS::InputManager::createInputSystem(hWnd);
 	OIS::Keyboard *m_Keyboard = static_cast<OIS::Keyboard*>(m_InputManager->createInputObject(OIS::OISKeyboard, false));
 	OIS::Mouse *m_Mouse = static_cast<OIS::Mouse*>(m_InputManager->createInputObject(OIS::OISMouse, false));
-	#pragma endregion
+#pragma endregion
 
 	GameTimer timer;
-	float dis = .5f;
+	float speed = 250.f;
 	int count = 0;
 
 	while(1)
 	{
 		count++;
 		double elapsed = timer.getElapsedTimeSec();
-		graphicsManager.RenderFrame(elapsed);//Draw frames
+		root->renderOneFrame(elapsed);
 		Ogre::WindowEventUtilities::messagePump();
-		//dbgdraw->step();
 
+#pragma region Mouse Update
 		m_Mouse->capture();
 		OIS::MouseState m_MouseState = m_Mouse->getMouseState();
 		OIS::Axis xAxis = m_MouseState.X;
@@ -68,12 +74,17 @@ int main(int argc, char* argv[])
 
 		Ogre::Vector3 mov(0, 0, 0);
 
-		graphicsManager.GetRoot()->getChild("Player")->yaw(Degree(xAxis.rel / -2));
-		graphicsManager.GetRoot()->getChild("Player")->getChild("main_camera")->pitch(Degree(yAxis.rel / -2));
+		player->yaw(Degree(xAxis.rel / -2));
+		c_sn->pitch(Degree(yAxis.rel / -2));
 
-		mov = graphicsManager.GetPlayerRotation() * mov;
+		mov = c_sn->_getDerivedOrientation() * mov;
+#pragma endregion
 
-		if(count % 25 == 0)
+#pragma Keyboard Update
+
+#pragma endregion
+
+		if(count % 50 == 0)
 		{
 			printf("FPS: %f\n", 1/elapsed);
 			//std::cout << getCurrentChunk(&physicsManager, &world);
