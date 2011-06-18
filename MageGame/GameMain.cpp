@@ -3,6 +3,7 @@
 #include <Ogre.h>
 #include <OIS.h>
 #include "GraphicsManager.h"
+#include "PhysicsManager.h"
 #include "GameTimer.h"
 
 #include "GameGlobals.h"
@@ -49,6 +50,10 @@ int main(int argc, char* argv[])
 	graphicsManager.LoadManualObject(volData, heightMap);
 #pragma endregion
 
+#pragma region PhysicsManager
+	PhysicsManager physicsManager(&volData);
+#pragma endregion
+
 #pragma region Keyboard and Mouse
 	OIS::InputManager *m_InputManager = OIS::InputManager::createInputSystem(hWnd);
 	OIS::Keyboard *m_Keyboard = static_cast<OIS::Keyboard*>(m_InputManager->createInputObject(OIS::OISKeyboard, false));
@@ -64,6 +69,7 @@ int main(int argc, char* argv[])
 		count++;
 		double elapsed = timer.getElapsedTimeSec();
 		root->renderOneFrame(elapsed);
+		physicsManager.StepSimulation(elapsed);
 		Ogre::WindowEventUtilities::messagePump();
 
 #pragma region Mouse Update
@@ -80,7 +86,7 @@ int main(int argc, char* argv[])
 		mov = c_sn->_getDerivedOrientation() * mov;
 #pragma endregion
 
-#pragma Keyboard Update
+#pragma region Keyboard Update
 
 #pragma endregion
 

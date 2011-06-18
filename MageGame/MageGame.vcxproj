@@ -18,7 +18,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -38,7 +38,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(ProjectDir)Libnoise\include\;$(Havok)source\;$(SolutionDir)includes\;$(SolutionDir)OGRE\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Libs\;$(SolutionDir)OGRE\Lib\debug\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Libs\;$(SolutionDir)OGRE\Lib\debug\;$(Havok)Lib\win32_net_9-0\debug_multithreaded_dll\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(ProjectDir)Libnoise\include\;$(Havok)source\;$(SolutionDir)includes\;$(SolutionDir)OGRE\;$(IncludePath)</IncludePath>
@@ -48,10 +48,11 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>HAVOK_DEBUG;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libnoise.lib;OgreMain_d.lib;OIS_d.lib;PolyVoxCore_d.lib;PolyVoxUtil_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libnoise.lib;hkBase.lib;hkCompat.lib;hkGeometryUtilities.lib;hkInternal.lib;hkSceneData.lib;hkpConstraintSolver.lib;hkpCollide.lib;hkpDynamics.lib;hkpInternal.lib;hkpUtilities.lib;hkpVehicle.lib;hkSerialize.lib;hkVisualize.lib;OgreMain_d.lib;OIS_d.lib;PolyVoxCore_d.lib;PolyVoxUtil_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(TargetDir)GameFiles\"
@@ -73,7 +74,7 @@ copy /Y "$(ProjectDir)Libnoise\bin\libnoise.dll" "$(TargetDir)"</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libnoise.lib;OgreMain.lib;OIS.lib;PolyVoxCore.lib;PolyVoxUtil.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libnoise.lib;hkBase.lib;hkCompat.lib;hkGeometryUtilities.lib;hkInternal.lib;hkSceneData.lib;hkpConstraintSolver.lib;hkpCollide.lib;hkpDynamics.lib;hkpInternal.lib;hkpUtilities.lib;hkpVehicle.lib;hkSerialize.lib;hkVisualize.lib;OgreMain.lib;OIS.lib;PolyVoxCore.lib;PolyVoxUtil.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
