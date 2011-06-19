@@ -11,7 +11,7 @@ using PolyVox::Vector3DInt32;
 using PolyVox::Vector3DFloat;
 using PolyVox::SurfaceMesh;
 using PolyVox::PositionMaterialNormal;
-using PolyVox::SurfaceExtractor;
+using PolyVox::CubicSurfaceExtractorWithNormals;
 using PolyVox::Region;
 
 GraphicsManager::GraphicsManager(void)
@@ -144,13 +144,21 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 				Vector3DInt32 end((j + 1) * chunkSize, (k + 1) * chunkSize, (i + 1) * chunkSize);
 
 				SurfaceMesh<PositionMaterialNormal> mesh;
-				SurfaceExtractor<SimpleVolume, MaterialDensityPair44> surfaceExtractor(&volData, Region(start, end), &mesh);
+				CubicSurfaceExtractorWithNormals<SimpleVolume, MaterialDensityPair44> surfaceExtractor(&volData, Region(start, end), &mesh);
 				surfaceExtractor.execute();
 
-				std::vector<uint32_t> vecIndices = mesh.getIndices();
-				std::vector<PositionMaterialNormal> vecVertices = mesh.getVertices();
+				ManualObject *obj = manager->createManualObject();
 
-				if(vecIndices.size() > 0) firstLoop = true;
+				size_t numVertices = mesh.getNoOfVertices();
+				size_t numIndices = mesh.getNoOfIndices();
+
+				obj->estimateVertexCount(numVertices);
+				obj->estimateIndexCount(numIndices);
+
+				//std::vector<uint32_t> vecIndices = mesh.getIndices();
+				//std::vector<PositionMaterialNormal> vecVertices = mesh.getVertices();
+
+				if(numVertices > 0) firstLoop = true;
 
 				/*
 				hkpExtendedMeshShape::TrianglesSubpart subPart;
@@ -175,11 +183,26 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 
 				sprintf(str, "%d-%d-%d", i, j, k);
 
-				//ManualObject *obj = manager->createManualObject(str);
-				ManualObject *obj = manager->createManualObject();
+				obj->begin("ColouredCubicVoxel", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
-				obj->begin("Dirt", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+				// vertices
+				const vector<PositionMaterialNormal>& vVertices = mesh.getVertices();
+				for(size_t i = 0; i < numVertices; i++)
+				{
+					Vector3DFloat pos = vVertices[i].getPosition() * scale;
+					//pos += Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize);
+					obj->position(pos.getX(), pos.getY(), pos.getZ());
+					obj->normal(vVertices[i].getNormal().getX(), vVertices[i].getNormal().getY(), vVertices[i].getNormal().getZ());
+				}
 
+				// indices
+				const std::vector<uint32_t>& vIndices = mesh.getIndices();
+				for(size_t i = 0; i < numIndices; i++)
+				{
+					obj->index(vIndices[i]);
+				}
+
+				/*
 				float vecCnt = 0;
 				std::vector<PositionMaterialNormal>::iterator vecItr;
 				float texX = 0.f, texY = 0.f;
@@ -189,7 +212,8 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 					pos += Vector3DFloat(j * chunkSize, k * chunkSize, i* chunkSize);
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
 					obj->textureCoord(vecCnt / vecVertices.size(), vecCnt / vecVertices.size());
-
+					obj->normal((*vecItr).getNormal().getX(), (*vecItr).getNormal().getY(), (*vecItr).getNormal().getZ());
+				*/
 					/*
 					if(firstLoop)
 					{
@@ -198,7 +222,7 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 						vert[(int)vecCnt * 3 + 2] = pos.getZ();
 					}
 					*/
-
+				/*
 				}
 
 				std::vector<uint32_t>::iterator indVec;
@@ -208,7 +232,7 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 					obj->index(*indVec);
 					//if(firstLoop) ind[indCnt] = *indVec;
 				}
-
+				*/
 				obj->end();
 
 				string strName(str);

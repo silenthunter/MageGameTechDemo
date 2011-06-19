@@ -37,11 +37,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)Libnoise\include\;$(Havok)source\;$(SolutionDir)includes\;$(SolutionDir)OGRE\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Libnoise\include\;$(Havok)Source\;$(SolutionDir)includes\;$(SolutionDir)OGRE\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Libs\;$(SolutionDir)OGRE\Lib\debug\;$(Havok)Lib\win32_net_9-0\debug_multithreaded_dll\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)Libnoise\include\;$(Havok)source\;$(SolutionDir)includes\;$(SolutionDir)OGRE\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Libnoise\include\;$(Havok)Source\;$(SolutionDir)includes\;$(SolutionDir)OGRE\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Libs\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

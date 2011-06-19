@@ -8,7 +8,7 @@
 #include "PolyVoxCore/MaterialDensityPair.h"
 #include "PolyVoxCore/SurfaceMesh.h"
 #include "PolyVoxCore/SimpleVolume.h"
-#include <PolyVoxCore/SurfaceExtractor.h>
+#include <PolyVoxCore/CubicSurfaceExtractorWithNormals.h>
 
 class GraphicsManager
 {
