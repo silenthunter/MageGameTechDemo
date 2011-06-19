@@ -16,6 +16,7 @@
 #include <PolyVoxUtil/VolumeChangeTracker.h>
 #include <PolyVoxCore/MeshDecimator.h>
 #include <PolyVoxCore/SurfaceExtractor.h>
+#include <Common/Base/hkBase.h>
 
 using PolyVox::SimpleVolume;
 using PolyVox::MaterialDensityPair44;
@@ -87,8 +88,16 @@ int main(int argc, char* argv[])
 #pragma endregion
 
 #pragma region Keyboard Update
-
+		m_Keyboard->capture();
 #pragma endregion
+
+		//Update physics character
+		Ogre::Quaternion playerOri = c_sn->_getDerivedOrientation();
+		physicsManager.UpdatePlayer(m_Keyboard, m_Mouse, hkQuaternion(playerOri.x, playerOri.y, playerOri.z, playerOri.w));
+
+		//Sync physics character with Ogre
+		hkVector4 hkPos = physicsManager.GetPlayerPosition();
+		player->setPosition(hkPos(0), hkPos(1), hkPos(2));
 
 		if(count % 50 == 0)
 		{

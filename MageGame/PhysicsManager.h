@@ -46,6 +46,23 @@
 
 #include <Physics/Collide/Shape/Compound/Tree/hkpBvTreeShape.h>
 
+/////////////////////////////////////////////////////////////////////////////////////////////// Character Control
+#include <Physics/Utilities/CharacterControl/hkpCharacterControl.h>
+#include <Physics/Utilities/CharacterControl/hkpCharacterControllerCinfo.h>
+#include <Physics/Utilities/CharacterControl/CharacterRigidBody/hkpCharacterRigidBody.h>
+#include <Physics/Utilities/CharacterControl/CharacterRigidBody/hkpCharacterRigidBodyCinfo.h>
+#include <Physics/Utilities/CharacterControl/CharacterRigidBody/hkpCharacterRigidBodyListener.h>
+#include <Physics/Collide/Shape/Convex/Capsule/hkpCapsuleShape.h>
+
+#include <Physics/Utilities/CharacterControl/StateMachine/hkpCharacterState.h>
+#include <Physics/Utilities/CharacterControl/StateMachine/hkpCharacterContext.h>
+#include <Physics/Utilities/CharacterControl/StateMachine/hkpCharacterStateManager.h>
+#include <Physics/Utilities/CharacterControl/StateMachine/Climbing/hkpCharacterStateClimbing.h>
+#include <Physics/Utilities/CharacterControl/StateMachine/Flying/hkpCharacterStateFlying.h>
+#include <Physics/Utilities/CharacterControl/StateMachine/InAir/hkpCharacterStateInAir.h>
+#include <Physics/Utilities/CharacterControl/StateMachine/Jumping/hkpCharacterStateJumping.h>
+#include <Physics/Utilities/CharacterControl/StateMachine/OnGround/hkpCharacterStateOnGround.h>
+
 #include <stdio.h>
 #include <vector>
 #include <PolyVoxCore/MaterialDensityPair.h>
@@ -53,6 +70,7 @@
 #include <PolyVoxCore/CubicSurfaceExtractorWithNormals.h>
 #include <PolyVoxCore/SurfaceMesh.h>
 #include "GameGlobals.h"
+#include <OIS.h>
 #pragma endregion
 
 #define HAVOK_VISUAL_DEBUGGER_ENABLED
@@ -88,6 +106,8 @@ private:
 	hkpWorldCinfo m_worldInfo;
 
 	hkpWorld *world;///< The world that contains the landscape and player body
+	hkpCharacterRigidBody* m_characterRigidBody;
+	hkpCharacterContext* m_characterContext;
 
 	int chunkSize;
 	float worldScale;
@@ -96,6 +116,7 @@ private:
 	void deInitHavok();
 	void stepVisualDebugger(float deltaTime);
 	void registerVisualDebugger();
+	void initPlayer();
 
 	SimpleVolume<MaterialDensityPair44>* polyVolume;
 
@@ -114,6 +135,9 @@ public:
 	*/
 	void UpdateChunkRange(Vector3DInt32& start, Vector3DInt32& end);
 	void StepSimulation(float deltaTime);
+	void UpdatePlayer(OIS::Keyboard* keyboard, OIS::Mouse* mouse, hkQuaternion &orientation);
+
+	hkVector4 GetPlayerPosition();
 };
 
 #endif
