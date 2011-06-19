@@ -1,0 +1,24 @@
+vertex_program ColouredCubicVoxelVP cg
+{
+    source ColouredCubicVoxel.cg
+    entry_point ColouredCubicVoxelVP
+    profiles vs_3_0 vs_2_x vs_2_0 vs_1_1 vp40 vp30 vp20 arbvp1
+
+    default_params
+    {
+        param_named_auto world world_matrix
+        param_named_auto viewProj viewproj_matrix
+    }
+}
+
+
+fragment_program ColouredCubicVoxelFP cg
+{
+    source ColouredCubicVoxel.cg
+    entry_point ColouredCubicVoxelFP
+    profiles ps_3_x ps_3_0 ps_2_x ps_2_0 ps_1_4 ps_1_3 ps_1_2 ps_1_1 fp40 fp30 fp20 arbfp1
+
+    default_params
+    {
+    }
+}

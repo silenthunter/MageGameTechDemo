@@ -1,0 +1,25 @@
+material ColouredCubicVoxel
+{
+    technique
+    {               
+        pass
+        {                   
+            // Vertex program reference
+            vertex_program_ref ColouredCubicVoxelVP
+            {
+            }
+
+            // Fragment program
+            fragment_program_ref ColouredCubicVoxelFP
+            {
+            }   
+
+            texture_unit
+            {
+                texture Dirt.jpg 2d
+                filtering anisotropic
+                max_anisotropy 16
+            }       
+        }
+    }
+}
