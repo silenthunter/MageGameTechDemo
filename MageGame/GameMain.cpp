@@ -72,9 +72,21 @@ int main(int argc, char* argv[])
 		physicsManager.StepSimulation(elapsed);
 		Ogre::WindowEventUtilities::messagePump();
 
-#pragma region Keyboard Update
+#pragma region Mouse Update
 		Ogre::Vector3 mov(0, 0, 0);
 
+		m_Mouse->capture();
+		OIS::MouseState m_MouseState = m_Mouse->getMouseState();
+		OIS::Axis xAxis = m_MouseState.X;
+		OIS::Axis yAxis = m_MouseState.Y;
+
+		player->yaw(Degree(xAxis.rel / -2));
+		c_sn->pitch(Degree(yAxis.rel / -2));
+
+		mov = c_sn->_getDerivedOrientation() * mov;
+#pragma endregion
+
+#pragma region Keyboard Update
 		m_Keyboard->capture();
 		if(m_Keyboard->isKeyDown(OIS::KC_W))
 			mov.z -= speed * elapsed;
@@ -90,18 +102,7 @@ int main(int argc, char* argv[])
 			mov.y -= speed * elapsed;
 		if(m_Keyboard->isKeyDown(OIS::KC_ESCAPE))
 			return 0;
-#pragma endregion
 
-#pragma region Mouse Update
-		m_Mouse->capture();
-		OIS::MouseState m_MouseState = m_Mouse->getMouseState();
-		OIS::Axis xAxis = m_MouseState.X;
-		OIS::Axis yAxis = m_MouseState.Y;
-
-		player->yaw(Degree(xAxis.rel / -2));
-		c_sn->pitch(Degree(yAxis.rel / -2));
-
-		mov = c_sn->_getDerivedOrientation() * mov;
 		c_sn->translate(mov);
 #pragma endregion
 

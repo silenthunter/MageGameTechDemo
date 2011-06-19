@@ -190,7 +190,7 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 				for(size_t i = 0; i < numVertices; i++)
 				{
 					Vector3DFloat pos = vVertices[i].getPosition() * scale;
-					//pos += Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize);
+					pos += Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize);
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
 					obj->normal(vVertices[i].getNormal().getX(), vVertices[i].getNormal().getY(), vVertices[i].getNormal().getZ());
 				}
