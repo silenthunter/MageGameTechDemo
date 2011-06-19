@@ -34,6 +34,7 @@ PhysicsManager::PhysicsManager(SimpleVolume<MaterialDensityPair44> *volume)
 {
 	chunkSize = WorldDataMap["ChunkSize"];
 	initHavok();
+	initPlayer();
 
 	polyVolume = volume;
 	int x = polyVolume->getWidth() / chunkSize;
@@ -45,7 +46,6 @@ PhysicsManager::PhysicsManager(SimpleVolume<MaterialDensityPair44> *volume)
 	//Load the entire map
 	UpdateChunkRange(Vector3DInt32(0, 0, 0), Vector3DInt32(x, y, z));
 }
-
 
 PhysicsManager::~PhysicsManager(void)
 {
@@ -315,4 +315,168 @@ void PhysicsManager::stepVisualDebugger(float deltaTime)
 		m_pPhysicsContext->syncTimers( m_pThreadPool );
 		m_pVisualDebugger->step();
 	#endif	
+}
+
+void PhysicsManager::initPlayer()
+{
+	hkVector4 vertexA(0, 0.4f, 0);
+	hkVector4 vertexB(0, -0.4f, 0);
+
+	// Create a capsule to represent the character standing
+	hkpCapsuleShape* m_standShape = new hkpCapsuleShape(vertexA, vertexB, .6f);
+
+	// Create a capsule to represent the character crouching
+	// Note that we create the smaller capsule with the base at the same position as the larger capsule.		
+	vertexA.setZero4();
+
+
+	hkpCharacterRigidBodyCinfo info;
+	
+	info.m_mass = 100.0f;
+	info.m_maxForce = 100000.0f;
+	info.m_up = hkVector4(0, 1.0f, 0);
+	info.m_shape = m_standShape;
+	info.m_position = hkVector4(100, 300, 100);
+
+	info.m_maxSlope = 70.0f * HK_REAL_DEG_TO_RAD;
+
+	m_characterRigidBody = new hkpCharacterRigidBody( info );
+	{
+		hkpCharacterRigidBodyListener* listener = new hkpCharacterRigidBodyListener();
+		m_characterRigidBody->setListener( listener );
+		listener->removeReference();
+	}
+
+	// Create the Character state machine and context
+	{
+		hkpCharacterState* state;
+		hkpCharacterStateManager* manager = new hkpCharacterStateManager();
+
+		state = new hkpCharacterStateOnGround();
+		manager->registerState( state,	HK_CHARACTER_ON_GROUND);
+		state->removeReference();
+
+		state = new hkpCharacterStateInAir();
+		manager->registerState( state,	HK_CHARACTER_IN_AIR);
+		state->removeReference();
+
+		state = new hkpCharacterStateJumping();
+		manager->registerState( state,	HK_CHARACTER_JUMPING);
+		state->removeReference();
+
+		state = new hkpCharacterStateClimbing();
+		manager->registerState( state,	HK_CHARACTER_CLIMBING);
+		state->removeReference();
+
+		m_characterContext = new hkpCharacterContext( manager, HK_CHARACTER_ON_GROUND );
+		manager->removeReference();
+
+		// Set character type
+		m_characterContext->setCharacterType(hkpCharacterContext::HK_CHARACTER_RIGIDBODY);
+	}
+
+	world->lock();
+	world->addEntity( m_characterRigidBody->getRigidBody() );
+	world->unlock();
+}
+
+void PhysicsManager::UpdatePlayer(OIS::Keyboard* keyboard, OIS::Mouse* mouse, hkQuaternion &orientation)
+{
+	float m_timestep = 1.f/60.f;
+	hkpCharacterInput input;
+	hkpCharacterOutput output;
+	{
+		input.m_inputLR = 0;
+		input.m_inputUD = 0;
+
+		if(keyboard->isKeyDown(OIS::KC_W)) input.m_inputUD += 1;
+		if(keyboard->isKeyDown(OIS::KC_S)) input.m_inputUD -= 1;
+		if(keyboard->isKeyDown(OIS::KC_A)) input.m_inputLR -= 1;
+		if(keyboard->isKeyDown(OIS::KC_D)) input.m_inputLR += 1;
+
+		input.m_wantJump =  keyboard->isKeyDown(OIS::KC_SPACE);
+		input.m_atLadder = false;//atLadder;
+
+		hkVector4 UP = hkVector4(0, 1.f, 0);
+		input.m_up = UP;
+		input.m_forward.set(0,0,1.f);
+		input.m_forward.setRotatedDir(orientation, input.m_forward );//m_currentOrient
+
+		hkStepInfo stepInfo;
+		stepInfo.m_deltaTime = m_timestep;
+		stepInfo.m_invDeltaTime = 1.0f/m_timestep;
+			
+		input.m_stepInfo = stepInfo;
+
+		input.m_characterGravity.set(0,-9.8f,0);
+		input.m_velocity = m_characterRigidBody->getRigidBody()->getLinearVelocity();
+		input.m_position = m_characterRigidBody->getRigidBody()->getPosition();
+
+		world->lock();
+		m_characterRigidBody->checkSupport(stepInfo, input.m_surfaceInfo);
+
+		// Only climb the ladder when the character is either unsupported or wants to go up.
+		/*if ( atLadder && ( ( input.m_inputUD < 0 ) || ( input.m_surfaceInfo.m_supportedState != hkpSurfaceInfo::SUPPORTED ) ) )
+		{
+			hkVector4 right, ladderUp;
+			right.setCross( UP, ladderNorm );
+			ladderUp.setCross( ladderNorm, right );
+			// Calculate the up vector for the ladder
+			if (ladderUp.lengthSquared3() > HK_REAL_EPSILON)
+			{
+				ladderUp.normalize3();
+			}
+
+			// Reorient the forward vector so it points up along the ladder
+			input.m_forward.addMul4( -ladderNorm.dot3(input.m_forward), ladderNorm);
+			input.m_forward.add4( ladderUp );
+			input.m_forward.normalize3();
+
+			input.m_surfaceInfo.m_supportedState = hkpSurfaceInfo::UNSUPPORTED;
+			input.m_surfaceInfo.m_surfaceNormal = ladderNorm;
+			input.m_surfaceInfo.m_surfaceVelocity = ladderVelocity;
+				
+			HK_SET_OBJECT_COLOR( (hkUlong) m_characterRigidBody->getRigidBody()->getCollidable(), hkColor::rgbFromChars( 255, 255, 0, 100 ) );
+		}
+		else
+		{
+			// Change character rigid body color according to its state
+			if( input.m_surfaceInfo.m_supportedState == hkpSurfaceInfo::SUPPORTED )
+			{
+				HK_SET_OBJECT_COLOR( (hkUlong) m_characterRigidBody->getRigidBody()->getCollidable(), hkColor::rgbFromChars( 0, 255, 0, 100 ) );
+			}
+			else
+			{
+				HK_SET_OBJECT_COLOR( (hkUlong) m_characterRigidBody->getRigidBody()->getCollidable(), hkColor::BLUE );
+			}
+
+		}*/
+		HK_TIMER_END();
+	}
+
+	// Apply the character state machine
+	{
+		HK_TIMER_BEGIN( "update character state", HK_NULL );
+
+		m_characterContext->update( input, output );
+
+		HK_TIMER_END();
+	}
+
+	//Apply the player character controller
+	{
+		HK_TIMER_BEGIN( "simulate character", HK_NULL );
+
+		// Set output velocity from state machine into character rigid body
+		m_characterRigidBody->setLinearVelocity(output.m_velocity, m_timestep);
+
+		HK_TIMER_END();
+
+		world->unlock();
+	}
+}
+
+hkVector4 PhysicsManager::GetPlayerPosition()
+{
+	return m_characterRigidBody->getPosition();
 }
