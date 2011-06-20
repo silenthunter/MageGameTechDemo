@@ -84,6 +84,8 @@ int main(int argc, char* argv[])
 
 #pragma endregion
 
+		m_Keyboard->capture();
+
 		//Update physics character
 		Ogre::Quaternion playerOri = c_sn->_getDerivedOrientation();
 		physicsManager.UpdatePlayer(m_Keyboard, m_Mouse, hkQuaternion(playerOri.x, playerOri.y, playerOri.z, playerOri.w));
