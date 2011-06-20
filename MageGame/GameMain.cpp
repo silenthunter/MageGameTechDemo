@@ -15,7 +15,6 @@
 #include "PolyVoxCore/SimpleVolume.h"
 #include <PolyVoxUtil/VolumeChangeTracker.h>
 #include <PolyVoxCore/MeshDecimator.h>
-#include <PolyVoxCore/SurfaceExtractor.h>
 #include <Common/Base/hkBase.h>
 
 using PolyVox::SimpleVolume;
@@ -26,14 +25,15 @@ using Ogre::Degree;
 
 int main(int argc, char* argv[])
 {
-	ParseFile("GameFiles/WorldData.ini", WorldDataMap);
-	ParseFile("GameFiles/ItemData.ini", ItemDataMap);
-	ParseFile("GameFiles/CharacterData.ini", CharacterDataMap);
-	ParseFile("GameFiles/WorldGeneration.ini", WorldGenerationMap);
-	ParseFile("GameFiles/WaterData.ini", WaterDataMap);
+	ParseFile("GameData/WorldData.ini", WorldDataMap);
+	ParseFile("GameData/ItemData.ini", ItemDataMap);
+	ParseFile("GameData/CharacterData.ini", CharacterDataMap);
+	ParseFile("GameData/WorldGeneration.ini", WorldGenerationMap);
+	ParseFile("GameData/WaterData.ini", WaterDataMap);
 
 #pragma region Map Generation
-	utils::NoiseMap heightMap = GenerateRandomTerrainMap(-1, 8, 4);
+	NoiseGenerationInit(-1);
+	utils::NoiseMap heightMap = GenerateRandomTerrainMap(8, 4);
 #pragma endregion
 
 #pragma region GraphicsManager

@@ -16,7 +16,7 @@ utils::NoiseMap heightMap;
 utils::NoiseMapBuilderSphere heightMapBuilder;
 int currSeed;
 
-void Init(int seedVar)
+void NoiseGenerationInit(int seedVar)
 {
 	if(seedVar == -1)
 	{
@@ -28,14 +28,8 @@ void Init(int seedVar)
 	worldTerrain.SetOctaveCount(WorldGenerationMap["PerlinOctave"]);
 }
 
-utils::NoiseMap GenerateRandomTerrainMap(int seedVar, int width, int height)
+utils::NoiseMap GenerateRandomTerrainMap(int width, int height)
 {
-	if(seedVar == -1)
-	{
-		seedVar = time(0);
-	}
-	currSeed = seedVar;
-
 	/*
 	mt19937 randGen((time_t) seedVar);
 
@@ -104,8 +98,8 @@ utils::NoiseMap GenerateRandomTerrainMap(int seedVar, int width, int height)
 	finalTerrain.SetPower(terrainPowerRange(randGen)); //<value> determines the magnitude of these changes
 	*/
 
-	worldTerrain.SetSeed(currSeed);
-	worldTerrain.SetOctaveCount(WorldGenerationMap["PerlinOctave"]);
+	//worldTerrain.SetSeed(currSeed);
+	//worldTerrain.SetOctaveCount(WorldGenerationMap["PerlinOctave"]);
 
 	heightMapBuilder.SetSourceModule(worldTerrain);
 	heightMapBuilder.SetDestNoiseMap(heightMap);

@@ -3,10 +3,10 @@
 #include "noiseutils.h"
 
 //Input a custom seed or use -1 for a random seed using time(0)
-void Init(int seedVar);
+void NoiseGenerationInit(int seedVar);
 
 //Test function
-utils::NoiseMap GenerateRandomTerrainMap(int seedVar,int width = 16, int height = 8);
+utils::NoiseMap GenerateRandomTerrainMap(int width = 16, int height = 8);
 
 //Grab a chunk by inputing the next sequence of numbers.
 /*

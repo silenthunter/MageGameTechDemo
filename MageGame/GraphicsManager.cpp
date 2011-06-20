@@ -158,9 +158,10 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 				float texX = 0.f, texY = 0.f;
 				for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++, vecCnt++)
 				{
-					PolyVox::Vector3DFloat pos = (*vecItr).getPosition() * scale;
+					PolyVox::Vector3DFloat pos = vecItr->getPosition() * scale;
 					pos += Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize);
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
+					obj->normal(vecItr->getNormal().getX(), vecItr->getNormal().getY(), vecItr->getNormal().getZ());
 					obj->textureCoord(vecCnt / vecVertices.size(), vecCnt / vecVertices.size());
 				}
 

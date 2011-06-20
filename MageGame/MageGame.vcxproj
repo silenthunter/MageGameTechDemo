@@ -55,8 +55,11 @@
       <AdditionalDependencies>libnoise.lib;hkBase.lib;hkCompat.lib;hkGeometryUtilities.lib;hkInternal.lib;hkSceneData.lib;hkpConstraintSolver.lib;hkpCollide.lib;hkpDynamics.lib;hkpInternal.lib;hkpUtilities.lib;hkpVehicle.lib;hkSerialize.lib;hkVisualize.lib;OgreMain_d.lib;OIS_d.lib;PolyVoxCore_d.lib;PolyVoxUtil_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir "$(TargetDir)GameFiles\"
-copy /Y "$(ProjectDir)GameFiles\" "$(TargetDir)GameFiles\"
+      <Command>mkdir "$(TargetDir)GameData\"
+copy /Y "$(ProjectDir)GameData\" "$(TargetDir)GameData\"
+
+copy /Y "$(ProjectDir)Textures\" "$(TargetDir)"
+
 copy /Y "$(ProjectDir)plugins.cfg" "$(TargetDir)"
 copy /Y "$(ProjectDir)resources.cfg" "$(TargetDir)"
 copy /Y "$(SolutionDir)OGRE\Bin\debug" "$(TargetDir)"
@@ -76,6 +79,17 @@ copy /Y "$(ProjectDir)Libnoise\bin\libnoise.dll" "$(TargetDir)"</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>libnoise.lib;hkBase.lib;hkCompat.lib;hkGeometryUtilities.lib;hkInternal.lib;hkSceneData.lib;hkpConstraintSolver.lib;hkpCollide.lib;hkpDynamics.lib;hkpInternal.lib;hkpUtilities.lib;hkpVehicle.lib;hkSerialize.lib;hkVisualize.lib;OgreMain.lib;OIS.lib;PolyVoxCore.lib;PolyVoxUtil.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>mkdir "$(TargetDir)GameData\"
+copy /Y "$(ProjectDir)GameData\" "$(TargetDir)GameData\"
+
+copy /Y "$(ProjectDir)Textures\" "$(TargetDir)"
+
+copy /Y "$(ProjectDir)plugins.cfg" "$(TargetDir)"
+copy /Y "$(ProjectDir)resources.cfg" "$(TargetDir)"
+copy /Y "$(SolutionDir)OGRE\Bin\release" "$(TargetDir)"
+copy /Y "$(ProjectDir)Libnoise\bin\libnoise.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameGlobals.cpp" />
