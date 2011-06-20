@@ -332,8 +332,8 @@ void PhysicsManager::initPlayer()
 
 	hkpCharacterRigidBodyCinfo info;
 	
-	info.m_mass = 100.0f;
-	info.m_maxForce = 100000.0f;
+	info.m_mass = 10.0f;
+	info.m_maxForce = 1000.0f;
 	info.m_up = hkVector4(0, 1.0f, 0);
 	info.m_shape = m_standShape;
 	info.m_position = hkVector4(100, 300, 100);
@@ -361,6 +361,7 @@ void PhysicsManager::initPlayer()
 		state->removeReference();
 
 		state = new hkpCharacterStateJumping();
+		((hkpCharacterStateJumping*)state)->setJumpHeight(20);
 		manager->registerState( state,	HK_CHARACTER_JUMPING);
 		state->removeReference();
 

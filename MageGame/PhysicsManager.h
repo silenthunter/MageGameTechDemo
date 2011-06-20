@@ -134,9 +134,27 @@ public:
 		@sa UpdateChunk
 	*/
 	void UpdateChunkRange(Vector3DInt32& start, Vector3DInt32& end);
+
+	/**
+	@brief Updates the Havok by a specified time
+	@details A multithreaded step is called, advancing the physics engine by the inputed time
+	@param deltaTime How much time to simulate
+	@remark Havok runs optimally using a timestep of 1.f/60.f
+	*/
 	void StepSimulation(float deltaTime);
+
+	/**
+	@brief Updates Havok's physics character based on input passed in from OIS objects
+	@param keyboard Keyboard state
+	@param mouse Mouse state
+	@param orientation Current orientation of the Ogre character in the game world
+	*/
 	void UpdatePlayer(OIS::Keyboard* keyboard, OIS::Mouse* mouse, hkQuaternion &orientation);
 
+	/**
+	@brief Returns the physics character's position
+	@return Player position
+	*/
 	hkVector4 GetPlayerPosition();
 };
 
