@@ -130,14 +130,11 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 	int widthChunks = heightMap.GetWidth() / chunkSize;
 	int heightChunks = heightMap.GetHeight() / chunkSize;
 	int depthChunks = 4;
-	bool sortafirstLoop = true;
-	bool firstLoop = false;
 
 	for(int i = 0; i < heightChunks; i++)
 	{
 		for(int j = 0; j < widthChunks; j++)
 		{
-
 			for(int k = 0; k < depthChunks; k++)
 			{
 				Vector3DInt32 start(j * chunkSize, k * chunkSize, i * chunkSize);
@@ -147,82 +144,24 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 				CubicSurfaceExtractorWithNormals<SimpleVolume, MaterialDensityPair44> surfaceExtractor(&volData, Region(start, end), &mesh);
 				surfaceExtractor.execute();
 
-				ManualObject *obj = manager->createManualObject();
-
-				size_t numVertices = mesh.getNoOfVertices();
-				size_t numIndices = mesh.getNoOfIndices();
-
-				obj->estimateVertexCount(numVertices);
-				obj->estimateIndexCount(numIndices);
-
-				//std::vector<uint32_t> vecIndices = mesh.getIndices();
-				//std::vector<PositionMaterialNormal> vecVertices = mesh.getVertices();
-
-				if(numVertices > 0) firstLoop = true;
-
-				/*
-				hkpExtendedMeshShape::TrianglesSubpart subPart;
-				float* vert;
-				unsigned long *ind;
-				hkpExtendedMeshShape *shp;
-
-				if(firstLoop)
-				{
-					shp = new hkpExtendedMeshShape();
-					subPart.m_numVertices = vecVertices.size() * 3;
-					subPart.m_numTriangleShapes = vecIndices.size() / 3;
-					subPart.m_vertexStriding = sizeof(float) * 3;
-					subPart.m_indexStriding = sizeof(unsigned long) * 3;
-					vert = new float[subPart.m_numVertices];
-					ind = new unsigned long[subPart.m_numTriangleShapes * 3];
-
-				}
-				*/
+				vector<uint32_t> vecIndices = mesh.getIndices();
+				vector<PositionMaterialNormal> vecVertices = mesh.getVertices();
 
 				char str[50];
-
 				sprintf(str, "%d-%d-%d", i, j, k);
 
-				obj->begin("ColouredCubicVoxel", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+				ManualObject *obj = manager->createManualObject();
+				obj->begin("Dirt", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
-				// vertices
-				const vector<PositionMaterialNormal>& vVertices = mesh.getVertices();
-				for(size_t i = 0; i < numVertices; i++)
-				{
-					Vector3DFloat pos = vVertices[i].getPosition() * scale;
-					pos += Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize);
-					obj->position(pos.getX(), pos.getY(), pos.getZ());
-					obj->normal(vVertices[i].getNormal().getX(), vVertices[i].getNormal().getY(), vVertices[i].getNormal().getZ());
-				}
-
-				// indices
-				const std::vector<uint32_t>& vIndices = mesh.getIndices();
-				for(size_t i = 0; i < numIndices; i++)
-				{
-					obj->index(vIndices[i]);
-				}
-
-				/*
 				float vecCnt = 0;
 				std::vector<PositionMaterialNormal>::iterator vecItr;
 				float texX = 0.f, texY = 0.f;
 				for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++, vecCnt++)
 				{
 					PolyVox::Vector3DFloat pos = (*vecItr).getPosition() * scale;
-					pos += Vector3DFloat(j * chunkSize, k * chunkSize, i* chunkSize);
+					pos += Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize);
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
 					obj->textureCoord(vecCnt / vecVertices.size(), vecCnt / vecVertices.size());
-					obj->normal((*vecItr).getNormal().getX(), (*vecItr).getNormal().getY(), (*vecItr).getNormal().getZ());
-				*/
-					/*
-					if(firstLoop)
-					{
-						vert[(int)vecCnt * 3 + 0] = pos.getX();
-						vert[(int)vecCnt * 3 + 1] = pos.getY();
-						vert[(int)vecCnt * 3 + 2] = pos.getZ();
-					}
-					*/
-				/*
 				}
 
 				std::vector<uint32_t>::iterator indVec;
@@ -230,63 +169,18 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 				for(indVec = vecIndices.begin(); indVec != vecIndices.end(); indVec++, indCnt++)
 				{
 					obj->index(*indVec);
-					//if(firstLoop) ind[indCnt] = *indVec;
 				}
-				*/
+
 				obj->end();
 
 				string strName(str);
 				manualObjects[strName] = obj;
-
 				root_sn->attachObject(obj);
-
-				/*
-				if(firstLoop)
-				{
-					subPart.m_vertexBase = vert;
-					subPart.m_indexBase = ind;
-					subPart.m_stridingType = hkpExtendedMeshShape::INDICES_INT32;
-					shp->addTrianglesSubpart(subPart);
-					sortafirstLoop = false;
-
-					hkpMoppCompilerInput mci;
-
-					hkpRigidBodyCinfo info;
-
-					hkpMoppCode *code = hkpMoppUtility::buildCode(shp, mci);
-
-					hkpMoppBvTreeShape* moppShape = new hkpMoppBvTreeShape(shp, code);
-
-					hkVector4 dimensions(50.f, 2.f, 50.f);
-					hkpConvexShape *shape = new hkpBoxShape(dimensions, 0);
-
-					//hkpBvTreeShape *sshp = new hkpBvTreeShape();
-
-					//hkpShape* shapeUsed = shp;
-
-					info.m_motionType = hkpMotion::MOTION_FIXED;
-					info.m_shape = moppShape;
-					info.m_position = hkVector4(0, 0, 0);
-
-					hkpRigidBody *body = new hkpRigidBody(info);
-
-					world->lock();
-					world->addEntity(body);
-					body->removeReference();
-					shp->removeReference();
-
-					world->unlock();
-				}
-				*/
-
-				firstLoop = false;
 			}
-
 			printf("#");
 		}
 		printf("\n");
 	}
-
 }
 
 void GraphicsManager::SetUpWindow(string name)
