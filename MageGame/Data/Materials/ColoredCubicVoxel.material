@@ -2,7 +2,7 @@ vertex_program VP cg
 {
     source ColoredCubicVoxel.cg
     entry_point ColoredCubicVoxelVP
-    profiles vs_2_0 arbvp1
+    profiles vs_3_0
 
     default_params
     {
@@ -15,7 +15,7 @@ fragment_program FP cg
 {
     source ColoredCubicVoxel.cg
     entry_point ColoredCubicVoxelFP
-    profiles ps_2_0 arbfp1
+    profiles ps_3_0
 	
     default_params
     {
@@ -28,19 +28,17 @@ material ColouredCubicVoxel
     {               
         pass
         {                   
-            // Vertex program reference
             vertex_program_ref VP
             {
             }
 
-            // Fragment program
             fragment_program_ref FP
             {
             }   
 
             texture_unit
             {
-                texture Dirt.jpg 2d
+                texture Dirt.png 2d
                 filtering anisotropic
                 max_anisotropy 16
             }       

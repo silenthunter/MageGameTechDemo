@@ -36,7 +36,7 @@ void GraphicsManager::init()
 	string resourcesFile = "resources.cfg";
 
 	root = new Ogre::Root(pluginsFile, configFile, logFile);
-	root->setRenderSystem(root->getRenderSystemByName("OpenGL Rendering Subsystem"));
+	root->setRenderSystem(root->getRenderSystemByName("Direct3D9 Rendering Subsystem"));
 	root->initialise(false);
 
 	ConfigFile cf;
@@ -66,8 +66,8 @@ void GraphicsManager::SetUpCamera()
 	manager = root->createSceneManager(Ogre::ST_GENERIC, "main");
 	root_sn = manager->getRootSceneNode();
 	manager->setShadowTechnique(Ogre::ShadowTechnique::SHADOWTYPE_STENCIL_ADDITIVE);
-	root_sn->setScale(.1, .1, .1);
-	manager->setAmbientLight(Ogre::ColourValue(1, 1, 1)); //Ambient light set here
+	//root_sn->setScale(.1, .1, .1);
+	manager->setAmbientLight(Ogre::ColourValue(.5, .5, .5)); //Ambient light set here
 
 	//set up camera
 	player = manager->createSceneNode("Player");
@@ -152,35 +152,45 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 				CubicSurfaceExtractorWithNormals<SimpleVolume, MaterialDensityPair44> surfaceExtractor(&volData, Region(start, end), &mesh);
 				surfaceExtractor.execute();
 
+				ManualObject *obj = manager->createManualObject(); //Declare the manual object
+
+				//Estimate the vertex count to make it easier
+				obj->estimateVertexCount(mesh.getNoOfVertices());
+				obj->estimateIndexCount(mesh.getNoOfIndices());
+
+				//Get both the index and vertex data
 				vector<uint32_t> vecIndices = mesh.getIndices();
 				vector<PositionMaterialNormal> vecVertices = mesh.getVertices();
-
+				
+				//Print current chunk information
 				char str[50];
 				sprintf(str, "%d-%d-%d", i, j, k);
 
-				ManualObject *obj = manager->createManualObject();
-				obj->begin("Dirt", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+				//Set the object with the render operation and the .material
+				obj->begin("ColoredCubicVoxel", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
+				//Work with the vertices
 				float vecCnt = 0;
-				std::vector<PositionMaterialNormal>::iterator vecItr;
+				vector<PositionMaterialNormal>::iterator vecItr;
 				float texX = 0.f, texY = 0.f;
 				for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++, vecCnt++)
 				{
 					PolyVox::Vector3DFloat pos = vecItr->getPosition() * scale;
 					pos += Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize);
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
-					obj->normal(vecItr->getNormal().getX(), vecItr->getNormal().getY(), vecItr->getNormal().getZ());
-					obj->textureCoord(vecCnt / vecVertices.size(), vecCnt / vecVertices.size());
+					const PolyVox::Vector3DFloat& normal = vecItr->getNormal();
+					obj->normal(normal.getX(), normal.getY(), normal.getZ());
+					//obj->textureCoord(vecCnt / vecVertices.size(), vecCnt / vecVertices.size());
 				}
 
-				std::vector<uint32_t>::iterator indVec;
-				int indCnt = 0;
-				for(indVec = vecIndices.begin(); indVec != vecIndices.end(); indVec++, indCnt++)
+				//Work with the indices
+				vector<uint32_t>::iterator indVec;
+				for(indVec = vecIndices.begin(); indVec != vecIndices.end(); indVec++)
 				{
 					obj->index(*indVec);
 				}
 
-				obj->end();
+				obj->end(); //Done with the manual object
 
 				string strName(str);
 				manualObjects[strName] = obj;

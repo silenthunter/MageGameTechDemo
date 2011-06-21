@@ -1,14 +1,13 @@
 void ColoredCubicVoxelVP(
-    float4 inPosition    			: POSITION,
-    float4 inNormal        			: NORMAL,
+    float4 inPosition			: POSITION,
+    float4 inNormal				: NORMAL,
 
-    out float4 outClipPosition		: POSITION,
-    out float4 outWorldPosition    	: TEXCOORD0,
-    out float4 outWorldNormal    	: TEXCOORD1,
+    out float4 outClipPosition	: POSITION,
+    out float4 outWorldPosition	: TEXCOORD0,
+    out float4 outWorldNormal	: TEXCOORD1,
 
     uniform float4x4 world,
-    uniform float4x4 viewProj
-    )
+    uniform float4x4 viewProj)
 {   
     //Compute the world space position
     outWorldPosition = mul(world, inPosition);   
@@ -36,32 +35,32 @@ void ColoredCubicVoxelFP(
     //World position is used as texture coordinates. Choose which
     //two components of world position to use based on normal. Could
     //optionally use a different texture for each face here as well.
-    if(inWorldNormal. x > 0.5)
+    if(inWorldNormal.x > 0.5)
     {
         col = tex2D(heightMap, inWorldPosition.yz);
     }
    
-    if(inWorldNormal. x < -0.5)
+    if(inWorldNormal.x < -0.5)
     {
         col = tex2D(heightMap, inWorldPosition.yz);
     }
    
-    if(inWorldNormal. y > 0.5)
+    if(inWorldNormal.y > 0.5)
     {
         col = tex2D(heightMap, inWorldPosition.xz);
     }
    
-    if(inWorldNormal. y < -0.5)
+    if(inWorldNormal.y < -0.5)
     {
         col = tex2D(heightMap, inWorldPosition.xz);
     }
    
-    if(inWorldNormal. z > 0.5)
+    if(inWorldNormal.z > 0.5)
     {
         col = tex2D(heightMap, inWorldPosition.xy);
     }
    
-    if(inWorldNormal. z < -0.5)
+    if(inWorldNormal.z < -0.5)
     {
         col = tex2D(heightMap, inWorldPosition.xy);
     }
