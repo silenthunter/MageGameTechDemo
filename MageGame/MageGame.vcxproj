@@ -55,10 +55,19 @@
       <AdditionalDependencies>libnoise.lib;hkBase.lib;hkCompat.lib;hkGeometryUtilities.lib;hkInternal.lib;hkSceneData.lib;hkpConstraintSolver.lib;hkpCollide.lib;hkpDynamics.lib;hkpInternal.lib;hkpUtilities.lib;hkpVehicle.lib;hkSerialize.lib;hkVisualize.lib;OgreMain_d.lib;OIS_d.lib;PolyVoxCore_d.lib;PolyVoxUtil_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir "$(TargetDir)GameData\"
-copy /Y "$(ProjectDir)GameData\" "$(TargetDir)GameData\"
+      <Command>mkdir "$(TargetDir)Data\"
 
-copy /Y "$(ProjectDir)Textures\" "$(TargetDir)"
+mkdir "$(TargetDir)Data\GameInfo\"
+copy /Y "$(ProjectDir)Data\GameInfo\" "$(TargetDir)Data\GameInfo\"
+
+mkdir "$(TargetDir)Data\Materials\"
+copy /Y "$(ProjectDir)Data\Materials\" "$(TargetDir)Data\Materials\"
+
+mkdir "$(TargetDir)Data\Shaders\"
+copy /Y "$(ProjectDir)Data\Shaders\" "$(TargetDir)Data\Shaders\"
+
+mkdir "$(TargetDir)Data\Textures\"
+copy /Y "$(ProjectDir)Data\Textures\" "$(TargetDir)Data\Textures\"
 
 copy /Y "$(ProjectDir)plugins.cfg" "$(TargetDir)"
 copy /Y "$(ProjectDir)resources.cfg" "$(TargetDir)"
@@ -80,14 +89,23 @@ copy /Y "$(ProjectDir)Libnoise\bin\libnoise.dll" "$(TargetDir)"</Command>
       <AdditionalDependencies>libnoise.lib;hkBase.lib;hkCompat.lib;hkGeometryUtilities.lib;hkInternal.lib;hkSceneData.lib;hkpConstraintSolver.lib;hkpCollide.lib;hkpDynamics.lib;hkpInternal.lib;hkpUtilities.lib;hkpVehicle.lib;hkSerialize.lib;hkVisualize.lib;OgreMain.lib;OIS.lib;PolyVoxCore.lib;PolyVoxUtil.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir "$(TargetDir)GameData\"
-copy /Y "$(ProjectDir)GameData\" "$(TargetDir)GameData\"
+      <Command>mkdir "$(TargetDir)Data\"
 
-copy /Y "$(ProjectDir)Textures\" "$(TargetDir)"
+mkdir "$(TargetDir)Data\GameInfo\"
+copy /Y "$(ProjectDir)Data\GameInfo\" "$(TargetDir)Data\GameInfo\"
+
+mkdir "$(TargetDir)Data\Materials\"
+copy /Y "$(ProjectDir)Data\Materials\" "$(TargetDir)Data\Materials\"
+
+mkdir "$(TargetDir)Data\Shaders\"
+copy /Y "$(ProjectDir)Data\Shaders\" "$(TargetDir)Data\Shaders\"
+
+mkdir "$(TargetDir)Data\Textures\"
+copy /Y "$(ProjectDir)Data\Textures\" "$(TargetDir)Data\Textures\"
 
 copy /Y "$(ProjectDir)plugins.cfg" "$(TargetDir)"
 copy /Y "$(ProjectDir)resources.cfg" "$(TargetDir)"
-copy /Y "$(SolutionDir)OGRE\Bin\release" "$(TargetDir)"
+copy /Y "$(SolutionDir)OGRE\Bin\debug" "$(TargetDir)"
 copy /Y "$(ProjectDir)Libnoise\bin\libnoise.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

@@ -36,7 +36,7 @@ void GraphicsManager::init()
 	string resourcesFile = "resources.cfg";
 
 	root = new Ogre::Root(pluginsFile, configFile, logFile);
-	root->setRenderSystem(root->getRenderSystemByName("Direct3D9 Rendering Subsystem"));
+	root->setRenderSystem(root->getRenderSystemByName("OpenGL Rendering Subsystem"));
 	root->initialise(false);
 
 	ConfigFile cf;
@@ -124,6 +124,12 @@ Ogre::Quaternion GraphicsManager::GetPlayerRotation()
 	return c_sn->getChild(0)->_getDerivedOrientation();
 }
 
+struct s_block
+{
+	int dir;
+	string name;
+};
+
 void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDensityPair44>& volData, utils::NoiseMap& heightMap)
 {
 	float scale = 1.f;
@@ -151,7 +157,7 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 				sprintf(str, "%d-%d-%d", i, j, k);
 
 				ManualObject *obj = manager->createManualObject();
-				obj->begin("Dirt", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+				obj->begin("ColoredCubicVoxel", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
 				float vecCnt = 0;
 				std::vector<PositionMaterialNormal>::iterator vecItr;
@@ -162,7 +168,7 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 					pos += Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize);
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
 					obj->normal(vecItr->getNormal().getX(), vecItr->getNormal().getY(), vecItr->getNormal().getZ());
-					obj->textureCoord(vecCnt / vecVertices.size(), vecCnt / vecVertices.size());
+					//obj->textureCoord(vecCnt / vecVertices.size(), vecCnt / vecVertices.size());
 				}
 
 				std::vector<uint32_t>::iterator indVec;

@@ -25,11 +25,11 @@ using Ogre::Degree;
 
 int main(int argc, char* argv[])
 {
-	ParseFile("GameData/WorldData.ini", WorldDataMap);
-	ParseFile("GameData/ItemData.ini", ItemDataMap);
-	ParseFile("GameData/CharacterData.ini", CharacterDataMap);
-	ParseFile("GameData/WorldGeneration.ini", WorldGenerationMap);
-	ParseFile("GameData/WaterData.ini", WaterDataMap);
+	ParseFile("Data/GameInfo/WorldData.ini", WorldDataMap);
+	ParseFile("Data/GameInfo/ItemData.ini", ItemDataMap);
+	ParseFile("Data/GameInfo/CharacterData.ini", CharacterDataMap);
+	ParseFile("Data/GameInfo/WorldGeneration.ini", WorldGenerationMap);
+	ParseFile("Data/GameInfo/WaterData.ini", WaterDataMap);
 
 #pragma region Map Generation
 	NoiseGenerationInit(-1);
