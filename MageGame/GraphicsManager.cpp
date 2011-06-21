@@ -84,8 +84,10 @@ void GraphicsManager::SetUpCamera()
 	c_sn = manager->createSceneNode("main_camera");
 
 	Ogre::Light *l = new Ogre::Light("PlayerLight");
-	l->setType(Ogre::Light::LightTypes::LT_POINT);
+	l->setType(Ogre::Light::LightTypes::LT_SPOTLIGHT);
 	l->setDiffuseColour(1, 1, 1);
+	l->setSpecularColour(1, 1, 1);
+	l->setDirection(Vector3(0, 0, -1));
 	c_sn->attachObject(l);
 
 	root_sn->addChild(player);
@@ -157,7 +159,7 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 				sprintf(str, "%d-%d-%d", i, j, k);
 
 				ManualObject *obj = manager->createManualObject();
-				obj->begin("ColoredCubicVoxel", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+				obj->begin("Dirt", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
 				float vecCnt = 0;
 				std::vector<PositionMaterialNormal>::iterator vecItr;
@@ -168,7 +170,7 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 					pos += Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize);
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
 					obj->normal(vecItr->getNormal().getX(), vecItr->getNormal().getY(), vecItr->getNormal().getZ());
-					//obj->textureCoord(vecCnt / vecVertices.size(), vecCnt / vecVertices.size());
+					obj->textureCoord(vecCnt / vecVertices.size(), vecCnt / vecVertices.size());
 				}
 
 				std::vector<uint32_t>::iterator indVec;
