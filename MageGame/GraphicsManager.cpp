@@ -67,7 +67,7 @@ void GraphicsManager::SetUpCamera()
 	root_sn = manager->getRootSceneNode();
 	manager->setShadowTechnique(Ogre::ShadowTechnique::SHADOWTYPE_STENCIL_ADDITIVE);
 	//root_sn->setScale(.1, .1, .1);
-	manager->setAmbientLight(Ogre::ColourValue(.5, .5, .5)); //Ambient light set here
+	manager->setAmbientLight(Ogre::ColourValue(1, 1, 1)); //Ambient light set here
 
 	//set up camera
 	player = manager->createSceneNode("Player");
@@ -84,10 +84,8 @@ void GraphicsManager::SetUpCamera()
 	c_sn = manager->createSceneNode("main_camera");
 
 	Ogre::Light *l = new Ogre::Light("PlayerLight");
-	l->setType(Ogre::Light::LightTypes::LT_SPOTLIGHT);
+	l->setType(Ogre::Light::LightTypes::LT_POINT);
 	l->setDiffuseColour(1, 1, 1);
-	l->setSpecularColour(1, 1, 1);
-	l->setDirection(Vector3(0, 0, -1));
 	c_sn->attachObject(l);
 
 	root_sn->addChild(player);
@@ -137,7 +135,15 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 	float scale = 1.f;
 	int widthChunks = heightMap.GetWidth() / chunkSize;
 	int heightChunks = heightMap.GetHeight() / chunkSize;
+	//int widthChunks = 8;
+	//int heightChunks = 4;
 	int depthChunks = 4;
+
+	/*
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	*/
 
 	for(int i = 0; i < heightChunks; i++)
 	{
@@ -146,6 +152,7 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 			for(int k = 0; k < depthChunks; k++)
 			{
 				Vector3DInt32 start(j * chunkSize, k * chunkSize, i * chunkSize);
+				//Vector3DInt32 end((j + widthChunks) * chunkSize, (k + depthChunks) * chunkSize, (i + heightChunks) * chunkSize);
 				Vector3DInt32 end((j + 1) * chunkSize, (k + 1) * chunkSize, (i + 1) * chunkSize);
 
 				SurfaceMesh<PositionMaterialNormal> mesh;
@@ -167,19 +174,18 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 				sprintf(str, "%d-%d-%d", i, j, k);
 
 				//Set the object with the render operation and the .material
-				obj->begin("ColoredCubicVoxel", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+				obj->begin("VoxelTexture", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
 				//Work with the vertices
 				float vecCnt = 0;
 				vector<PositionMaterialNormal>::iterator vecItr;
-				float texX = 0.f, texY = 0.f;
 				for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++, vecCnt++)
 				{
 					PolyVox::Vector3DFloat pos = vecItr->getPosition() * scale;
 					pos += Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize);
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
-					const PolyVox::Vector3DFloat& normal = vecItr->getNormal();
-					obj->normal(normal.getX(), normal.getY(), normal.getZ());
+					//const PolyVox::Vector3DFloat& normal = vecItr->getNormal();
+					//obj->normal(normal.getX(), normal.getY(), normal.getZ());
 					//obj->textureCoord(vecCnt / vecVertices.size(), vecCnt / vecVertices.size());
 				}
 

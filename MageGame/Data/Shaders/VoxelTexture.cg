@@ -1,0 +1,64 @@
+#define VOXELCENTEROFFSET 0.5
+
+void voxeltexture_vp(
+	float4 inPosition			: POSITION,
+
+	out float4 outPosition  	: POSITION,
+	out float4 outWorldPosition	: TEXCOORD0,
+
+	uniform float4x4 world,
+	uniform float4x4 viewProj)
+{
+	outWorldPosition = mul(world, inPosition);
+	
+	outPosition = mul(viewProj, outWorldPosition);
+}
+
+void voxeltexture_fp(
+	float4 inWorldPosition    	: TEXCOORD0,
+
+	out float4 color			: COLOR,
+
+	uniform sampler2D texture)
+{
+	float3 worldNormal = cross(ddy(inWorldPosition.xyz), ddx(inWorldPosition.xyz));
+	worldNormal = normalize(worldNormal);
+	//Right
+    if(worldNormal.x > 0.5)
+    {
+		float4 col;
+        col = tex2D(texture, inWorldPosition.yz + VOXELCENTEROFFSET);
+		color = col + float4(1.0, 0.0, 0.0, 0.0);
+    }
+	//Left
+	if(worldNormal.x < -0.5)
+    {
+		float4 col;
+        col = tex2D(texture, inWorldPosition.yz + VOXELCENTEROFFSET);
+		color = col + float4(1.0, 0.0, 1.0, 0.0);
+    }
+	//Top
+    if(worldNormal.y > 0.5)
+    {
+        color = tex2D(texture, inWorldPosition.xz + VOXELCENTEROFFSET);
+    }
+	//Bottom
+    if(worldNormal.y < -0.5)
+    {
+        color = tex2D(texture, inWorldPosition.xz + VOXELCENTEROFFSET);
+    }
+	//Front
+    if(worldNormal.z > 0.5)
+    {
+		float4 col;
+        col = tex2D(texture, inWorldPosition.xy + VOXELCENTEROFFSET);
+		color = col + float4(1.0, 1.0, 0.0, 0.0);
+    }
+	//Back
+    if(worldNormal.z < -0.5)
+    {
+		float4 col;
+        col = tex2D(texture, inWorldPosition.xy + VOXELCENTEROFFSET);
+		color = col + float4(0.0, 1.0, 0.0, 0.0);
+    }
+}

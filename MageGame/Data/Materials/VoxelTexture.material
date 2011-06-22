@@ -1,0 +1,44 @@
+vertex_program VoxelTexture_VP cg
+{
+	source VoxelTexture.cg
+	entry_point voxeltexture_vp
+	profiles vs_1_1
+
+	default_params
+    {
+		param_named_auto world world_matrix
+		param_named_auto viewProj viewproj_matrix
+    }
+}
+
+fragment_program VoxelTexture_FP cg
+{
+	source VoxelTexture.cg
+	entry_point voxeltexture_fp
+	profiles ps_2_x ps_2_0
+}
+
+material VoxelTexture
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			vertex_program_ref VoxelTexture_VP
+			{
+			}
+			
+			fragment_program_ref VoxelTexture_FP
+			{
+			}
+			
+			texture_unit
+			{
+				texture Dirt.png 2d
+				filtering anisotropic
+                max_anisotropy 16
+			}
+		}
+	}
+}

@@ -25,7 +25,6 @@ public:
 	Ogre::Root* GetRoot();
 	Ogre::Quaternion GetPlayerRotation();
 	void LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDensityPair44>& volData, utils::NoiseMap& heightMap);
-
 	//Variables
 
 private:

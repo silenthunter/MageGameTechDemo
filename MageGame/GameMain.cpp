@@ -96,6 +96,8 @@ int main(int argc, char* argv[])
 
 		if(count % 50 == 0)
 		{
+			cout << hkPos(0) << ", " << hkPos(1) << ", " << hkPos(2) << endl;
+
 			printf("FPS: %f\n", 1/elapsed);
 			//std::cout << getCurrentChunk(&physicsManager, &world);
 
