@@ -24,41 +24,39 @@ void voxeltexture_fp(
 	float3 worldNormal = cross(ddy(inWorldPosition.xyz), ddx(inWorldPosition.xyz));
 	worldNormal = normalize(worldNormal);
 	//Right
-    if(worldNormal.x > 0.5)
+    if(worldNormal.x > 0.0)
     {
 		float4 col;
-        col = tex2D(texture, inWorldPosition.yz + VOXELCENTEROFFSET);
+        col = tex2D(texture, float2((1 - inWorldPosition.z) + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
 		color = col + float4(1.0, 0.0, 0.0, 0.0);
     }
 	//Left
-	if(worldNormal.x < -0.5)
+	if(worldNormal.x < 0.0)
     {
 		float4 col;
-        col = tex2D(texture, inWorldPosition.yz + VOXELCENTEROFFSET);
+        col = tex2D(texture, float2(inWorldPosition.z + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
 		color = col + float4(1.0, 0.0, 1.0, 0.0);
     }
 	//Top
-    if(worldNormal.y > 0.5)
+    if(worldNormal.y > 0.0)
     {
         color = tex2D(texture, inWorldPosition.xz + VOXELCENTEROFFSET);
     }
 	//Bottom
-    if(worldNormal.y < -0.5)
+    if(worldNormal.y < 0.0)
     {
-        color = tex2D(texture, inWorldPosition.xz + VOXELCENTEROFFSET);
+        color = tex2D(texture, float2((1 - inWorldPosition.x) + VOXELCENTEROFFSET, inWorldPosition.z + VOXELCENTEROFFSET));
     }
 	//Front
-    if(worldNormal.z > 0.5)
+    if(worldNormal.z > 0.0)
     {
-		float4 col;
-        col = tex2D(texture, inWorldPosition.xy + VOXELCENTEROFFSET);
-		color = col + float4(1.0, 1.0, 0.0, 0.0);
+        color = tex2D(texture, float2(inWorldPosition.x + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
     }
 	//Back
-    if(worldNormal.z < -0.5)
+    if(worldNormal.z < 0.0)
     {
 		float4 col;
-        col = tex2D(texture, inWorldPosition.xy + VOXELCENTEROFFSET);
+        col = tex2D(texture, float2((1 - inWorldPosition.x) + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
 		color = col + float4(0.0, 1.0, 0.0, 0.0);
     }
 }
