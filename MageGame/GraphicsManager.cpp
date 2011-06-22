@@ -6,12 +6,11 @@ using Ogre::Vector3;
 using Ogre::ManualObject;
 
 using PolyVox::SimpleVolume;
-using PolyVox::MaterialDensityPair44;
 using PolyVox::Vector3DInt32;
 using PolyVox::Vector3DFloat;
 using PolyVox::SurfaceMesh;
-using PolyVox::PositionMaterialNormal;
-using PolyVox::CubicSurfaceExtractorWithNormals;
+using PolyVox::PositionMaterial;
+using PolyVox::CubicSurfaceExtractor;
 using PolyVox::Region;
 
 GraphicsManager::GraphicsManager(void)
@@ -130,20 +129,12 @@ struct s_block
 	string name;
 };
 
-void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDensityPair44>& volData, utils::NoiseMap& heightMap)
+void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<VoxelMat>& volData, utils::NoiseMap& heightMap)
 {
 	float scale = 1.f;
 	int widthChunks = heightMap.GetWidth() / chunkSize;
 	int heightChunks = heightMap.GetHeight() / chunkSize;
-	//int widthChunks = 8;
-	//int heightChunks = 4;
 	int depthChunks = 4;
-
-	/*
-	int i = 0;
-	int j = 0;
-	int k = 0;
-	*/
 
 	for(int i = 0; i < heightChunks; i++)
 	{
@@ -152,11 +143,10 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 			for(int k = 0; k < depthChunks; k++)
 			{
 				Vector3DInt32 start(j * chunkSize, k * chunkSize, i * chunkSize);
-				//Vector3DInt32 end((j + widthChunks) * chunkSize, (k + depthChunks) * chunkSize, (i + heightChunks) * chunkSize);
 				Vector3DInt32 end((j + 1) * chunkSize, (k + 1) * chunkSize, (i + 1) * chunkSize);
 
-				SurfaceMesh<PositionMaterialNormal> mesh;
-				CubicSurfaceExtractorWithNormals<SimpleVolume, MaterialDensityPair44> surfaceExtractor(&volData, Region(start, end), &mesh);
+				SurfaceMesh<PositionMaterial> mesh;
+				CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(&volData, Region(start, end), &mesh);
 				surfaceExtractor.execute();
 
 				ManualObject *obj = manager->createManualObject(); //Declare the manual object
@@ -167,7 +157,7 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 
 				//Get both the index and vertex data
 				vector<uint32_t> vecIndices = mesh.getIndices();
-				vector<PositionMaterialNormal> vecVertices = mesh.getVertices();
+				vector<PositionMaterial> vecVertices = mesh.getVertices();
 				
 				//Print current chunk information
 				char str[50];
@@ -178,7 +168,7 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 
 				//Work with the vertices
 				float vecCnt = 0;
-				vector<PositionMaterialNormal>::iterator vecItr;
+				vector<PositionMaterial>::iterator vecItr;
 				for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++, vecCnt++)
 				{
 					PolyVox::Vector3DFloat pos = vecItr->getPosition() * scale;
@@ -186,7 +176,6 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
 					//const PolyVox::Vector3DFloat& normal = vecItr->getNormal();
 					//obj->normal(normal.getX(), normal.getY(), normal.getZ());
-					//obj->textureCoord(vecCnt / vecVertices.size(), vecCnt / vecVertices.size());
 				}
 
 				//Work with the indices
@@ -225,7 +214,7 @@ void GraphicsManager::SetUpWindow(string name)
 	window->resize(800,600);
 }
 
-void GraphicsManager::InitVoxels(SimpleVolume<MaterialDensityPair44>& volData, utils::NoiseMap& heightMap)
+void GraphicsManager::InitVoxels(SimpleVolume<VoxelMat>& volData, utils::NoiseMap& heightMap)
 {
 	for(int i = 0; i < heightMap.GetHeight(); i++)
 	{
@@ -239,8 +228,7 @@ void GraphicsManager::InitVoxels(SimpleVolume<MaterialDensityPair44>& volData, u
 
 			for(; depth >= 0; depth--)
 			{
-				PolyVox::MaterialDensityPair44 vox = volData.getVoxelAt(Vector3DInt32(j, depth, i));
-				vox.setDensity(MaterialDensityPair44::getMaxDensity());
+				VoxelMat vox = volData.getVoxelAt(Vector3DInt32(j, depth, i));
 				volData.setVoxelAt(Vector3DInt32(j, depth, i), vox);
 			}
 			if(i % 32 == 0 && j % 32 == 0)
@@ -271,7 +259,7 @@ std::list<Vector3> GetChunks(Ogre::Vector3& start, Ogre::Vector3& end)
 	return retn;
 }
 
-void createSphereInVolume(SimpleVolume<MaterialDensityPair44>& volData, float fRadius, Vector3DFloat& v3dVolCenter)
+void createSphereInVolume(SimpleVolume<VoxelMat>& volData, float fRadius, Vector3DFloat& v3dVolCenter)
 {
 	//This vector hold the position of the center of the volume
 	//Vector3DFloat v3dVolCenter(volData.getWidth() / 2, volData.getHeight() / 2, volData.getDepth() / 2);
@@ -301,14 +289,14 @@ void createSphereInVolume(SimpleVolume<MaterialDensityPair44>& volData, float fR
 				//if(abs(dist.getX()) < fRadius && abs(dist.getY()) < fRadius && abs(dist.getZ()) < fRadius)
 				{
 					//Our new density value
-					uint8_t uDensity = MaterialDensityPair44::getMaxDensity();
+					uint8_t uDensity = VoxelMat::getMaxDensity();
 
 					//Get the old voxel
-					MaterialDensityPair44 voxel = volData.getVoxelAt(x,y,z);
+					VoxelMat voxel = volData.getVoxelAt(x,y,z);
 
 					//Modify the density
 					//voxel.setDensity(uDensity);
-					voxel.setDensity(0);
+					//voxel.setDensity(0); //No longer do this because we only have Material
 
 					//Wrte the voxel value into the volume	
 					volData.setVoxelAt(x, y, z, voxel);
