@@ -96,7 +96,6 @@ void GraphicsManager::SetUpCamera()
 
 	player->setPosition(0, 0, 0);
 	player->yaw(Ogre::Degree(180));
-
 }
 
 Ogre::RenderWindow* GraphicsManager::GetWindow()
@@ -143,7 +142,7 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, utils::N
 		{
 			for(int k = 0; k < depthChunks; k++)
 			{
-				Vector3DInt32 start(j * chunkSize, k * chunkSize, i * chunkSize);
+				Vector3DInt32 start(j * chunkSize + 1, k * chunkSize + 1, i * chunkSize + 1);
 				Vector3DInt32 end((j + 1) * chunkSize, (k + 1) * chunkSize, (i + 1) * chunkSize);
 
 				SurfaceMesh<PositionMaterial> mesh;
@@ -195,6 +194,31 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, utils::N
 	}
 }
 
+void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, utils::NoiseMap& heightMap)
+{
+	for(int i = 0; i < heightMap.GetHeight(); i++)
+	{
+		for(int j = 0; j < heightMap.GetWidth(); j++)
+		{
+			int depth = (heightMap.GetValue(j, i) + 1) * 64;
+			if(depth > 128) depth = 128;
+			if(depth < 0) depth = 0;
+
+			for(; depth >= 0; depth--)
+			{
+				VoxelMat vox = volData.getVoxelAt(Vector3DInt32(j, depth, i));
+				vox.setMaterial(1); //Threshold is defaulted at 1 (cannot be changed) so 0 is air and everything else is solid, may end up using something else later
+				volData.setVoxelAt(Vector3DInt32(j, depth, i), vox);
+			}
+
+			if(i % 32 == 0 && j % 32 == 0)
+				printf("#");
+		}
+		if(i % 32 == 0)
+			printf("\n");
+	}
+}
+
 void GraphicsManager::SetUpWindow(string name)
 {
 	Ogre::NameValuePairList nvpl;
@@ -210,32 +234,6 @@ void GraphicsManager::SetUpWindow(string name)
 	window->setDeactivateOnFocusChange(false);
 
 	window->resize(800,600);
-}
-
-void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, utils::NoiseMap& heightMap)
-{
-	for(int i = 0; i < heightMap.GetHeight(); i++)
-	{
-		for(int j = 0; j < heightMap.GetWidth(); j++)
-		{
-			int depth = heightMap.GetValue(j, i) * 64;
-			if(depth >= 64) depth = 64;
-			if(depth < 0) depth = 0;
-
-			depth += 64;
-
-			for(; depth >= 0; depth--)
-			{
-				VoxelMat vox = volData.getVoxelAt(Vector3DInt32(j, depth, i));
-				vox.setDensity(VoxelMat::getMaxDensity());
-				volData.setVoxelAt(Vector3DInt32(j, depth, i), vox);
-			}
-			if(i % 32 == 0 && j % 32 == 0)
-				printf("#");
-		}
-		if(i % 32 == 0)
-			printf("\n");
-	}
 }
 
 std::list<Vector3> GetChunks(Ogre::Vector3& start, Ogre::Vector3& end)

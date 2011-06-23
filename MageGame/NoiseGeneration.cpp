@@ -101,7 +101,45 @@ utils::NoiseMap GenerateRandomTerrainMap(int width, int height)
 	//worldTerrain.SetSeed(currSeed);
 	//worldTerrain.SetOctaveCount(WorldGenerationMap["PerlinOctave"]);
 
-	heightMapBuilder.SetSourceModule(worldTerrain);
+	//Base Ground
+	module::Perlin groundShape;
+	groundShape.SetSeed(currSeed);
+	groundShape.SetOctaveCount(2);
+	groundShape.SetFrequency(1.75);
+
+	module::ScaleBias groundBias;
+	groundBias.SetSourceModule(0, groundShape);
+	groundBias.SetBias(0.25);
+
+	module::Turbulence groundBase;
+	groundBase.SetSourceModule(0, groundBias);
+	groundBase.SetPower(0.3);
+	groundBase.SetFrequency(1.75);
+
+	//Caves
+	module::RidgedMulti caveShape1;
+	caveShape1.SetSeed(currSeed);
+	caveShape1.SetOctaveCount(1);
+	caveShape1.SetFrequency(2);
+
+	module::RidgedMulti caveShape2;
+	caveShape2.SetSeed(currSeed + 333);
+	caveShape2.SetOctaveCount(1);
+	caveShape2.SetFrequency(2);
+
+	module::Multiply caveMul;
+	caveMul.SetSourceModule(0, caveShape1);
+	caveMul.SetSourceModule(1, caveShape2);
+
+	module::Invert caveInvert;
+	caveInvert.SetSourceModule(0, caveMul);
+
+	module::Multiply groundCaveMul;
+	groundCaveMul.SetSourceModule(0, groundBase);
+	groundCaveMul.SetSourceModule(1, caveInvert);
+	
+	//heightMapBuilder.SetSourceModule(worldTerrain);
+	heightMapBuilder.SetSourceModule(groundCaveMul);
 	heightMapBuilder.SetDestNoiseMap(heightMap);
 	//heightMapBuilder.EnableSeamless();
 	heightMapBuilder.SetDestSize(WorldDataMap["ChunkSize"] * width, WorldDataMap["ChunkSize"] * height);
@@ -125,7 +163,6 @@ utils::NoiseMap GenerateRandomTerrainMap(int width, int height)
 	cout << endl;
 	*/
 
-	/*
 	utils::RendererImage renderer;
 	utils::Image image;
 	renderer.SetSourceNoiseMap(heightMap);
@@ -148,7 +185,6 @@ utils::NoiseMap GenerateRandomTerrainMap(int width, int height)
 	writer.SetSourceImage(image);
 	writer.SetDestFilename("map.bmp");
 	writer.WriteDestFile();
-	*/
 	
 	return heightMap;
 }

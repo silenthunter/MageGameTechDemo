@@ -2,7 +2,7 @@
 
 #include <string>
 #include <unordered_map>
-#include <PolyVoxCore/MaterialDensityPair.h>
+#include <PolyVoxCore/Material.h>
 
 typedef std::unordered_map<std::string, float> StrFloatMap;
 
@@ -12,5 +12,4 @@ extern StrFloatMap CharacterDataMap;
 extern StrFloatMap WorldGenerationMap;
 extern StrFloatMap WaterDataMap;
 
-typedef PolyVox::MaterialDensityPair44 VoxelMat;
-//typedef PolyVox::Material<unsigned int> VoxelMat;
+typedef PolyVox::Material<unsigned int> VoxelMat;
