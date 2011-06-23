@@ -2,7 +2,7 @@
 
 #include <string>
 #include <unordered_map>
-#include <PolyVoxCore/Material.h>
+#include <PolyVoxCore/MaterialDensityPair.h>
 
 typedef std::unordered_map<std::string, float> StrFloatMap;
 

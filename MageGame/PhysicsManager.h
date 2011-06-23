@@ -66,7 +66,7 @@
 #include <stdio.h>
 #include <vector>
 #include <PolyVoxCore/SimpleVolume.h>
-#include <PolyVoxCore/CubicSurfaceExtractorWithNormals.h>
+#include <PolyVoxCore/CubicSurfaceExtractor.h>
 #include <PolyVoxCore/SurfaceMesh.h>
 #include "GameGlobals.h"
 #include <OIS.h>

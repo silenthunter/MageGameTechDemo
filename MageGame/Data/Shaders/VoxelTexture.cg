@@ -26,16 +26,12 @@ void voxeltexture_fp(
 	//Right
     if(worldNormal.x > 0.0)
     {
-		float4 col;
-        col = tex2D(texture, float2((1 - inWorldPosition.z) + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
-		color = col + float4(1.0, 0.0, 0.0, 0.0);
+        color = tex2D(texture, float2((1 - inWorldPosition.z) + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
     }
 	//Left
 	if(worldNormal.x < 0.0)
     {
-		float4 col;
-        col = tex2D(texture, float2(inWorldPosition.z + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
-		color = col + float4(1.0, 0.0, 1.0, 0.0);
+        color = tex2D(texture, float2(inWorldPosition.z + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
     }
 	//Top
     if(worldNormal.y > 0.0)
@@ -55,8 +51,6 @@ void voxeltexture_fp(
 	//Back
     if(worldNormal.z < 0.0)
     {
-		float4 col;
-        col = tex2D(texture, float2((1 - inWorldPosition.x) + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
-		color = col + float4(0.0, 1.0, 0.0, 0.0);
+        color = tex2D(texture, float2((1 - inWorldPosition.x) + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
     }
 }

@@ -9,8 +9,8 @@ using PolyVox::SimpleVolume;
 using PolyVox::Vector3DInt32;
 using PolyVox::Vector3DFloat;
 using PolyVox::SurfaceMesh;
-using PolyVox::PositionMaterialNormal;
-using PolyVox::CubicSurfaceExtractorWithNormals;
+using PolyVox::PositionMaterial;
+using PolyVox::CubicSurfaceExtractor;
 using PolyVox::Region;
 
 GraphicsManager::GraphicsManager(void)
@@ -21,6 +21,7 @@ GraphicsManager::GraphicsManager(void)
 
 GraphicsManager::~GraphicsManager(void)
 {
+	delete root;
 }
 
 void GraphicsManager::init()
@@ -66,7 +67,7 @@ void GraphicsManager::SetUpCamera()
 	root_sn = manager->getRootSceneNode();
 	manager->setShadowTechnique(Ogre::ShadowTechnique::SHADOWTYPE_STENCIL_ADDITIVE);
 	//root_sn->setScale(.1, .1, .1);
-	manager->setAmbientLight(Ogre::ColourValue(1, 1, 1)); //Ambient light set here
+	manager->setAmbientLight(Ogre::ColourValue(0.1, 0.1, 0.1)); //Ambient light set here
 
 	//set up camera
 	player = manager->createSceneNode("Player");
@@ -134,15 +135,7 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, utils::N
 	float scale = 1.f;
 	int widthChunks = heightMap.GetWidth() / chunkSize;
 	int heightChunks = heightMap.GetHeight() / chunkSize;
-	//int widthChunks = 8;
-	//int heightChunks = 4;
 	int depthChunks = 4;
-
-	/*
-	int i = 0;
-	int j = 0;
-	int k = 0;
-	*/
 
 	for(int i = 0; i < heightChunks; i++)
 	{
@@ -151,11 +144,10 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, utils::N
 			for(int k = 0; k < depthChunks; k++)
 			{
 				Vector3DInt32 start(j * chunkSize, k * chunkSize, i * chunkSize);
-				//Vector3DInt32 end((j + widthChunks) * chunkSize, (k + depthChunks) * chunkSize, (i + heightChunks) * chunkSize);
 				Vector3DInt32 end((j + 1) * chunkSize, (k + 1) * chunkSize, (i + 1) * chunkSize);
 
-				SurfaceMesh<PositionMaterialNormal> mesh;
-				CubicSurfaceExtractorWithNormals<SimpleVolume, VoxelMat> surfaceExtractor(&volData, Region(start, end), &mesh);
+				SurfaceMesh<PositionMaterial> mesh;
+				CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(&volData, Region(start, end), &mesh);
 				surfaceExtractor.execute();
 
 				ManualObject *obj = manager->createManualObject(); //Declare the manual object
@@ -166,7 +158,7 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, utils::N
 
 				//Get both the index and vertex data
 				vector<uint32_t> vecIndices = mesh.getIndices();
-				vector<PositionMaterialNormal> vecVertices = mesh.getVertices();
+				vector<PositionMaterial> vecVertices = mesh.getVertices();
 				
 				//Print current chunk information
 				char str[50];
@@ -176,16 +168,12 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, utils::N
 				obj->begin("VoxelTexture", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
 				//Work with the vertices
-				float vecCnt = 0;
-				vector<PositionMaterialNormal>::iterator vecItr;
-				for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++, vecCnt++)
+				vector<PositionMaterial>::iterator vecItr;
+				for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
 				{
 					PolyVox::Vector3DFloat pos = vecItr->getPosition() * scale;
 					pos += Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize);
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
-					//const PolyVox::Vector3DFloat& normal = vecItr->getNormal();
-					//obj->normal(normal.getX(), normal.getY(), normal.getZ());
-					//obj->textureCoord(vecCnt / vecVertices.size(), vecCnt / vecVertices.size());
 				}
 
 				//Work with the indices

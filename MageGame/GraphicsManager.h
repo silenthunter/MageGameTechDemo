@@ -7,7 +7,7 @@
 
 #include "PolyVoxCore/SurfaceMesh.h"
 #include "PolyVoxCore/SimpleVolume.h"
-#include <PolyVoxCore/CubicSurfaceExtractorWithNormals.h>
+#include <PolyVoxCore/CubicSurfaceExtractor.h>
 
 class GraphicsManager
 {

@@ -9,9 +9,6 @@
 #include "GameGlobals.h"
 #include "GameParser.h"
 
-#include "PolyVoxCore/CubicSurfaceExtractorWithNormals.h"
-#include "PolyVoxCore/SurfaceMesh.h"
-#include "PolyVoxCore/SimpleVolume.h"
 #include <PolyVoxUtil/VolumeChangeTracker.h>
 #include <PolyVoxCore/MeshDecimator.h>
 #include <Common/Base/hkBase.h>
@@ -21,8 +18,15 @@ using PolyVox::Vector3DInt32;
 using Ogre::Vector3;
 using Ogre::Degree;
 
+void ExitMain()
+{
+	
+}
+
 int main(int argc, char* argv[])
 {
+	atexit(ExitMain); //Call ExitMain if the program quits for any reason
+
 	ParseFile("Data/GameInfo/WorldData.ini", WorldDataMap);
 	ParseFile("Data/GameInfo/ItemData.ini", ItemDataMap);
 	ParseFile("Data/GameInfo/CharacterData.ini", CharacterDataMap);
