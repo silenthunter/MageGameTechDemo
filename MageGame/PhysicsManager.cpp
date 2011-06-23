@@ -29,8 +29,16 @@ hkBool HK_CALL hkTestReport(hkBool32 cond, const char* desc, const char* file, i
 
 #include "PhysicsManager.h"
 
+using PolyVox::SimpleVolume;
+using PolyVox::Region;
+using PolyVox::PositionMaterialNormal;
+using PolyVox::CubicSurfaceExtractorWithNormals;
+using PolyVox::Vector3DInt32;
+using PolyVox::Vector3DFloat;
+using PolyVox::SurfaceMesh;
 
-PhysicsManager::PhysicsManager(SimpleVolume<MaterialDensityPair44> *volume)
+
+PhysicsManager::PhysicsManager(SimpleVolume<VoxelMat> *volume)
 {
 	chunkSize = WorldDataMap["ChunkSize"];
 	initHavok();
@@ -209,7 +217,7 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 	Vector3DInt32 end = start + Vector3DInt32(chunkSize, chunkSize, chunkSize);
 
 	SurfaceMesh<PositionMaterialNormal> mesh;
-	CubicSurfaceExtractorWithNormals<SimpleVolume, MaterialDensityPair44> surfaceExtractor(polyVolume, Region(start, end), &mesh);
+	CubicSurfaceExtractorWithNormals<SimpleVolume, VoxelMat> surfaceExtractor(polyVolume, Region(start, end), &mesh);
 	surfaceExtractor.execute();
 
 	std::vector<uint32_t> vecIndices = mesh.getIndices();

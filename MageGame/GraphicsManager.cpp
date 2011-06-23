@@ -6,7 +6,6 @@ using Ogre::Vector3;
 using Ogre::ManualObject;
 
 using PolyVox::SimpleVolume;
-using PolyVox::MaterialDensityPair44;
 using PolyVox::Vector3DInt32;
 using PolyVox::Vector3DFloat;
 using PolyVox::SurfaceMesh;
@@ -130,7 +129,7 @@ struct s_block
 	string name;
 };
 
-void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDensityPair44>& volData, utils::NoiseMap& heightMap)
+void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, utils::NoiseMap& heightMap)
 {
 	float scale = 1.f;
 	int widthChunks = heightMap.GetWidth() / chunkSize;
@@ -156,7 +155,7 @@ void GraphicsManager::LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDe
 				Vector3DInt32 end((j + 1) * chunkSize, (k + 1) * chunkSize, (i + 1) * chunkSize);
 
 				SurfaceMesh<PositionMaterialNormal> mesh;
-				CubicSurfaceExtractorWithNormals<SimpleVolume, MaterialDensityPair44> surfaceExtractor(&volData, Region(start, end), &mesh);
+				CubicSurfaceExtractorWithNormals<SimpleVolume, VoxelMat> surfaceExtractor(&volData, Region(start, end), &mesh);
 				surfaceExtractor.execute();
 
 				ManualObject *obj = manager->createManualObject(); //Declare the manual object
@@ -225,7 +224,7 @@ void GraphicsManager::SetUpWindow(string name)
 	window->resize(800,600);
 }
 
-void GraphicsManager::InitVoxels(SimpleVolume<MaterialDensityPair44>& volData, utils::NoiseMap& heightMap)
+void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, utils::NoiseMap& heightMap)
 {
 	for(int i = 0; i < heightMap.GetHeight(); i++)
 	{
@@ -239,8 +238,8 @@ void GraphicsManager::InitVoxels(SimpleVolume<MaterialDensityPair44>& volData, u
 
 			for(; depth >= 0; depth--)
 			{
-				PolyVox::MaterialDensityPair44 vox = volData.getVoxelAt(Vector3DInt32(j, depth, i));
-				vox.setDensity(MaterialDensityPair44::getMaxDensity());
+				VoxelMat vox = volData.getVoxelAt(Vector3DInt32(j, depth, i));
+				vox.setDensity(VoxelMat::getMaxDensity());
 				volData.setVoxelAt(Vector3DInt32(j, depth, i), vox);
 			}
 			if(i % 32 == 0 && j % 32 == 0)
@@ -271,7 +270,7 @@ std::list<Vector3> GetChunks(Ogre::Vector3& start, Ogre::Vector3& end)
 	return retn;
 }
 
-void createSphereInVolume(SimpleVolume<MaterialDensityPair44>& volData, float fRadius, Vector3DFloat& v3dVolCenter)
+void createSphereInVolume(SimpleVolume<VoxelMat>& volData, float fRadius, Vector3DFloat& v3dVolCenter)
 {
 	//This vector hold the position of the center of the volume
 	//Vector3DFloat v3dVolCenter(volData.getWidth() / 2, volData.getHeight() / 2, volData.getDepth() / 2);
@@ -301,10 +300,10 @@ void createSphereInVolume(SimpleVolume<MaterialDensityPair44>& volData, float fR
 				//if(abs(dist.getX()) < fRadius && abs(dist.getY()) < fRadius && abs(dist.getZ()) < fRadius)
 				{
 					//Our new density value
-					uint8_t uDensity = MaterialDensityPair44::getMaxDensity();
+					uint8_t uDensity = VoxelMat::getMaxDensity();
 
 					//Get the old voxel
-					MaterialDensityPair44 voxel = volData.getVoxelAt(x,y,z);
+					VoxelMat voxel = volData.getVoxelAt(x,y,z);
 
 					//Modify the density
 					//voxel.setDensity(uDensity);
