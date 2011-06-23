@@ -5,10 +5,10 @@
 #include "GameGlobals.h"
 #include "GameParser.h"
 
-#include "PolyVoxCore/Material.h"
+#include "PolyVoxCore/MaterialDensityPair.h"
 #include "PolyVoxCore/SurfaceMesh.h"
 #include "PolyVoxCore/SimpleVolume.h"
-#include <PolyVoxCore/CubicSurfaceExtractor.h>
+#include <PolyVoxCore/CubicSurfaceExtractorWithNormals.h>
 
 class GraphicsManager
 {
@@ -17,14 +17,14 @@ public:
 	//Functions
 	GraphicsManager(void);
 	~GraphicsManager(void);
-	void InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, utils::NoiseMap& heightMap);
-	void createSphereInVolume(PolyVox::SimpleVolume<VoxelMat>& volData, float fRadius, PolyVox::Vector3DFloat& v3dVolCenter);
+	void InitVoxels(PolyVox::SimpleVolume<PolyVox::MaterialDensityPair44>& volData, utils::NoiseMap& heightMap);
+	void createSphereInVolume(PolyVox::SimpleVolume<PolyVox::MaterialDensityPair44>& volData, float fRadius, PolyVox::Vector3DFloat& v3dVolCenter);
 	Ogre::RenderWindow *GetWindow();
 	Ogre::SceneNode* GetPlayer();
 	Ogre::SceneNode* GetCamera();
 	Ogre::Root* GetRoot();
 	Ogre::Quaternion GetPlayerRotation();
-	void LoadManualObject(PolyVox::SimpleVolume<VoxelMat>& volData, utils::NoiseMap& heightMap);
+	void LoadManualObject(PolyVox::SimpleVolume<PolyVox::MaterialDensityPair44>& volData, utils::NoiseMap& heightMap);
 	//Variables
 
 private:

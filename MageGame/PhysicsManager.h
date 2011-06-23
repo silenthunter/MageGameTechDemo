@@ -65,15 +65,17 @@
 
 #include <stdio.h>
 #include <vector>
-#include <PolyVoxCore/Material.h>
+#include <PolyVoxCore/MaterialDensityPair.h>
 #include <PolyVoxCore/SimpleVolume.h>
-#include <PolyVoxCore/CubicSurfaceExtractor.h>
+#include <PolyVoxCore/CubicSurfaceExtractorWithNormals.h>
 #include <PolyVoxCore/SurfaceMesh.h>
 #include "GameGlobals.h"
 #include <OIS.h>
 #pragma endregion
 
 #define HAVOK_VISUAL_DEBUGGER_ENABLED
+
+using namespace PolyVox;
 
 static void HK_CALL errorReport(const char* msg, void* userArgGivenToInit)
 {
@@ -116,14 +118,14 @@ private:
 	void registerVisualDebugger();
 	void initPlayer();
 
-	PolyVox::SimpleVolume<VoxelMat>* polyVolume;
+	SimpleVolume<MaterialDensityPair44>* polyVolume;
 
 public:
-	PhysicsManager(PolyVox::SimpleVolume<VoxelMat>* volume);
+	PhysicsManager(SimpleVolume<MaterialDensityPair44>* volume);
 	~PhysicsManager(void);
 
 	///Updates a single chunk
-	void UpdateChunk(PolyVox::Vector3DInt32& chunk);
+	void UpdateChunk(Vector3DInt32& chunk);
 
 	/**Calls UpdateChunk for a range of chunks
 	    @param start The beginning corner of the region to be updated
@@ -131,7 +133,7 @@ public:
 		@note start coordinates must be <= the ones in end
 		@sa UpdateChunk
 	*/
-	void UpdateChunkRange(PolyVox::Vector3DInt32& start, PolyVox::Vector3DInt32& end);
+	void UpdateChunkRange(Vector3DInt32& start, Vector3DInt32& end);
 
 	/**
 	@brief Updates the Havok by a specified time

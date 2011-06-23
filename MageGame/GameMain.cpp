@@ -9,14 +9,16 @@
 #include "GameGlobals.h"
 #include "GameParser.h"
 
-#include "PolyVoxCore/Material.h"
-#include "PolyVoxCore/CubicSurfaceExtractor.h"
+#include "PolyVoxCore/MaterialDensityPair.h"
+#include "PolyVoxCore/CubicSurfaceExtractorWithNormals.h"
 #include "PolyVoxCore/SurfaceMesh.h"
 #include "PolyVoxCore/SimpleVolume.h"
 #include <PolyVoxUtil/VolumeChangeTracker.h>
+#include <PolyVoxCore/MeshDecimator.h>
 #include <Common/Base/hkBase.h>
 
 using PolyVox::SimpleVolume;
+using PolyVox::MaterialDensityPair44;
 using PolyVox::Vector3DInt32;
 using Ogre::Vector3;
 using Ogre::Degree;
@@ -44,7 +46,7 @@ int main(int argc, char* argv[])
 	size_t hWnd = 0;
 	ogreWindow->getCustomAttribute("WINDOW", &hWnd);
 
-	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(heightMap.GetWidth(), 128, heightMap.GetHeight())));
+	SimpleVolume<MaterialDensityPair44> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(heightMap.GetWidth(), 128, heightMap.GetHeight())));
 	graphicsManager.InitVoxels(volData, heightMap);
 	graphicsManager.LoadManualObject(volData, heightMap);
 #pragma endregion

@@ -29,15 +29,8 @@ hkBool HK_CALL hkTestReport(hkBool32 cond, const char* desc, const char* file, i
 
 #include "PhysicsManager.h"
 
-using PolyVox::SimpleVolume;
-using PolyVox::CubicSurfaceExtractor;
-using PolyVox::Vector3DInt32;
-using PolyVox::SurfaceMesh;
-using PolyVox::PositionMaterial;
-using PolyVox::Region;
-using PolyVox::Vector3DFloat;
 
-PhysicsManager::PhysicsManager(SimpleVolume<VoxelMat> *volume)
+PhysicsManager::PhysicsManager(SimpleVolume<MaterialDensityPair44> *volume)
 {
 	chunkSize = WorldDataMap["ChunkSize"];
 	initHavok();
@@ -215,12 +208,12 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 	Vector3DInt32 start(chunk.getX() * chunkSize, chunk.getY() * chunkSize, chunk.getZ() * chunkSize);
 	Vector3DInt32 end = start + Vector3DInt32(chunkSize, chunkSize, chunkSize);
 
-	SurfaceMesh<PositionMaterial> mesh;
-	CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(polyVolume, Region(start, end), &mesh);
+	SurfaceMesh<PositionMaterialNormal> mesh;
+	CubicSurfaceExtractorWithNormals<SimpleVolume, MaterialDensityPair44> surfaceExtractor(polyVolume, Region(start, end), &mesh);
 	surfaceExtractor.execute();
 
 	std::vector<uint32_t> vecIndices = mesh.getIndices();
-	std::vector<PositionMaterial> vecVertices = mesh.getVertices();
+	std::vector<PositionMaterialNormal> vecVertices = mesh.getVertices();
 
 	if(vecVertices.size() == 0) return; //No vertices to add to the world
 
@@ -238,7 +231,7 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 	ind = new unsigned long[subPart.m_numTriangleShapes * 3];
 
 	//Get vertices
-	std::vector<PositionMaterial>::iterator vecItr;
+	std::vector<PositionMaterialNormal>::iterator vecItr;
 	int vecCnt = 0;
 	for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++, vecCnt++)
 	{
