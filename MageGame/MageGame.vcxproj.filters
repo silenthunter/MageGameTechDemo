@@ -30,13 +30,16 @@
     <ClCompile Include="GameTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="noiseutils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GameMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WorldTerrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Gradient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YTurbulence.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,10 +59,13 @@
     <ClInclude Include="GameTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="noiseutils.h">
+    <ClInclude Include="WorldTerrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WorldTerrain.h">
+    <ClInclude Include="Gradient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="YTurbulence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

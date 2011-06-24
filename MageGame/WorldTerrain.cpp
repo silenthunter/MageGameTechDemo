@@ -21,7 +21,7 @@ void WorldTerrain::Init(int seedVar)
 	currSeed = seedVar;
 }
 
-void WorldTerrain::Generate(int width, int height)
+void WorldTerrain::Generate()
 {
 	/*
 	mt19937 randGen((time_t) seedVar);
@@ -94,33 +94,33 @@ void WorldTerrain::Generate(int width, int height)
 	//worldTerrain.SetSeed(currSeed);
 	//worldTerrain.SetOctaveCount(WorldGenerationMap["PerlinOctave"]);
 
+	//Const modules
+	const1.SetConstValue(1);
+
+	constNeg1.SetConstValue(-1);
+
 	//Base Ground
+	groundGradiant.SetGradient(0, 0, 0, 1, 0, 0);
 
-	groundShape.SetSeed(currSeed);
-	groundShape.SetOctaveCount(2);
-	groundShape.SetFrequency(1.75);
-
-	groundBias.SetSourceModule(0, groundShape);
-	groundBias.SetBias(0.2);
+	worldTerrain.SetSeed(currSeed);
+	worldTerrain.SetSourceModule(0, groundGradiant);
+	worldTerrain.SetPower(0.3);
+	worldTerrain.SetFrequency(1.75);
+	worldTerrain.yDistortModule.SetOctaveCount(15);
 
 	/*
-	groundBase.SetSourceModule(0, groundBias);
-	groundBase.SetFrequency(1.75);
-	groundBase.SetPower(0.3);
+	worldTerrain.SetSourceModule(0, constNeg1);
+	worldTerrain.SetSourceModule(1, const1);
+	worldTerrain.SetControlModule(groundGradiant);
 	*/
 
-	worldTerrain.SetSourceModule(0, groundBias);
-	worldTerrain.SetFrequency(1.75);
-	worldTerrain.SetPower(0.3);
-
-	return;
-
+	/*
 	//Caves
 	caveShape1.SetSeed(currSeed);
 	caveShape1.SetOctaveCount(10);
 	caveShape1.SetFrequency(2);
 
-	caveShape2.SetSeed(currSeed + 333);
+	caveShape2.SetSeed(currSeed + 666);
 	caveShape2.SetOctaveCount(10);
 	caveShape2.SetFrequency(2);
 
@@ -128,7 +128,7 @@ void WorldTerrain::Generate(int width, int height)
 	caveMul.SetSourceModule(1, caveShape2);
 	
 	caveTurb.SetSourceModule(0, caveMul);
-	caveTurb.SetSeed(currSeed + 666);
+	caveTurb.SetSeed(currSeed + 999);
 	caveTurb.SetFrequency(3);
 	caveTurb.SetPower(0.25);
 
@@ -139,51 +139,6 @@ void WorldTerrain::Generate(int width, int height)
 
 	//worldTerrain.SetSourceModule(0, groundBase);
 	//worldTerrain.SetSourceModule(1, caveInvert);
-
-	/*
-	float someFloat = worldTerrain.GetValue(0, 0, 0);
-	cout << someFloat << endl;
-	cout << endl;
-	*/
-
-	/*
-	utils::NoiseMap heightMap;
-	utils::NoiseMapBuilderSphere heightMapBuilder;
-
-	heightMapBuilder.SetSourceModule(worldTerrain);
-	heightMapBuilder.SetDestNoiseMap(heightMap);
-	//heightMapBuilder.EnableSeamless();
-	heightMapBuilder.SetDestSize(WorldDataMap["ChunkSize"] * width, WorldDataMap["ChunkSize"] * height);
-	heightMapBuilder.SetBounds(-90.0, 90.0, -180.0, 180.0);
-	//heightMapBuilder.SetBounds(62.0, 65.0, 62.0, 65.0);
-	heightMapBuilder.Build();
-
-	cout << heightMap.GetWidth() << endl;
-	cout << heightMap.GetHeight() << endl;
-	cout << endl;
-
-	utils::RendererImage renderer;
-	utils::Image image;
-	renderer.SetSourceNoiseMap(heightMap);
-	renderer.SetDestImage(image);
-	renderer.ClearGradient();
-	renderer.AddGradientPoint (-1.0000, utils::Color (  0,   0, 128, 255)); // deeps
-	renderer.AddGradientPoint (-0.2500, utils::Color (  0,   0, 255, 255)); // shallow
-	renderer.AddGradientPoint ( 0.0000, utils::Color (  0, 128, 255, 255)); // shore
-	renderer.AddGradientPoint ( 0.0625, utils::Color (240, 240,  64, 255)); // sand
-	renderer.AddGradientPoint ( 0.1250, utils::Color ( 32, 160,   0, 255)); // grass
-	renderer.AddGradientPoint ( 0.3750, utils::Color (224, 224,   0, 255)); // dirt
-	renderer.AddGradientPoint ( 0.7500, utils::Color (128, 128, 128, 255)); // rock
-	renderer.AddGradientPoint ( 1.0000, utils::Color (255, 255, 255, 255)); // snow
-	renderer.EnableLight();
-	renderer.SetLightContrast(3.0);
-	renderer.SetLightBrightness(2.0);
-	renderer.Render();
-
-	utils::WriterBMP writer;
-	writer.SetSourceImage(image);
-	writer.SetDestFilename("map.bmp");
-	writer.WriteDestFile();
 	*/
 }
 

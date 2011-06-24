@@ -4,7 +4,6 @@
 #include <PolyVoxCore/MeshDecimator.h>
 #include <Common/Base/hkBase.h>
 
-#include "noiseutils.h"
 #include "GraphicsManager.h"
 #include "PhysicsManager.h"
 #include "WorldTerrain.h"
@@ -35,8 +34,8 @@ int main(int argc, char* argv[])
 #pragma region Map Generation
 	WorldTerrain wTer;
 	wTer.Init();
-	wTer.Generate(4, 4);
-	wTer.InputNewBoundary(128, 128, 128);
+	wTer.Generate();
+	wTer.InputNewBoundary(256, 128, 256);
 #pragma endregion
 
 #pragma region GraphicsManager
@@ -49,11 +48,8 @@ int main(int argc, char* argv[])
 	size_t hWnd = 0;
 	ogreWindow->getCustomAttribute("WINDOW", &hWnd);
 
-	//SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(heightMap.GetWidth(), 128, heightMap.GetHeight())));
-	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(256, 128, 128)));
-	//graphicsManager.InitVoxels(volData, heightMap);
+	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(wTer.currWidth, wTer.currDepth, wTer.currHeight)));
 	graphicsManager.InitVoxels(volData, wTer);
-	//graphicsManager.LoadManualObject(volData, heightMap);
 	graphicsManager.LoadManualObject(volData, wTer);
 #pragma endregion
 

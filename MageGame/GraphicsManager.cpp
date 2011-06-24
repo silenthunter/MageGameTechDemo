@@ -208,8 +208,8 @@ void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, World
 
 				//cout << "nx: " << nx << ", ny: " << ny << ", nz: " << nz << endl;
 
-				double v = wTerra.worldTerrain.GetValue(nx, ny, nz);
-                if(v > 0)
+				double v = wTerra.worldTerrain.GetValue(nx, nz, ny);
+                if(v > -0.2)
 				{
 					VoxelMat vox = volData.getVoxelAt(Vector3DInt32(x, z, y));
 					vox.setMaterial(1);
