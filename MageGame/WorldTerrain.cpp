@@ -108,7 +108,11 @@ void WorldTerrain::Generate()
 	groundTurb.SetFrequency(1.75);
 	groundTurb.yDistortModule.SetOctaveCount(10);
 
-	worldTerrain.SetSourceModule(0, groundTurb);
+	//worldTerrain.SetSourceModule(0, groundTurb);
+	worldTerrain.SetSourceModule(0, constNeg1);
+	worldTerrain.SetSourceModule(1, const1);
+	worldTerrain.SetControlModule(groundTurb);
+	worldTerrain.SetBounds(0.2, 1000);
 
 	/*
 	//Caves

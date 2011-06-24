@@ -20,7 +20,7 @@ public:
 	double ReturnValue(int x, int y, int z);
 
 	//Variables
-	noise::module::Clamp worldTerrain;
+	noise::module::Select worldTerrain;
 	int chunkSize;
 	int currWidth;
 	int currHeight;
@@ -36,7 +36,7 @@ private:
 	noise::module::Const constNeg1;
 	noise::module::Gradient groundGradiant;
 	noise::module::YTurbulence groundTurb;
-	noise::module::Clamp groundClamp;
+	//noise::module::Clamp groundClamp;
 
 	noise::module::RidgedMulti caveShape1;
 	noise::module::RidgedMulti caveShape2;
