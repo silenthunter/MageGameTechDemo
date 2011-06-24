@@ -1,6 +1,6 @@
 #include "Gradient.h"
 
-#define lerp(t, a, b) (a + t * (b - a))
+//#define lerp(t, a, b) (a + t * (b - a))
 
 using noise::module::Gradient;
 
@@ -30,8 +30,9 @@ double Gradient::GetValue(double x, double y, double z) const
     double dy = y - y1;
     double dz = z - z1;
     double dp = dx * m_x + dy * m_y + dz * m_z;
-	dp = dp / m_vlen;
-	if(dp < 0) dp = 0;
-	if(dp > 1) dp = 1;
-    return lerp(dp, 1.0, -1.0);
+	//dp = dp / m_vlen;
+	return dp / m_vlen;
+	//if(dp < 0) dp = 0;
+	//if(dp > 1) dp = 1;
+    //return lerp(dp, 1.0, -1.0);
 }

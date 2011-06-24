@@ -102,17 +102,13 @@ void WorldTerrain::Generate()
 	//Base Ground
 	groundGradiant.SetGradient(0, 0, 0, 1, 0, 0);
 
-	worldTerrain.SetSeed(currSeed);
-	worldTerrain.SetSourceModule(0, groundGradiant);
-	worldTerrain.SetPower(0.3);
-	worldTerrain.SetFrequency(1.75);
-	worldTerrain.yDistortModule.SetOctaveCount(15);
+	groundTurb.SetSeed(currSeed);
+	groundTurb.SetSourceModule(0, groundGradiant);
+	groundTurb.SetPower(0.3);
+	groundTurb.SetFrequency(1.75);
+	groundTurb.yDistortModule.SetOctaveCount(10);
 
-	/*
-	worldTerrain.SetSourceModule(0, constNeg1);
-	worldTerrain.SetSourceModule(1, const1);
-	worldTerrain.SetControlModule(groundGradiant);
-	*/
+	worldTerrain.SetSourceModule(0, groundTurb);
 
 	/*
 	//Caves
