@@ -35,7 +35,7 @@ material VoxelTexture
 			
 			texture_unit
 			{
-				texture Dirt.jpg 2d
+				texture Dirt.png 2d
 				filtering anisotropic
                 max_anisotropy 16
 			}
