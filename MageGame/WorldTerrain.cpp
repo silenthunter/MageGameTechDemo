@@ -107,6 +107,7 @@ void WorldTerrain::Generate()
 	groundTurb.SetPower(0.3);
 	groundTurb.SetFrequency(1.75);
 	groundTurb.yDistortModule.SetOctaveCount(10);
+	groundTurb.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
 
 	//worldTerrain.SetSourceModule(0, groundTurb);
 	worldTerrain.SetSourceModule(0, constNeg1);
