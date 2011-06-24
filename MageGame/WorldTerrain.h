@@ -33,15 +33,15 @@ private:
 	//Ground
 	noise::module::Const const0;
 	noise::module::Const const1;
-	noise::module::Const constNeg1;
 	noise::module::Gradient groundGradiant;
 	noise::module::YTurbulence groundTurb;
-	//noise::module::Clamp groundClamp;
+	noise::module::Select groundSelect;
 
 	noise::module::RidgedMulti caveShape1;
 	noise::module::RidgedMulti caveShape2;
+	noise::module::Select caveSelect1;
+	noise::module::Select caveSelect2;
 	noise::module::Multiply caveMul;
 	noise::module::Turbulence caveTurb;
-	noise::module::ScaleBias caveBias;
 	noise::module::Invert caveInvert;
 };

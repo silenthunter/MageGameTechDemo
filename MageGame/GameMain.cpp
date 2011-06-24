@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 	WorldTerrain wTer;
 	wTer.Init();
 	wTer.Generate();
-	wTer.InputNewBoundary(256, 128, 256);
+	wTer.InputNewBoundary(256, 256, 256);
 #pragma endregion
 
 #pragma region GraphicsManager

@@ -97,8 +97,6 @@ void WorldTerrain::Generate()
 	//Const modules
 	const1.SetConstValue(1);
 
-	constNeg1.SetConstValue(-1);
-
 	//Base Ground
 	groundGradiant.SetGradient(0, 0, 0, 1, 0, 0);
 
@@ -109,22 +107,35 @@ void WorldTerrain::Generate()
 	groundTurb.yDistortModule.SetOctaveCount(10);
 	groundTurb.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
 
-	//worldTerrain.SetSourceModule(0, groundTurb);
-	worldTerrain.SetSourceModule(0, constNeg1);
+	worldTerrain.SetSourceModule(0, const0);
 	worldTerrain.SetSourceModule(1, const1);
 	worldTerrain.SetControlModule(groundTurb);
-	worldTerrain.SetBounds(0.2, 1000);
+	worldTerrain.SetBounds(0.001, 256);
 
-	/*
 	//Caves
-	caveShape1.SetSeed(currSeed);
-	caveShape1.SetOctaveCount(10);
+	/*
+	caveShape1.SetSeed(currSeed + 333);
+	caveShape1.SetOctaveCount(1);
+	caveShape1.SetNoiseQuality(noise::QUALITY_BEST);
 	caveShape1.SetFrequency(2);
 
+	caveSelect1.SetSourceModule(0, const0);
+	caveSelect1.SetSourceModule(1, const1);
+	caveSelect1.SetControlModule(caveShape1);
+	caveSelect1.SetBounds(0.7, 1000);
+
 	caveShape2.SetSeed(currSeed + 666);
-	caveShape2.SetOctaveCount(10);
+	caveShape2.SetOctaveCount(1);
+	caveShape2.SetNoiseQuality(noise::QUALITY_BEST);
 	caveShape2.SetFrequency(2);
 
+	caveSelect2.SetSourceModule(0, const0);
+	caveSelect2.SetSourceModule(1, const1);
+	caveSelect2.SetControlModule(caveShape2);
+	caveSelect2.SetBounds(0.7, 1000);
+
+	//caveMul.SetSourceModule(0, caveSelect1);
+	//caveMul.SetSourceModule(1, caveSelect2);
 	caveMul.SetSourceModule(0, caveShape1);
 	caveMul.SetSourceModule(1, caveShape2);
 	
@@ -133,12 +144,10 @@ void WorldTerrain::Generate()
 	caveTurb.SetFrequency(3);
 	caveTurb.SetPower(0.25);
 
-	caveBias.SetSourceModule(0, caveTurb);
-	caveBias.SetBias(-0.3);
+	//caveInvert.SetSourceModule(0, caveTurb);
+	worldTerrain.SetSourceModule(0, caveTurb);
 
-	caveInvert.SetSourceModule(0, caveBias);
-
-	//worldTerrain.SetSourceModule(0, groundBase);
+	//worldTerrain.SetSourceModule(0, groundSelect);
 	//worldTerrain.SetSourceModule(1, caveInvert);
 	*/
 }

@@ -12,4 +12,4 @@ extern StrFloatMap CharacterDataMap;
 extern StrFloatMap WorldGenerationMap;
 extern StrFloatMap WaterDataMap;
 
-typedef PolyVox::Material<unsigned int> VoxelMat;
+typedef PolyVox::Material<unsigned char> VoxelMat;

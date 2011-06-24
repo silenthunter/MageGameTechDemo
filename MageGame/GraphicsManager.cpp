@@ -1,7 +1,5 @@
 #include "GraphicsManager.h"
 
-//#define lerp(t, a, b) (a + t * (b - a))
-
 using std::string;
 using Ogre::ConfigFile;
 using Ogre::Vector3;
@@ -208,14 +206,11 @@ void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, World
 				double ny = (double)y / (double)wTerra.currHeight;
 				double nz = (double)z / (double)wTerra.currDepth;
 
-				//cout << "nx: " << nx << ", ny: " << ny << ", nz: " << nz << endl;
-
 				double v = wTerra.worldTerrain.GetValue(nx, nz, ny);
-				// = lerp(v, 1.0, -1.0);
-                if(v > 0.2)
+                if(v >= 1)
 				{
 					VoxelMat vox = volData.getVoxelAt(Vector3DInt32(x, z, y));
-					vox.setMaterial(1);
+					vox.setMaterial((unsigned char) v);
 					volData.setVoxelAt(x, z, y, vox);
 				}
 			}
