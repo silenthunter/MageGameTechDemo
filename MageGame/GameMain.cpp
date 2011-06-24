@@ -35,8 +35,8 @@ int main(int argc, char* argv[])
 #pragma region Map Generation
 	WorldTerrain wTer;
 	wTer.Init();
-	wTer.Generate(4, 4);
-	wTer.InputNewBoundary(128, 128, 128);
+	wTer.Generate(16, 8);
+	wTer.InputNewBoundary(512, 512, 128);
 #pragma endregion
 
 #pragma region GraphicsManager
@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 	ogreWindow->getCustomAttribute("WINDOW", &hWnd);
 
 	//SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(heightMap.GetWidth(), 128, heightMap.GetHeight())));
-	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(256, 128, 128)));
+	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(wTer.currWidth, 128, wTer.currHeight)));
 	//graphicsManager.InitVoxels(volData, heightMap);
 	graphicsManager.InitVoxels(volData, wTer);
 	//graphicsManager.LoadManualObject(volData, heightMap);
