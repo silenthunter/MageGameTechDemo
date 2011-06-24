@@ -129,12 +129,12 @@ struct s_block
 	string name;
 };
 
-void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, utils::NoiseMap& heightMap)
+void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra)
 {
 	float scale = 1.f;
-	int widthChunks = heightMap.GetWidth() / chunkSize;
-	int heightChunks = heightMap.GetHeight() / chunkSize;
-	int depthChunks = 4;
+	int widthChunks = wTerra.currWidth / chunkSize;
+	int heightChunks = wTerra.currHeight / chunkSize;
+	int depthChunks = wTerra.currDepth / chunkSize;
 
 	for(int i = 0; i < heightChunks; i++)
 	{
@@ -142,8 +142,8 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, utils::N
 		{
 			for(int k = 0; k < depthChunks; k++)
 			{
-				Vector3DInt32 start(j * chunkSize + 1, k * chunkSize + 1, i * chunkSize + 1);
-				Vector3DInt32 end((j + 1) * chunkSize, (k + 1) * chunkSize, (i + 1) * chunkSize);
+				Vector3DInt32 start(j * chunkSize, k * chunkSize, i * chunkSize);
+				Vector3DInt32 end((j + 1) * chunkSize - 1, (k + 1) * chunkSize - 1, (i + 1) * chunkSize - 1);
 
 				SurfaceMesh<PositionMaterial> mesh;
 				CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(&volData, Region(start, end), &mesh);
@@ -194,28 +194,31 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, utils::N
 	}
 }
 
-void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, utils::NoiseMap& heightMap)
+void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra)
 {
-	for(int i = 0; i < heightMap.GetHeight(); i++)
+	for(int x = 0; x < wTerra.currWidth; x++)
 	{
-		for(int j = 0; j < heightMap.GetWidth(); j++)
+		for(int y = 0; y < wTerra.currHeight; y++)
 		{
-			int depth = (heightMap.GetValue(j, i) + 1) * 64;
-			if(depth > 128) depth = 128;
-			if(depth < 0) depth = 0;
-
-			for(; depth >= 0; depth--)
+			for(int z = 0; z < wTerra.currDepth; z++)
 			{
-				VoxelMat vox = volData.getVoxelAt(Vector3DInt32(j, depth, i));
-				vox.setMaterial(1); //Threshold is defaulted at 1 (cannot be changed) so 0 is air and everything else is solid, may end up using something else later
-				volData.setVoxelAt(Vector3DInt32(j, depth, i), vox);
-			}
+				double nx = (double)x / (double)wTerra.currWidth;
+				double ny = (double)y / (double)wTerra.currHeight;
+				double nz = (double)z / (double)wTerra.currDepth;
 
-			if(i % 32 == 0 && j % 32 == 0)
-				printf("#");
+				//cout << "nx: " << nx << ", ny: " << ny << ", nz: " << nz << endl;
+
+				double v = wTerra.worldTerrain.GetValue(nx, ny, nz);
+                if(v > 0)
+				{
+					VoxelMat vox = volData.getVoxelAt(Vector3DInt32(x, z, y));
+					vox.setMaterial(1);
+					volData.setVoxelAt(x, z, y, vox);
+				}
+			}
+			if(x % 32 == 0 && y % 32 == 0) printf("#");
 		}
-		if(i % 32 == 0)
-			printf("\n");
+		if(x % 32 == 0) printf("\n");
 	}
 }
 

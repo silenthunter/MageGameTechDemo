@@ -1,8 +1,4 @@
-#include "NoiseGeneration.h"
-#include "GameGlobals.h"
-#include <iostream>
-#include <random>
-#include <time.h>
+#include "WorldTerrain.h"
 
 using std::cout;
 using std::endl;
@@ -11,24 +7,21 @@ using std::uniform_int;
 using std::uniform_real;
 using std::variate_generator;
 
-module::Perlin worldTerrain;
-utils::NoiseMap heightMap;
-utils::NoiseMapBuilderSphere heightMapBuilder;
-int currSeed;
-
-void NoiseGenerationInit(int seedVar)
+WorldTerrain::WorldTerrain()
 {
-	if(seedVar == -1)
-	{
-		seedVar = time(0);
-	}
-	currSeed = seedVar;
-
-	worldTerrain.SetSeed(currSeed);
-	worldTerrain.SetOctaveCount(WorldGenerationMap["PerlinOctave"]);
+	chunkSize = WorldDataMap["ChunkSize"];
 }
 
-utils::NoiseMap GenerateRandomTerrainMap(int width, int height)
+WorldTerrain::~WorldTerrain()
+{
+}
+
+void WorldTerrain::Init(int seedVar)
+{
+	currSeed = seedVar;
+}
+
+void WorldTerrain::Generate(int width, int height)
 {
 	/*
 	mt19937 randGen((time_t) seedVar);
@@ -102,44 +95,62 @@ utils::NoiseMap GenerateRandomTerrainMap(int width, int height)
 	//worldTerrain.SetOctaveCount(WorldGenerationMap["PerlinOctave"]);
 
 	//Base Ground
-	module::Perlin groundShape;
+
 	groundShape.SetSeed(currSeed);
 	groundShape.SetOctaveCount(2);
 	groundShape.SetFrequency(1.75);
 
-	module::ScaleBias groundBias;
 	groundBias.SetSourceModule(0, groundShape);
-	groundBias.SetBias(0.25);
+	groundBias.SetBias(0.2);
 
-	module::Turbulence groundBase;
+	/*
 	groundBase.SetSourceModule(0, groundBias);
-	groundBase.SetPower(0.3);
 	groundBase.SetFrequency(1.75);
+	groundBase.SetPower(0.3);
+	*/
+
+	worldTerrain.SetSourceModule(0, groundBias);
+	worldTerrain.SetFrequency(1.75);
+	worldTerrain.SetPower(0.3);
+
+	return;
 
 	//Caves
-	module::RidgedMulti caveShape1;
 	caveShape1.SetSeed(currSeed);
-	caveShape1.SetOctaveCount(1);
+	caveShape1.SetOctaveCount(10);
 	caveShape1.SetFrequency(2);
 
-	module::RidgedMulti caveShape2;
 	caveShape2.SetSeed(currSeed + 333);
-	caveShape2.SetOctaveCount(1);
+	caveShape2.SetOctaveCount(10);
 	caveShape2.SetFrequency(2);
 
-	module::Multiply caveMul;
 	caveMul.SetSourceModule(0, caveShape1);
 	caveMul.SetSourceModule(1, caveShape2);
-
-	module::Invert caveInvert;
-	caveInvert.SetSourceModule(0, caveMul);
-
-	module::Multiply groundCaveMul;
-	groundCaveMul.SetSourceModule(0, groundBase);
-	groundCaveMul.SetSourceModule(1, caveInvert);
 	
-	//heightMapBuilder.SetSourceModule(worldTerrain);
-	heightMapBuilder.SetSourceModule(groundCaveMul);
+	caveTurb.SetSourceModule(0, caveMul);
+	caveTurb.SetSeed(currSeed + 666);
+	caveTurb.SetFrequency(3);
+	caveTurb.SetPower(0.25);
+
+	caveBias.SetSourceModule(0, caveTurb);
+	caveBias.SetBias(-0.3);
+
+	caveInvert.SetSourceModule(0, caveBias);
+
+	//worldTerrain.SetSourceModule(0, groundBase);
+	//worldTerrain.SetSourceModule(1, caveInvert);
+
+	/*
+	float someFloat = worldTerrain.GetValue(0, 0, 0);
+	cout << someFloat << endl;
+	cout << endl;
+	*/
+
+	/*
+	utils::NoiseMap heightMap;
+	utils::NoiseMapBuilderSphere heightMapBuilder;
+
+	heightMapBuilder.SetSourceModule(worldTerrain);
 	heightMapBuilder.SetDestNoiseMap(heightMap);
 	//heightMapBuilder.EnableSeamless();
 	heightMapBuilder.SetDestSize(WorldDataMap["ChunkSize"] * width, WorldDataMap["ChunkSize"] * height);
@@ -150,18 +161,6 @@ utils::NoiseMap GenerateRandomTerrainMap(int width, int height)
 	cout << heightMap.GetWidth() << endl;
 	cout << heightMap.GetHeight() << endl;
 	cout << endl;
-
-	/*
-	for(int i = 0; i < heightMap.GetWidth(); ++i)
-	{
-		for(int j = 0; j < heightMap.GetHeight(); ++j)
-		{
-			cout << heightMap.GetValue(i, j) << " ";
-		}
-		cout << endl;
-	}
-	cout << endl;
-	*/
 
 	utils::RendererImage renderer;
 	utils::Image image;
@@ -185,10 +184,10 @@ utils::NoiseMap GenerateRandomTerrainMap(int width, int height)
 	writer.SetSourceImage(image);
 	writer.SetDestFilename("map.bmp");
 	writer.WriteDestFile();
-	
-	return heightMap;
+	*/
 }
 
+/*
 void GrabChunk(int xMin, int xMax, int zMin, int zMax)
 {
 	heightMapBuilder.SetSourceModule(worldTerrain);
@@ -200,16 +199,21 @@ void GrabChunk(int xMin, int xMax, int zMin, int zMax)
 	heightMapBuilder.SetDestSize(destSizeX, destSizeZ);
 	heightMapBuilder.SetBounds(xMin, xMax, zMin, zMax);
 	heightMapBuilder.Build();
+}
+*/
 
-	/*
-	for(int i = 0; i < heightMap.GetWidth(); ++i)
-	{
-		for(int j = 0; j < heightMap.GetHeight(); ++j)
-		{
-			cout << heightMap.GetValue(i, j) << " ";
-		}
-		cout << endl;
-	}
-	cout << endl;
-	*/
+void WorldTerrain::InputNewBoundary(int width, int height, int depth)
+{
+	currWidth = width;
+	currHeight = height;
+	currDepth = depth;
+}
+
+double WorldTerrain::ReturnValue(int x, int y, int z)
+{
+	double nx = (double)x / (double)currWidth;
+	double ny = (double)y / (double)currHeight;
+	double nz = (double)z / (double)currDepth;
+
+	return worldTerrain.GetValue(nx, ny, nz);
 }

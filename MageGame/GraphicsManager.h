@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Ogre.h>
-#include "noiseutils.h"
+#include "WorldTerrain.h"
 #include "GameGlobals.h"
 #include "GameParser.h"
 
@@ -16,14 +16,14 @@ public:
 	//Functions
 	GraphicsManager(void);
 	~GraphicsManager(void);
-	void InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, utils::NoiseMap& heightMap);
+	void InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra);
 	void createSphereInVolume(PolyVox::SimpleVolume<VoxelMat>& volData, float fRadius, PolyVox::Vector3DFloat& v3dVolCenter);
 	Ogre::RenderWindow *GetWindow();
 	Ogre::SceneNode* GetPlayer();
 	Ogre::SceneNode* GetCamera();
 	Ogre::Root* GetRoot();
 	Ogre::Quaternion GetPlayerRotation();
-	void LoadManualObject(PolyVox::SimpleVolume<VoxelMat>& volData, utils::NoiseMap& heightMap);
+	void LoadManualObject(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra);
 	//Variables
 
 private:

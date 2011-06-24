@@ -41,7 +41,7 @@ void voxeltexture_fp(
 	//Bottom
     if(worldNormal.y < 0.0)
     {
-        color = tex2D(texture, float2((1 - inWorldPosition.x) + VOXELCENTEROFFSET, inWorldPosition.z + VOXELCENTEROFFSET));
+        color = tex2D(texture, float2(inWorldPosition.x + VOXELCENTEROFFSET, (1 - inWorldPosition.z) + VOXELCENTEROFFSET));
     }
 	//Front
     if(worldNormal.z > 0.0)

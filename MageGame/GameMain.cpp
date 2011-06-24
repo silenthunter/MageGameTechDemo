@@ -1,17 +1,16 @@
-#include "NoiseGeneration.h"
-#include "noiseutils.h"
 #include <Ogre.h>
 #include <OIS.h>
-#include "GraphicsManager.h"
-#include "PhysicsManager.h"
-#include "GameTimer.h"
-
-#include "GameGlobals.h"
-#include "GameParser.h"
-
 #include <PolyVoxUtil/VolumeChangeTracker.h>
 #include <PolyVoxCore/MeshDecimator.h>
 #include <Common/Base/hkBase.h>
+
+#include "noiseutils.h"
+#include "GraphicsManager.h"
+#include "PhysicsManager.h"
+#include "WorldTerrain.h"
+#include "GameTimer.h"
+#include "GameGlobals.h"
+#include "GameParser.h"
 
 using PolyVox::SimpleVolume;
 using PolyVox::Vector3DInt32;
@@ -34,8 +33,10 @@ int main(int argc, char* argv[])
 	ParseFile("Data/GameInfo/WaterData.ini", WaterDataMap);
 
 #pragma region Map Generation
-	NoiseGenerationInit(-1);
-	utils::NoiseMap heightMap = GenerateRandomTerrainMap(8, 4);
+	WorldTerrain wTer;
+	wTer.Init();
+	wTer.Generate(4, 4);
+	wTer.InputNewBoundary(128, 128, 128);
 #pragma endregion
 
 #pragma region GraphicsManager
@@ -48,9 +49,12 @@ int main(int argc, char* argv[])
 	size_t hWnd = 0;
 	ogreWindow->getCustomAttribute("WINDOW", &hWnd);
 
-	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(heightMap.GetWidth(), 128, heightMap.GetHeight())));
-	graphicsManager.InitVoxels(volData, heightMap);
-	graphicsManager.LoadManualObject(volData, heightMap);
+	//SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(heightMap.GetWidth(), 128, heightMap.GetHeight())));
+	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(256, 128, 128)));
+	//graphicsManager.InitVoxels(volData, heightMap);
+	graphicsManager.InitVoxels(volData, wTer);
+	//graphicsManager.LoadManualObject(volData, heightMap);
+	graphicsManager.LoadManualObject(volData, wTer);
 #pragma endregion
 
 #pragma region PhysicsManager

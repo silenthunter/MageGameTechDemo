@@ -115,18 +115,18 @@ copy /Y "$(ProjectDir)Libnoise\bin\libnoise.dll" "$(TargetDir)"</Command>
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="GraphicsManager.cpp" />
     <ClCompile Include="GameMain.cpp" />
-    <ClCompile Include="NoiseGeneration.cpp" />
     <ClCompile Include="noiseutils.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
+    <ClCompile Include="WorldTerrain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameGlobals.h" />
     <ClInclude Include="GameParser.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="GraphicsManager.h" />
-    <ClInclude Include="NoiseGeneration.h" />
     <ClInclude Include="noiseutils.h" />
     <ClInclude Include="PhysicsManager.h" />
+    <ClInclude Include="WorldTerrain.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
