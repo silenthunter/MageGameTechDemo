@@ -24,32 +24,32 @@ void voxeltexture_fp(
 	float3 worldNormal = cross(ddy(inWorldPosition.xyz), ddx(inWorldPosition.xyz));
 	worldNormal = normalize(worldNormal);
 	//Right
-    if(worldNormal.x > 0.0)
+    if(worldNormal.x > 0.5)
     {
         color = tex2D(texture, float2((1 - inWorldPosition.z) + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
     }
 	//Left
-	if(worldNormal.x < 0.0)
+	if(worldNormal.x < -0.5)
     {
         color = tex2D(texture, float2(inWorldPosition.z + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
     }
 	//Top
-    if(worldNormal.y > 0.0)
+    if(worldNormal.y > 0.5)
     {
         color = tex2D(texture, inWorldPosition.xz + VOXELCENTEROFFSET);
     }
 	//Bottom
-    if(worldNormal.y < 0.0)
+    if(worldNormal.y < -0.5)
     {
         color = tex2D(texture, float2(inWorldPosition.x + VOXELCENTEROFFSET, (1 - inWorldPosition.z) + VOXELCENTEROFFSET));
     }
 	//Front
-    if(worldNormal.z > 0.0)
+    if(worldNormal.z > 0.5)
     {
         color = tex2D(texture, float2(inWorldPosition.x + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
     }
 	//Back
-    if(worldNormal.z < 0.0)
+    if(worldNormal.z < -0.5)
     {
         color = tex2D(texture, float2((1 - inWorldPosition.x) + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
     }
