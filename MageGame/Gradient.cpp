@@ -12,15 +12,12 @@ Gradient::Gradient() : Module(GetSourceModuleCount())
 void Gradient::SetGradient(double set_x1, double set_x2, double set_y1, double set_y2, double set_z1, double set_z2)
 {
     x1 = set_x1;
-	x2 = set_x2;
 	y1 = set_y1;
-	y2 = set_y2;
 	z1 = set_z1;
-	z2 = set_z2;
  
-    m_x = x2 - x1;
-    m_y = y2 - y1;
-    m_z = z2 - z1;
+    m_x = set_x2 - x1;
+    m_y = set_y2 - y1;
+    m_z = set_z2 - z1;
     m_vlen = (m_x * m_x + m_y * m_y + m_z * m_z);
 }
 

@@ -207,10 +207,10 @@ void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, World
 				double nz = (double)z / (double)wTerra.currDepth;
 
 				double v = wTerra.worldTerrain.GetValue(nx, nz, ny);
-                if(v >= 1)
+                if(v > 0)
 				{
 					VoxelMat vox = volData.getVoxelAt(Vector3DInt32(x, z, y));
-					vox.setMaterial((unsigned char) v);
+					vox.setMaterial(1);
 					volData.setVoxelAt(x, z, y, vox);
 				}
 			}

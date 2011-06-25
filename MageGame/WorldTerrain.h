@@ -17,10 +17,9 @@ public:
 	void Init(int seedVar = time(0)); //Input a custom seed or leave it blank for a random seed using time(0)
 	void Generate();
 	void InputNewBoundary(int width, int height, int depth);
-	double ReturnValue(int x, int y, int z);
 
 	//Variables
-	noise::module::Select worldTerrain;
+	noise::module::Multiply worldTerrain;
 	int chunkSize;
 	int currWidth;
 	int currHeight;
@@ -41,7 +40,7 @@ private:
 	noise::module::RidgedMulti caveShape2;
 	noise::module::Select caveSelect1;
 	noise::module::Select caveSelect2;
-	noise::module::Multiply caveMul;
+	noise::module::Multiply caveMul1;
 	noise::module::Turbulence caveTurb;
-	noise::module::Invert caveInvert;
+	noise::module::ScaleBias caveInvert;
 };

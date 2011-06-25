@@ -102,83 +102,56 @@ void WorldTerrain::Generate()
 
 	groundTurb.SetSeed(currSeed);
 	groundTurb.SetSourceModule(0, groundGradiant);
-	groundTurb.SetPower(0.3);
-	groundTurb.SetFrequency(1.75);
-	groundTurb.yDistortModule.SetOctaveCount(10);
+	groundTurb.SetPower(0.25);
+	groundTurb.SetFrequency(2);
+	groundTurb.yDistortModule.SetOctaveCount(2);
 	groundTurb.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
 
-	worldTerrain.SetSourceModule(0, const0);
-	worldTerrain.SetSourceModule(1, const1);
-	worldTerrain.SetControlModule(groundTurb);
-	worldTerrain.SetBounds(0.001, 256);
+	groundSelect.SetSourceModule(0, const0);
+	groundSelect.SetSourceModule(1, const1);
+	groundSelect.SetControlModule(groundTurb);
+	groundSelect.SetBounds(-0.2, 256);
 
 	//Caves
-	/*
-	caveShape1.SetSeed(currSeed + 333);
+	caveShape1.SetSeed(currSeed + 111);
 	caveShape1.SetOctaveCount(1);
 	caveShape1.SetNoiseQuality(noise::QUALITY_BEST);
-	caveShape1.SetFrequency(2);
+	caveShape1.SetFrequency(8);
 
 	caveSelect1.SetSourceModule(0, const0);
 	caveSelect1.SetSourceModule(1, const1);
 	caveSelect1.SetControlModule(caveShape1);
-	caveSelect1.SetBounds(0.7, 1000);
+	caveSelect1.SetBounds(-0.25, 256);
 
-	caveShape2.SetSeed(currSeed + 666);
+	caveShape2.SetSeed(currSeed + 222);
 	caveShape2.SetOctaveCount(1);
 	caveShape2.SetNoiseQuality(noise::QUALITY_BEST);
-	caveShape2.SetFrequency(2);
+	caveShape2.SetFrequency(8);
 
 	caveSelect2.SetSourceModule(0, const0);
 	caveSelect2.SetSourceModule(1, const1);
 	caveSelect2.SetControlModule(caveShape2);
-	caveSelect2.SetBounds(0.7, 1000);
+	caveSelect2.SetBounds(-0.25, 256);
 
-	//caveMul.SetSourceModule(0, caveSelect1);
-	//caveMul.SetSourceModule(1, caveSelect2);
-	caveMul.SetSourceModule(0, caveShape1);
-	caveMul.SetSourceModule(1, caveShape2);
+	caveMul1.SetSourceModule(0, caveSelect1);
+	caveMul1.SetSourceModule(1, caveSelect2);
 	
-	caveTurb.SetSourceModule(0, caveMul);
-	caveTurb.SetSeed(currSeed + 999);
+	caveTurb.SetSourceModule(0, caveMul1);
+	caveTurb.SetSeed(currSeed + 333);
 	caveTurb.SetFrequency(3);
 	caveTurb.SetPower(0.25);
 
-	//caveInvert.SetSourceModule(0, caveTurb);
-	worldTerrain.SetSourceModule(0, caveTurb);
+	caveInvert.SetSourceModule(0, caveTurb);
+	caveInvert.SetScale(-1);
+	caveInvert.SetBias(1);
 
-	//worldTerrain.SetSourceModule(0, groundSelect);
-	//worldTerrain.SetSourceModule(1, caveInvert);
-	*/
+	worldTerrain.SetSourceModule(0, groundSelect);
+	worldTerrain.SetSourceModule(1, caveInvert);
 }
-
-/*
-void GrabChunk(int xMin, int xMax, int zMin, int zMax)
-{
-	heightMapBuilder.SetSourceModule(worldTerrain);
-	heightMapBuilder.SetDestNoiseMap(heightMap);
-
-	int destSizeX = (xMax - xMin) * ((int) WorldDataMap["ChunkSize"]);
-	int destSizeZ = (zMax - zMin) * ((int) WorldDataMap["ChunkSize"]);
-
-	heightMapBuilder.SetDestSize(destSizeX, destSizeZ);
-	heightMapBuilder.SetBounds(xMin, xMax, zMin, zMax);
-	heightMapBuilder.Build();
-}
-*/
 
 void WorldTerrain::InputNewBoundary(int width, int height, int depth)
 {
 	currWidth = width;
 	currHeight = height;
 	currDepth = depth;
-}
-
-double WorldTerrain::ReturnValue(int x, int y, int z)
-{
-	double nx = (double)x / (double)currWidth;
-	double ny = (double)y / (double)currHeight;
-	double nz = (double)z / (double)currDepth;
-
-	return worldTerrain.GetValue(nx, ny, nz);
 }

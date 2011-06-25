@@ -19,18 +19,13 @@ namespace noise
 				return 0;
 			}
 
-			//Variables
-			double x1;
-			double x2;
-			double y1;
-			double y2;
-			double z1;
-			double z2;
-
 		private:
 			//Functions
 
 			//Variables
+			double x1;
+			double y1;
+			double z1;
 			double m_x;
 			double m_y;
 			double m_z;
