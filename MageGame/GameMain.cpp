@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 #pragma endregion
 
 #pragma region PhysicsManager
-	PhysicsManager physicsManager(&volData);
+	PhysicsManager physicsManager(&volData, &graphicsManager);
 #pragma endregion
 
 #pragma region Keyboard and Mouse
@@ -64,6 +64,8 @@ int main(int argc, char* argv[])
 	OIS::Keyboard *m_Keyboard = static_cast<OIS::Keyboard*>(m_InputManager->createInputObject(OIS::OISKeyboard, false));
 	OIS::Mouse *m_Mouse = static_cast<OIS::Mouse*>(m_InputManager->createInputObject(OIS::OISMouse, false));
 #pragma endregion
+
+	graphicsManager.CloseGUI();
 
 	GameTimer timer;
 	float speed = 250.f;
