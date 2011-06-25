@@ -17,6 +17,7 @@ GraphicsManager::GraphicsManager(void)
 {
 	init();
 	chunkSize = WorldDataMap["ChunkSize"];
+	worldScale = 2.f;
 }
 
 GraphicsManager::~GraphicsManager(void)
@@ -131,7 +132,6 @@ struct s_block
 
 void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra)
 {
-	float scale = 1.f;
 	int widthChunks = wTerra.currWidth / chunkSize;
 	int heightChunks = wTerra.currHeight / chunkSize;
 	int depthChunks = wTerra.currDepth / chunkSize;
@@ -170,8 +170,8 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTer
 				vector<PositionMaterial>::iterator vecItr;
 				for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
 				{
-					PolyVox::Vector3DFloat pos = vecItr->getPosition() * scale;
-					pos += Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize);
+					Vector3DFloat pos = vecItr->getPosition() * worldScale;
+					pos += (Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize) * worldScale);
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
 				}
 
@@ -210,7 +210,7 @@ void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, World
                 if(v > 0)
 				{
 					VoxelMat vox = volData.getVoxelAt(Vector3DInt32(x, z, y));
-					vox.setMaterial(1);
+					vox.setMaterial(v);
 					volData.setVoxelAt(x, z, y, vox);
 				}
 			}

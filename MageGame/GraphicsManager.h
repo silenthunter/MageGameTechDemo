@@ -44,5 +44,6 @@ private:
 	Ogre::Viewport *vp;
 	std::map<std::string, Ogre::ManualObject*> manualObjects;
 	int chunkSize;
+	float worldScale;
 };
 

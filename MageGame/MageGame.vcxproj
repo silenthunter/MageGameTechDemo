@@ -110,6 +110,7 @@ copy /Y "$(ProjectDir)Libnoise\bin\libnoise.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="EnhancedTurbulence.cpp" />
     <ClCompile Include="GameGlobals.cpp" />
     <ClCompile Include="GameParser.cpp" />
     <ClCompile Include="GameTimer.cpp" />
@@ -121,6 +122,7 @@ copy /Y "$(ProjectDir)Libnoise\bin\libnoise.dll" "$(TargetDir)"</Command>
     <ClCompile Include="YTurbulence.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="EnhancedTurbulence.h" />
     <ClInclude Include="GameGlobals.h" />
     <ClInclude Include="GameParser.h" />
     <ClInclude Include="GameTimer.h" />

@@ -49,7 +49,7 @@ PhysicsManager::PhysicsManager(SimpleVolume<VoxelMat> *volume)
 	int y = polyVolume->getHeight() / chunkSize;
 	int z = polyVolume->getDepth() / chunkSize;
 
-	worldScale = 1.f;
+	worldScale = 2.f;
 
 	//Load the entire map
 	UpdateChunkRange(Vector3DInt32(0, 0, 0), Vector3DInt32(x, y, z));

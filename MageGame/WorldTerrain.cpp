@@ -21,7 +21,7 @@ void WorldTerrain::Init(int seedVar)
 	currSeed = seedVar;
 }
 
-void WorldTerrain::Generate()
+void WorldTerrain::GenerateRegularWorld()
 {
 	/*
 	mt19937 randGen((time_t) seedVar);
@@ -102,9 +102,9 @@ void WorldTerrain::Generate()
 
 	groundTurb.SetSeed(currSeed);
 	groundTurb.SetSourceModule(0, groundGradiant);
-	groundTurb.SetPower(0.25);
-	groundTurb.SetFrequency(2);
-	groundTurb.yDistortModule.SetOctaveCount(2);
+	groundTurb.SetPower(0.3);
+	groundTurb.SetFrequency(4);
+	groundTurb.yDistortModule.SetOctaveCount(10);
 	groundTurb.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
 
 	groundSelect.SetSourceModule(0, const0);
@@ -116,30 +116,39 @@ void WorldTerrain::Generate()
 	caveShape1.SetSeed(currSeed + 111);
 	caveShape1.SetOctaveCount(1);
 	caveShape1.SetNoiseQuality(noise::QUALITY_BEST);
-	caveShape1.SetFrequency(8);
+	caveShape1.SetFrequency(2);
 
 	caveSelect1.SetSourceModule(0, const0);
 	caveSelect1.SetSourceModule(1, const1);
 	caveSelect1.SetControlModule(caveShape1);
-	caveSelect1.SetBounds(-0.25, 256);
+	caveSelect1.SetBounds(-0.1, 256);
 
 	caveShape2.SetSeed(currSeed + 222);
 	caveShape2.SetOctaveCount(1);
 	caveShape2.SetNoiseQuality(noise::QUALITY_BEST);
-	caveShape2.SetFrequency(8);
+	caveShape2.SetFrequency(2);
 
 	caveSelect2.SetSourceModule(0, const0);
 	caveSelect2.SetSourceModule(1, const1);
 	caveSelect2.SetControlModule(caveShape2);
-	caveSelect2.SetBounds(-0.25, 256);
+	caveSelect2.SetBounds(-0.1, 256);
 
-	caveMul1.SetSourceModule(0, caveSelect1);
-	caveMul1.SetSourceModule(1, caveSelect2);
+	caveMul.SetSourceModule(0, caveSelect1);
+	caveMul.SetSourceModule(1, caveSelect2);
 	
-	caveTurb.SetSourceModule(0, caveMul1);
-	caveTurb.SetSeed(currSeed + 333);
-	caveTurb.SetFrequency(3);
-	caveTurb.SetPower(0.25);
+	caveTurb.SetSourceModule(0, caveMul);
+	caveTurb.xDistortModule.SetSeed(currSeed + 333);
+	caveTurb.yDistortModule.SetSeed(currSeed + 433);
+	caveTurb.zDistortModule.SetSeed(currSeed + 533);
+	caveTurb.xDistortModule.SetFrequency(2);
+	caveTurb.yDistortModule.SetFrequency(2);
+	caveTurb.zDistortModule.SetFrequency(2);
+	caveTurb.xDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	caveTurb.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	caveTurb.zDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	caveTurb.SetXPower(0.25);
+	caveTurb.SetYPower(0.25);
+	caveTurb.SetZPower(0.25);
 
 	caveInvert.SetSourceModule(0, caveTurb);
 	caveInvert.SetScale(-1);

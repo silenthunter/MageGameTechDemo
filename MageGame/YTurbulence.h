@@ -1,4 +1,5 @@
 #include <noise\module\perlin.h>
+#include <noise\module\scalepoint.h>
 
 namespace noise
 {

@@ -34,8 +34,8 @@ int main(int argc, char* argv[])
 #pragma region Map Generation
 	WorldTerrain wTer;
 	wTer.Init();
-	wTer.Generate();
-	wTer.InputNewBoundary(128, 128, 128);
+	wTer.GenerateRegularWorld();
+	wTer.InputNewBoundary(96, 96, 96);
 #pragma endregion
 
 #pragma region GraphicsManager

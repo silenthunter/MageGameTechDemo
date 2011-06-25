@@ -1,4 +1,5 @@
 #define VOXELCENTEROFFSET 0.5
+#define WORLDSCALE 2.0
 
 void voxeltexture_vp(
 	float4 inPosition			: POSITION,
@@ -21,36 +22,36 @@ void voxeltexture_fp(
 
 	uniform sampler2D texture)
 {
-	float3 worldNormal = cross(ddy(inWorldPosition.xyz), ddx(inWorldPosition.xyz));
+	float3 worldNormal = cross(ddy(inWorldPosition.xyz / WORLDSCALE), ddx(inWorldPosition.xyz / WORLDSCALE));
 	worldNormal = normalize(worldNormal);
 	//Right
     if(worldNormal.x > 0.5)
     {
-        color = tex2D(texture, float2((1 - inWorldPosition.z) + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
+        color = tex2D(texture, float2(1 - inWorldPosition.z / WORLDSCALE + VOXELCENTEROFFSET, 1 - inWorldPosition.y / WORLDSCALE + VOXELCENTEROFFSET));
     }
 	//Left
 	if(worldNormal.x < -0.5)
     {
-        color = tex2D(texture, float2(inWorldPosition.z + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
+        color = tex2D(texture, float2(inWorldPosition.z / WORLDSCALE + VOXELCENTEROFFSET, 1 - inWorldPosition.y / WORLDSCALE + VOXELCENTEROFFSET));
     }
 	//Top
     if(worldNormal.y > 0.5)
     {
-        color = tex2D(texture, inWorldPosition.xz + VOXELCENTEROFFSET);
+        color = tex2D(texture, inWorldPosition.xz / WORLDSCALE + VOXELCENTEROFFSET);
     }
 	//Bottom
     if(worldNormal.y < -0.5)
     {
-        color = tex2D(texture, float2(inWorldPosition.x + VOXELCENTEROFFSET, (1 - inWorldPosition.z) + VOXELCENTEROFFSET));
+        color = tex2D(texture, float2(inWorldPosition.x / WORLDSCALE + VOXELCENTEROFFSET, 1 - inWorldPosition.z / WORLDSCALE + VOXELCENTEROFFSET));
     }
 	//Front
     if(worldNormal.z > 0.5)
     {
-        color = tex2D(texture, float2(inWorldPosition.x + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
+        color = tex2D(texture, float2(inWorldPosition.x / WORLDSCALE + VOXELCENTEROFFSET, 1 - inWorldPosition.y / WORLDSCALE + VOXELCENTEROFFSET));
     }
 	//Back
     if(worldNormal.z < -0.5)
     {
-        color = tex2D(texture, float2((1 - inWorldPosition.x) + VOXELCENTEROFFSET, (1 - inWorldPosition.y) + VOXELCENTEROFFSET));
+        color = tex2D(texture, float2(1 - inWorldPosition.x / WORLDSCALE + VOXELCENTEROFFSET, 1 - inWorldPosition.y / WORLDSCALE + VOXELCENTEROFFSET));
     }
 }
