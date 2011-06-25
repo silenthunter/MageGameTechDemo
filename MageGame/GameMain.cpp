@@ -31,6 +31,8 @@ int main(int argc, char* argv[])
 	ParseFile("Data/GameInfo/WorldGeneration.ini", WorldGenerationMap);
 	ParseFile("Data/GameInfo/WaterData.ini", WaterDataMap);
 
+	ParseIDFile("Data/GameInfo/MaterialID.ini", MaterialIDMap);
+
 #pragma region Map Generation
 	WorldTerrain wTer;
 	wTer.Init();

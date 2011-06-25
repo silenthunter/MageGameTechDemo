@@ -16,8 +16,8 @@ public:
 	WorldTerrain();
 	~WorldTerrain();
 	void Init(int seedVar = time(0)); //Input a custom seed or leave it blank for a random seed using time(0)
-	void GenerateRegularWorld();
 	void InputNewBoundary(int width, int height, int depth);
+	void GenerateRegularWorld();
 
 	//Variables
 	noise::module::Multiply worldTerrain;
@@ -27,12 +27,16 @@ public:
 	int currDepth;
 
 private:
+	//Functions
+	void GenerateGround();
+	void GenerateCaves();
+
 	//Variables
 	int currSeed;
 
 	//Ground
 	noise::module::Const const0;
-	noise::module::Const const1;
+	noise::module::Const constMat;
 	noise::module::Gradient groundGradiant;
 	noise::module::YTurbulence groundTurb;
 	noise::module::Select groundSelect;

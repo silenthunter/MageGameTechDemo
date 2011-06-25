@@ -51,3 +51,46 @@ void DataInput(StrFloatMap& map, const string& prefix, const string& data)
 {
 	map.insert(StrFloatMap::value_type(prefix, boost::lexical_cast<float>(data)));
 }
+
+bool ParseIDFile(const std::string& filepath, StrU16Map& map)
+{
+	ifstream gameData(filepath.c_str());
+	string str;
+
+	if(gameData.is_open())
+	{
+		while(gameData.good())
+		{
+			getline(gameData, str);
+			if(str.length() == 0 || str[0] == '[' || str[0] == '#') //Don't bother with [Category] lines or comments
+			{
+				continue;
+			}
+			size_t end = str.find('=');
+			if(end != string::npos)
+			{
+				string data = str.substr(0, end);
+				string id = str.substr(end + 1);
+				DataIDInput(map, data, id);
+			}
+			DataIDInput(map, str);
+		}
+		gameData.close();
+		return true;
+	}
+	else
+	{
+		cerr << "Unable to open filepath: " << filepath << endl;
+		return false;
+	}
+}
+
+void DataIDInput(StrU16Map& map, const std::string& data)
+{
+	map.insert(StrU16Map::value_type(data, static_cast<unsigned short>(map.size() + 1)));
+}
+
+void DataIDInput(StrU16Map& map, const std::string& data, const std::string& id)
+{
+	map.insert(StrU16Map::value_type(data, boost::lexical_cast<unsigned short>(id)));
+}

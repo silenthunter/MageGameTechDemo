@@ -5,3 +5,5 @@ StrFloatMap ItemDataMap;
 StrFloatMap CharacterDataMap;
 StrFloatMap WorldGenerationMap;
 StrFloatMap WaterDataMap;
+
+StrU16Map MaterialIDMap;

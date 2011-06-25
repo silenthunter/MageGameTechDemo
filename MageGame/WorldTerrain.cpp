@@ -10,6 +10,7 @@ using std::variate_generator;
 WorldTerrain::WorldTerrain()
 {
 	chunkSize = WorldDataMap["ChunkSize"];
+	constMat.SetConstValue(1); //Start with stone
 }
 
 WorldTerrain::~WorldTerrain()
@@ -19,6 +20,13 @@ WorldTerrain::~WorldTerrain()
 void WorldTerrain::Init(int seedVar)
 {
 	currSeed = seedVar;
+}
+
+void WorldTerrain::InputNewBoundary(int width, int height, int depth)
+{
+	currWidth = width;
+	currHeight = height;
+	currDepth = depth;
 }
 
 void WorldTerrain::GenerateRegularWorld()
@@ -94,10 +102,13 @@ void WorldTerrain::GenerateRegularWorld()
 	//worldTerrain.SetSeed(currSeed);
 	//worldTerrain.SetOctaveCount(WorldGenerationMap["PerlinOctave"]);
 
-	//Const modules
-	const1.SetConstValue(1);
+	GenerateGround();
+	GenerateCaves();
 
-	//Base Ground
+}
+
+void WorldTerrain::GenerateGround()
+{
 	groundGradiant.SetGradient(0, 0, 0, 1, 0, 0);
 
 	groundTurb.SetSeed(currSeed);
@@ -108,18 +119,20 @@ void WorldTerrain::GenerateRegularWorld()
 	groundTurb.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
 
 	groundSelect.SetSourceModule(0, const0);
-	groundSelect.SetSourceModule(1, const1);
+	groundSelect.SetSourceModule(1, constMat);
 	groundSelect.SetControlModule(groundTurb);
 	groundSelect.SetBounds(-0.2, 256);
+}
 
-	//Caves
+void WorldTerrain::GenerateCaves()
+{
 	caveShape1.SetSeed(currSeed + 111);
 	caveShape1.SetOctaveCount(1);
 	caveShape1.SetNoiseQuality(noise::QUALITY_BEST);
 	caveShape1.SetFrequency(2);
 
 	caveSelect1.SetSourceModule(0, const0);
-	caveSelect1.SetSourceModule(1, const1);
+	caveSelect1.SetSourceModule(1, constMat);
 	caveSelect1.SetControlModule(caveShape1);
 	caveSelect1.SetBounds(-0.1, 256);
 
@@ -129,7 +142,7 @@ void WorldTerrain::GenerateRegularWorld()
 	caveShape2.SetFrequency(2);
 
 	caveSelect2.SetSourceModule(0, const0);
-	caveSelect2.SetSourceModule(1, const1);
+	caveSelect2.SetSourceModule(1, constMat);
 	caveSelect2.SetControlModule(caveShape2);
 	caveSelect2.SetBounds(-0.1, 256);
 
@@ -156,11 +169,4 @@ void WorldTerrain::GenerateRegularWorld()
 
 	worldTerrain.SetSourceModule(0, groundSelect);
 	worldTerrain.SetSourceModule(1, caveInvert);
-}
-
-void WorldTerrain::InputNewBoundary(int width, int height, int depth)
-{
-	currWidth = width;
-	currHeight = height;
-	currDepth = depth;
 }
