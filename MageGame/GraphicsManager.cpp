@@ -71,12 +71,12 @@ void GraphicsManager::init()
 	CEGUI::WindowManager::setDefaultResourceGroup("Layouts");
 
 	CEGUI::SchemeManager::getSingleton().create("TaharezLook.scheme");
-	CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
+	//CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
 	CEGUI::WindowManager& winMgr = CEGUI::WindowManager::getSingleton();
-	CEGUI::DefaultWindow *rootWin = (CEGUI::DefaultWindow*)winMgr.createWindow("DefaultWindow", "Root");
+	rootWin = (CEGUI::DefaultWindow*)winMgr.createWindow("DefaultWindow", "Root");
 	CEGUI::System::getSingleton().setGUISheet(rootWin);
 
-	CEGUI::FrameWindow *frame = (CEGUI::FrameWindow*)winMgr.createWindow("TaharezLook/FrameWindow", "Demo Window");
+	frame = (CEGUI::FrameWindow*)winMgr.createWindow("TaharezLook/FrameWindow", "Demo Window");
 	rootWin->addChildWindow(frame);
 
     frame->setPosition(CEGUI::UVector2(cegui_reldim(0.25f), cegui_reldim( 0.25f)));
@@ -85,7 +85,14 @@ void GraphicsManager::init()
 	frame->setMaxSize(CEGUI::UVector2(cegui_reldim(1.0f), cegui_reldim( 1.0f)));
     frame->setMinSize(CEGUI::UVector2(cegui_reldim(0.1f), cegui_reldim( 0.1f)));
 
-	frame->setText("Hello World!");
+	frame->setText("Loading Graphics");
+
+	bar = (CEGUI::ProgressBar*)winMgr.createWindow("TaharezLook/ProgressBar", "Pbar");
+
+	bar->setProgress(0);
+	bar->setSize(CEGUI::UVector2(CEGUI::UDim(.8f, 0), CEGUI::UDim(0.1f, 0)));
+	bar->setPosition(CEGUI::UVector2(CEGUI::UDim(.1f, 0), CEGUI::UDim(.5f, 0)));
+	frame->addChildWindow(bar);
 
 }
 
@@ -163,6 +170,8 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTer
 	int widthChunks = wTerra.currWidth / chunkSize;
 	int heightChunks = wTerra.currHeight / chunkSize;
 	int depthChunks = wTerra.currDepth / chunkSize;
+	double elapsedTotal = 0;
+	GameTimer timer;
 
 	for(int i = 0; i < heightChunks; i++)
 	{
@@ -170,6 +179,18 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTer
 		{
 			for(int k = 0; k < depthChunks; k++)
 			{
+				elapsedTotal += timer.getElapsedTimeSec();
+
+				if(elapsedTotal >= .1f)
+				{
+					float progress = (float)(i * widthChunks + j) / (float)(heightChunks * widthChunks);
+					bar->setProgress(progress);
+
+					root->renderOneFrame(1.f);
+					Ogre::WindowEventUtilities::messagePump();
+					elapsedTotal = 0;
+				}
+
 				Vector3DInt32 start(j * chunkSize, k * chunkSize, i * chunkSize);
 				Vector3DInt32 end((j + 1) * chunkSize - 1, (k + 1) * chunkSize - 1, (i + 1) * chunkSize - 1);
 
@@ -220,6 +241,11 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTer
 		}
 		printf("\n");
 	}
+
+	frame->setText("Loading Physics");
+	bar->setProgress(1.f);
+	root->renderOneFrame(1.f);
+	Ogre::WindowEventUtilities::messagePump();
 }
 
 void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra)
@@ -333,4 +359,16 @@ void createSphereInVolume(SimpleVolume<VoxelMat>& volData, float fRadius, Vector
 			}
 		}
 	}
+}
+
+void GraphicsManager::UpdatePhysicsProgress(float progress)
+{
+	bar->setProgress(progress);
+	root->renderOneFrame(1.f);
+	Ogre::WindowEventUtilities::messagePump();
+}
+
+void GraphicsManager::CloseGUI()
+{
+	rootWin->setVisible(false);
 }

@@ -38,8 +38,9 @@ using PolyVox::Vector3DFloat;
 using PolyVox::SurfaceMesh;
 
 
-PhysicsManager::PhysicsManager(SimpleVolume<VoxelMat> *volume)
+PhysicsManager::PhysicsManager(PolyVox::SimpleVolume<VoxelMat>* volume, GraphicsManager *manager)
 {
+	graphMan = manager;
 	chunkSize = WorldDataMap["ChunkSize"];
 	initHavok();
 	initPlayer();
@@ -299,10 +300,23 @@ void PhysicsManager::UpdateChunkRange(Vector3DInt32 &start, Vector3DInt32 &end)
 {
 	if(start.getX() > end.getX() || start.getY() > end.getY() || start.getZ() > end.getZ()) return; //start needs to be lower than end
 
+	GameTimer timer;
+	double totalElapsed = 0.f;
+
 	for(int i = start.getX(); i <= end.getX(); i++)
 		for(int j = start.getY(); j <= end.getY(); j++)
 			for(int k = start.getZ(); k <= end.getZ(); k++)
+			{
+				totalElapsed += timer.getElapsedTimeSec();
+				if(totalElapsed >= .5f)
+				{
+					totalElapsed = 0;
+					float progress = (float)(i * end.getY() + j) / (float)(end.getX() * end.getY());
+					graphMan->UpdatePhysicsProgress(progress);
+				}
+
 				UpdateChunk(Vector3DInt32(i, j, k));
+			}
 }
 
 void PhysicsManager::StepSimulation(float deltaTime)

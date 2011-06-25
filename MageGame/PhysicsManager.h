@@ -69,7 +69,9 @@
 #include <PolyVoxCore/CubicSurfaceExtractor.h>
 #include <PolyVoxCore/SurfaceMesh.h>
 #include "GameGlobals.h"
+#include "GraphicsManager.h"
 #include <OIS.h>
+#include "GameTimer.h"
 #pragma endregion
 
 #define HAVOK_VISUAL_DEBUGGER_ENABLED
@@ -78,6 +80,8 @@ static void HK_CALL errorReport(const char* msg, void* userArgGivenToInit)
 {
 	printf("%s", msg);
 }
+
+typedef void (*ProgressCallback)(void);
 
 ///Calculates physics for the game world
 /** Uses the Havok physics engine to compute the interactions between the player and the game world 
@@ -117,8 +121,11 @@ private:
 
 	PolyVox::SimpleVolume<VoxelMat>* polyVolume;
 
+	GraphicsManager* graphMan;
+	typedef void (*ProgessCallback)(float);
+
 public:
-	PhysicsManager(PolyVox::SimpleVolume<VoxelMat>* volume);
+	PhysicsManager(PolyVox::SimpleVolume<VoxelMat>* volume, GraphicsManager *manager = NULL);
 	~PhysicsManager(void);
 
 	///Updates a single chunk

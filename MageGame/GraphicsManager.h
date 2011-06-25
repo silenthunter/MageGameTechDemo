@@ -12,6 +12,8 @@
 #include <cegui/CEGUI.h>
 #include <cegui/RendererModules/Ogre/CEGUIOgreRenderer.h>
 
+#include "GameTimer.h";
+
 class GraphicsManager
 {
 
@@ -27,6 +29,8 @@ public:
 	Ogre::Root* GetRoot();
 	Ogre::Quaternion GetPlayerRotation();
 	void LoadManualObject(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra);
+	void UpdatePhysicsProgress(float progress);
+	void CloseGUI();
 	//Variables
 
 private:
@@ -47,6 +51,10 @@ private:
 	Ogre::Viewport *vp;
 	std::map<std::string, Ogre::ManualObject*> manualObjects;
 	int chunkSize;
+
+	CEGUI::ProgressBar *bar;
+	CEGUI::DefaultWindow *rootWin;
+	CEGUI::FrameWindow *frame;
 
 	CEGUI::OgreRenderer *mCEGUIrenderer;
 };
