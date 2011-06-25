@@ -61,6 +61,32 @@ void GraphicsManager::init()
 
 	SetUpWindow("MageGameTechDemo");
 	SetUpCamera();
+
+	//Set up menu
+	mCEGUIrenderer = &CEGUI::OgreRenderer::bootstrapSystem(*window);
+	CEGUI::Imageset::setDefaultResourceGroup("Imagesets");
+	CEGUI::Font::setDefaultResourceGroup("Fonts");
+	CEGUI::Scheme::setDefaultResourceGroup("Schemes");
+	CEGUI::WidgetLookManager::setDefaultResourceGroup("LookNFeel");
+	CEGUI::WindowManager::setDefaultResourceGroup("Layouts");
+
+	CEGUI::SchemeManager::getSingleton().create("TaharezLook.scheme");
+	CEGUI::System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
+	CEGUI::WindowManager& winMgr = CEGUI::WindowManager::getSingleton();
+	CEGUI::DefaultWindow *rootWin = (CEGUI::DefaultWindow*)winMgr.createWindow("DefaultWindow", "Root");
+	CEGUI::System::getSingleton().setGUISheet(rootWin);
+
+	CEGUI::FrameWindow *frame = (CEGUI::FrameWindow*)winMgr.createWindow("TaharezLook/FrameWindow", "Demo Window");
+	rootWin->addChildWindow(frame);
+
+    frame->setPosition(CEGUI::UVector2(cegui_reldim(0.25f), cegui_reldim( 0.25f)));
+    frame->setSize(CEGUI::UVector2(cegui_reldim(0.5f), cegui_reldim( 0.5f)));
+
+	frame->setMaxSize(CEGUI::UVector2(cegui_reldim(1.0f), cegui_reldim( 1.0f)));
+    frame->setMinSize(CEGUI::UVector2(cegui_reldim(0.1f), cegui_reldim( 0.1f)));
+
+	frame->setText("Hello World!");
+
 }
 
 void GraphicsManager::SetUpCamera()

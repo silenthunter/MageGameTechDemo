@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 	WorldTerrain wTer;
 	wTer.Init();
 	wTer.Generate();
-	wTer.InputNewBoundary(256, 128, 256);
+	wTer.InputNewBoundary(128, 128, 128);
 #pragma endregion
 
 #pragma region GraphicsManager
@@ -49,8 +49,8 @@ int main(int argc, char* argv[])
 	ogreWindow->getCustomAttribute("WINDOW", &hWnd);
 
 	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(wTer.currWidth, wTer.currDepth, wTer.currHeight)));
-	graphicsManager.InitVoxels(volData, wTer);
-	graphicsManager.LoadManualObject(volData, wTer);
+	//graphicsManager.InitVoxels(volData, wTer);
+	//graphicsManager.LoadManualObject(volData, wTer);
 #pragma endregion
 
 #pragma region PhysicsManager
@@ -83,6 +83,8 @@ int main(int argc, char* argv[])
 
 		player->yaw(Degree(xAxis.rel / -2));
 		c_sn->pitch(Degree(yAxis.rel / -2));
+
+		CEGUI::System::getSingleton().injectMouseMove(xAxis.rel, yAxis.rel);
 
 #pragma endregion
 

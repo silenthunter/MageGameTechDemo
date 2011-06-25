@@ -9,6 +9,9 @@
 #include "PolyVoxCore/SimpleVolume.h"
 #include <PolyVoxCore/CubicSurfaceExtractor.h>
 
+#include <cegui/CEGUI.h>
+#include <cegui/RendererModules/Ogre/CEGUIOgreRenderer.h>
+
 class GraphicsManager
 {
 
@@ -44,5 +47,7 @@ private:
 	Ogre::Viewport *vp;
 	std::map<std::string, Ogre::ManualObject*> manualObjects;
 	int chunkSize;
+
+	CEGUI::OgreRenderer *mCEGUIrenderer;
 };
 
