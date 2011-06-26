@@ -214,76 +214,42 @@ void PhysicsManager::deInitHavok()
 
 void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 {
-	Vector3DInt32 start(chunk.getX() * chunkSize, chunk.getY() * chunkSize, chunk.getZ() * chunkSize);
-	Vector3DInt32 end = start + Vector3DInt32(chunkSize, chunkSize, chunkSize);
-
-	SurfaceMesh<PositionMaterial> mesh;
-	CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(polyVolume, Region(start, end), &mesh);
-	surfaceExtractor.execute();
-
-	std::vector<uint32_t> vecIndices = mesh.getIndices();
-	std::vector<PositionMaterial> vecVertices = mesh.getVertices();
-
-	if(vecVertices.size() == 0) return; //No vertices to add to the world
-
-	hkpExtendedMeshShape::TrianglesSubpart subPart;
-	float* vert;
-	unsigned long *ind;
-	hkpExtendedMeshShape *shp;
-
-	shp = new hkpExtendedMeshShape();
-	subPart.m_numVertices = vecVertices.size() * 3;
-	subPart.m_numTriangleShapes = vecIndices.size() / 3;
-	subPart.m_vertexStriding = sizeof(float) * 3;
-	subPart.m_indexStriding = sizeof(unsigned long) * 3;
-	vert = new float[subPart.m_numVertices];
-	ind = new unsigned long[subPart.m_numTriangleShapes * 3];
-
-	//Get vertices
-	std::vector<PositionMaterial>::iterator vecItr;
-	int vecCnt = 0;
-	for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++, vecCnt++)
-	{
-		PolyVox::Vector3DFloat pos = (*vecItr).getPosition();
-		pos += Vector3DFloat(chunk.getX() * chunkSize, chunk.getY() * chunkSize, chunk.getZ() * chunkSize);
-		pos *= worldScale;
-
-		vert[vecCnt * 3 + 0] = pos.getX();
-		vert[vecCnt * 3 + 1] = pos.getY();
-		vert[vecCnt * 3 + 2] = pos.getZ();
-
-	}
-
-	//Get indices
-	std::vector<uint32_t>::iterator indVec;
-	int indCnt = 0;
-	for(indVec = vecIndices.begin(); indVec != vecIndices.end(); indVec++, indCnt++)
-	{
-		ind[indCnt] = *indVec;
-	}
-
-	subPart.m_vertexBase = vert;
-	subPart.m_indexBase = ind;
-	subPart.m_stridingType = hkpExtendedMeshShape::INDICES_INT32;
-	shp->addTrianglesSubpart(subPart);
-
-	hkpMoppCompilerInput mci;
 
 	hkpRigidBodyCinfo info;
+	hkArray<hkpConvexShape*> shapes;
+	hkpBoxShape* box = new hkpBoxShape(hkVector4(1, 1, 1));
 
-	hkpMoppCode *code = hkpMoppUtility::buildCode(shp, mci);
+	for(int i = chunk.getX() * chunkSize; i < (chunk.getX() + 1) * chunkSize; i++)
+	{
+		for(int j = chunk.getY() * chunkSize; j < (chunk.getY() + 1) * chunkSize; j++)
+		{
+			for(int k = chunk.getZ() * chunkSize; k < (chunk.getZ() + 1) * chunkSize; k++)
+			{
+				VoxelMat voxel = polyVolume->getVoxelAt(PolyVox::Vector3DInt32(i, j, k));
 
-	hkpMoppBvTreeShape* moppShape = new hkpMoppBvTreeShape(shp, code);
+				if(voxel.getDensity() > 0 && shapes.getSize() < 32760)
+				{
+					hkTransform tran;
+					tran.setTranslation(hkVector4(2 * i, 2 * j, 2 * k));
+					tran.setRotation(hkQuaternion::getIdentity());
+					hkpConvexTransformShape* trans = new hkpConvexTransformShape(box, tran);
 
-	hkVector4 dimensions(50.f, 2.f, 50.f);
-	hkpConvexShape *shape = new hkpBoxShape(dimensions, 0);
+					shapes.pushBack(trans);
+					//trans->removeReference();
+				}
+			}
+		}
+	}
 
-	//hkpBvTreeShape *sshp = new hkpBvTreeShape();
+	if(shapes.getSize() == 0) return;
 
-	//hkpShape* shapeUsed = shp;
+	hkpExtendedMeshShape* chunkShape = new hkpExtendedMeshShape();
+	hkpExtendedMeshShape::ShapesSubpart sub(&shapes[0], shapes.getSize());
+
+	chunkShape->addShapesSubpart(sub);
 
 	info.m_motionType = hkpMotion::MOTION_FIXED;
-	info.m_shape = moppShape;
+	info.m_shape = chunkShape;
 	info.m_position = hkVector4(0, 0, 0);
 
 	hkpRigidBody *body = new hkpRigidBody(info);
@@ -291,7 +257,8 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 	world->lock();
 	world->addEntity(body);
 	body->removeReference();
-	shp->removeReference();
+	chunkShape->removeReference();
+	box->removeReference();
 
 	world->unlock();
 }

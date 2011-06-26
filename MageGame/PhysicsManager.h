@@ -46,6 +46,9 @@
 
 #include <Physics/Collide/Shape/Compound/Tree/hkpBvTreeShape.h>
 
+#include <Physics/Collide/Shape/Convex/ConvexTransform/hkpConvexTransformShape.h>
+#include <Physics/Collide/Shape/Compound/Collection/List/hkpListShape.h>
+
 /////////////////////////////////////////////////////////////////////////////////////////////// Character Control
 #include <Physics/Utilities/CharacterControl/hkpCharacterControl.h>
 #include <Physics/Utilities/CharacterControl/hkpCharacterControllerCinfo.h>
