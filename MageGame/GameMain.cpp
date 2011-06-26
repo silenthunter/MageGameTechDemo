@@ -2,6 +2,7 @@
 #include <OIS.h>
 #include <PolyVoxUtil/VolumeChangeTracker.h>
 #include <PolyVoxCore/MeshDecimator.h>
+#include <PolyVoxCore/Raycast.h>
 #include <Common/Base/hkBase.h>
 
 #include "GraphicsManager.h"
@@ -70,6 +71,7 @@ int main(int argc, char* argv[])
 	GameTimer timer;
 	float speed = 250.f;
 	int count = 0;
+	char lastState[256];
 
 	while(1)
 	{
@@ -100,6 +102,21 @@ int main(int argc, char* argv[])
 		hkVector4 hkPos = physicsManager.GetPlayerPosition();
 		player->setPosition(hkPos(0), hkPos(1), hkPos(2));
 
+		PolyVox::Vector3DFloat voxPos(hkPos(0), hkPos(1), hkPos(2));
+
+		if(m_Keyboard->isKeyDown(OIS::KC_E))
+		{
+			Ogre::Vector3 forward(0, 0, 1);
+			forward = c_sn->_getDerivedOrientation() * forward;
+			PolyVox::Vector3DFloat rayDirection(forward.x, forward.y, forward.z);
+			rayDirection *= 1000;
+
+			PolyVox::RaycastResult rayResults;
+			PolyVox::Raycast<PolyVox::SimpleVolume, VoxelMat> ray(&volData, voxPos, rayDirection, rayResults);
+			ray.execute();
+
+		}
+
 		if(count % 50 == 0)
 		{
 			cout << hkPos(0) << ", " << hkPos(1) << ", " << hkPos(2) << endl;
@@ -114,6 +131,7 @@ int main(int argc, char* argv[])
 		//Sleep(10);
 
 		//audioUpdate();
+		m_Keyboard->copyKeyStates(lastState);
 	}
 
 	return 0;

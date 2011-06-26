@@ -17,7 +17,7 @@ GraphicsManager::GraphicsManager(void)
 {
 	init();
 	chunkSize = WorldDataMap["ChunkSize"];
-	worldScale = 2.f;
+	worldScale = 1.f;
 }
 
 GraphicsManager::~GraphicsManager(void)
@@ -111,7 +111,7 @@ void GraphicsManager::SetUpCamera()
 	c->setFarClipDistance(100);
 	c->setAutoAspectRatio(true);
 
-	c->setPosition(Ogre::Vector3(0, 0, 0));
+	c->setPosition(Ogre::Vector3(0, .4f, 0));//up .4f because that's the physics capsule's offset
 
 	//attach the camera
 	vp = window->addViewport(c);

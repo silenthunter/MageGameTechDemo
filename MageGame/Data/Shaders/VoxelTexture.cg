@@ -1,5 +1,5 @@
 #define VOXELCENTEROFFSET 0.5
-#define WORLDSCALE 2.0
+#define WORLDSCALE 1.0
 
 void voxeltexture_vp(
 	float4 inPosition			: POSITION,

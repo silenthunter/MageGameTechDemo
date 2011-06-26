@@ -50,7 +50,7 @@ PhysicsManager::PhysicsManager(PolyVox::SimpleVolume<VoxelMat>* volume, Graphics
 	int y = polyVolume->getHeight() / chunkSize;
 	int z = polyVolume->getDepth() / chunkSize;
 
-	worldScale = 2.f;
+	worldScale = 1.f;
 
 	//Load the entire map
 	UpdateChunkRange(Vector3DInt32(0, 0, 0), Vector3DInt32(x, y, z));
@@ -221,7 +221,7 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 	hkpRigidBodyCinfo info;
 	hkArray<hkpConvexShape*> shapes;
 	hkArray<hkpShapeKey> keys;
-	hkpBoxShape* box = new hkpBoxShape(hkVector4(1, 1, 1));
+	hkpBoxShape* box = new hkpBoxShape(hkVector4(worldScale / 2, worldScale / 2, worldScale / 2));
 	int keyNum = 0;
 
 	for(int i = chunk.getX() * chunkSize; i < (chunk.getX() + 1) * chunkSize; i++)
@@ -235,7 +235,7 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 				if(voxel.getDensity() > 0 && shapes.getSize() < 32760)
 				{
 					hkTransform tran;
-					tran.setTranslation(hkVector4(2 * i, 2 * j, 2 * k));
+					tran.setTranslation(hkVector4(worldScale * i, worldScale * j, worldScale * k));
 					tran.setRotation(hkQuaternion::getIdentity());
 					hkpConvexTransformShape* trans = new hkpConvexTransformShape(box, tran);
 
@@ -280,7 +280,7 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 	for(int i = 0; i < keys.getSize(); i++)
 		m_breakUtil->markPieceBreakable(body, keys[i], 100.f);
 
-	hkpBreakOffPartsUtil::removeKeysFromListShape(body, &keys[0], keys.getSize());
+	//hkpBreakOffPartsUtil::removeKeysFromListShape(body, &keys[0], keys.getSize());
 
 	world->lock();
 	world->addEntity(body);
@@ -340,7 +340,7 @@ void PhysicsManager::initPlayer()
 	hkVector4 vertexB(0, -0.4f, 0);
 
 	// Create a capsule to represent the character standing
-	hkpCapsuleShape* m_standShape = new hkpCapsuleShape(vertexA, vertexB, .6f);
+	hkpCapsuleShape* m_standShape = new hkpCapsuleShape(vertexA, vertexB, .4f);
 
 	// Create a capsule to represent the character crouching
 	// Note that we create the smaller capsule with the base at the same position as the larger capsule.		
