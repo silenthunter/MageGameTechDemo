@@ -152,6 +152,9 @@ void PhysicsManager::initHavok()
 		// We need to register all modules we will be running multi-threaded with the job queue
 		world->registerWithJobQueue( m_pJobQueue );
 
+		m_breakUtil = new hkpBreakOffPartsUtil(this);
+		world->addWorldExtension(m_breakUtil);
+
 		// Now we have finished modifying the world, release our write marker.
 		world->unmarkForWrite();
 	}
@@ -217,7 +220,9 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 
 	hkpRigidBodyCinfo info;
 	hkArray<hkpConvexShape*> shapes;
+	hkArray<hkpShapeKey> keys;
 	hkpBoxShape* box = new hkpBoxShape(hkVector4(1, 1, 1));
+	int keyNum = 0;
 
 	for(int i = chunk.getX() * chunkSize; i < (chunk.getX() + 1) * chunkSize; i++)
 	{
@@ -235,7 +240,8 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 					hkpConvexTransformShape* trans = new hkpConvexTransformShape(box, tran);
 
 					shapes.pushBack(trans);
-					//trans->removeReference();
+					//if(keys.getSize() < 1)
+					//keys.pushBack(keyNum++);
 				}
 			}
 		}
@@ -247,12 +253,34 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 	hkpExtendedMeshShape::ShapesSubpart sub(&shapes[0], shapes.getSize());
 
 	chunkShape->addShapesSubpart(sub);
+	int num = chunkShape->getNumChildShapes();
+	hkpShapeKey shpKey = chunkShape->getFirstKey();
+	while(shpKey != HK_INVALID_SHAPE_KEY)
+	{
+		keys.pushBack(shpKey);
+		shpKey = chunkShape->getNextKey(shpKey);
+	}
+
+	//hkpListShape *chunkShape = new hkpListShape(&shapes[0], shapes.getSize());
+
+	hkpMoppCompilerInput mci;
+	mci.m_enableChunkSubdivision = true;
+
+	hkpMoppCode *code = hkpMoppUtility::buildCode(chunkShape, mci);
+
+	hkpMoppBvTreeShape* moppShape = new hkpMoppBvTreeShape(chunkShape, code);
 
 	info.m_motionType = hkpMotion::MOTION_FIXED;
-	info.m_shape = chunkShape;
+	info.m_shape = moppShape;
 	info.m_position = hkVector4(0, 0, 0);
+	info.m_numShapeKeysInContactPointProperties = -1;
 
 	hkpRigidBody *body = new hkpRigidBody(info);
+
+	for(int i = 0; i < keys.getSize(); i++)
+		m_breakUtil->markPieceBreakable(body, keys[i], 100.f);
+
+	hkpBreakOffPartsUtil::removeKeysFromListShape(body, &keys[0], keys.getSize());
 
 	world->lock();
 	world->addEntity(body);
@@ -469,4 +497,9 @@ void PhysicsManager::UpdatePlayer(OIS::Keyboard* keyboard, OIS::Mouse* mouse, hk
 hkVector4 PhysicsManager::GetPlayerPosition()
 {
 	return m_characterRigidBody->getPosition();
+}
+
+hkResult PhysicsManager::breakOffSubPart(const ContactImpulseLimitBreachedEvent& event, hkArray<hkpShapeKey>& keysBrokenOffOut, hkpPhysicsSystem& systemOut )
+{
+	return hkResult::HK_SUCCESS;
 }

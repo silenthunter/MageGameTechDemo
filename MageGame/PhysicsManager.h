@@ -48,6 +48,7 @@
 
 #include <Physics/Collide/Shape/Convex/ConvexTransform/hkpConvexTransformShape.h>
 #include <Physics/Collide/Shape/Compound/Collection/List/hkpListShape.h>
+#include <Physics/Utilities/Destruction/BreakOffParts/hkpBreakOffPartsUtil.h>
 
 /////////////////////////////////////////////////////////////////////////////////////////////// Character Control
 #include <Physics/Utilities/CharacterControl/hkpCharacterControl.h>
@@ -89,7 +90,7 @@ typedef void (*ProgressCallback)(void);
 ///Calculates physics for the game world
 /** Uses the Havok physics engine to compute the interactions between the player and the game world 
 */
-class PhysicsManager
+class PhysicsManager : public hkpBreakOffPartsListener
 {
 private:
 	//Variables for memory needs of HAVOK
@@ -112,6 +113,8 @@ private:
 	hkpWorld *world;///< The world that contains the landscape and player body
 	hkpCharacterRigidBody* m_characterRigidBody;
 	hkpCharacterContext* m_characterContext;
+
+	hkpBreakOffPartsUtil* m_breakUtil;
 
 	int chunkSize;
 	float worldScale;
@@ -163,6 +166,8 @@ public:
 	@return Player position
 	*/
 	hkVector4 GetPlayerPosition();
+
+	virtual hkResult breakOffSubPart(   const ContactImpulseLimitBreachedEvent& event, hkArray<hkpShapeKey>& keysBrokenOffOut, hkpPhysicsSystem& systemOut );
 };
 
 #endif
