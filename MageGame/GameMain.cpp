@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 	WorldTerrain wTer;
 	wTer.Init();
 	wTer.GenerateRegularWorld();
-	wTer.InputNewBoundary(96, 96, 96);
+	wTer.InputNewBoundary(160, 96, 160);
 #pragma endregion
 
 #pragma region GraphicsManager

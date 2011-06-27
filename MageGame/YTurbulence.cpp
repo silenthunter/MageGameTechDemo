@@ -7,6 +7,8 @@ YTurbulence::YTurbulence() : Module(GetSourceModuleCount ()), m_power(DEFAULT_YT
 	SetSeed(DEFAULT_YTURBULENCE_SEED);
 	SetFrequency(DEFAULT_YTURBULENCE_FREQUENCY);
 	SetRoughness(DEFAULT_YTURBULENCE_ROUGHNESS);
+	scalePModule.SetSourceModule(0, yDistortModule);
+	scalePModule.SetYScale(0);
 }
 
 YTurbulence::~YTurbulence()
@@ -32,7 +34,7 @@ double YTurbulence::GetValue(double x, double y, double z) const
 	x1 = x + (26519.0 / 65536.0);
 	y1 = y + (18128.0 / 65536.0);
 	z1 = z + (60493.0 / 65536.0);
-	double yDistort = y + (yDistortModule.GetValue(x1, y1, z1) * m_power);
+	double yDistort = y + (scalePModule.GetValue(x1, y1, z1) * m_power);
 
 	return m_pSourceModule[0]->GetValue(x, yDistort, z);
 }

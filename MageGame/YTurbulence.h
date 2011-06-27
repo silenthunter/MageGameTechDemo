@@ -57,6 +57,7 @@ namespace noise
 
 			//Variables
 			Perlin yDistortModule;
+			ScalePoint scalePModule;
 
 		protected:
 			//Variables
