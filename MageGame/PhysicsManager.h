@@ -116,6 +116,8 @@ private:
 
 	hkpBreakOffPartsUtil* m_breakUtil;
 
+	std::map<PolyVox::Vector3DInt32, hkpRigidBody*> physicsMap;
+
 	int chunkSize;
 	float worldScale;
 
@@ -166,6 +168,8 @@ public:
 	@return Player position
 	*/
 	hkVector4 GetPlayerPosition();
+
+	void RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos);
 
 	virtual hkResult breakOffSubPart(   const ContactImpulseLimitBreachedEvent& event, hkArray<hkpShapeKey>& keysBrokenOffOut, hkpPhysicsSystem& systemOut );
 };

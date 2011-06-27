@@ -34,6 +34,8 @@ int main(int argc, char* argv[])
 
 	ParseIDFile("Data/GameInfo/MaterialID.ini", MaterialIDMap);
 
+	int chunkSize = WorldDataMap["ChunkSize"];
+
 #pragma region Map Generation
 	WorldTerrain wTer;
 	wTer.Init();
@@ -106,7 +108,7 @@ int main(int argc, char* argv[])
 
 		if(m_Keyboard->isKeyDown(OIS::KC_E))
 		{
-			Ogre::Vector3 forward(0, 0, 1);
+			Ogre::Vector3 forward(0, 0, -1);
 			forward = c_sn->_getDerivedOrientation() * forward;
 			PolyVox::Vector3DFloat rayDirection(forward.x, forward.y, forward.z);
 			rayDirection *= 1000;
@@ -115,6 +117,11 @@ int main(int argc, char* argv[])
 			PolyVox::Raycast<PolyVox::SimpleVolume, VoxelMat> ray(&volData, voxPos, rayDirection, rayResults);
 			ray.execute();
 
+			if(rayResults.foundIntersection)
+			{
+				PolyVox::Vector3DInt32 chunkNum = rayResults.intersectionVoxel / chunkSize;
+				physicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
+			}
 		}
 
 		if(count % 50 == 0)

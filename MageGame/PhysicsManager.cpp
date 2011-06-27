@@ -239,9 +239,9 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 					tran.setRotation(hkQuaternion::getIdentity());
 					hkpConvexTransformShape* trans = new hkpConvexTransformShape(box, tran);
 
+					trans->setUserData((hkUlong)(new PolyVox::Vector3DInt32(i, j, k)));
+
 					shapes.pushBack(trans);
-					//if(keys.getSize() < 1)
-					//keys.pushBack(keyNum++);
 				}
 			}
 		}
@@ -254,10 +254,16 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 
 	chunkShape->addShapesSubpart(sub);
 	int num = chunkShape->getNumChildShapes();
+	std::map<PolyVox::Vector3DInt32, hkpShapeKey> *keyMap = new std::map<PolyVox::Vector3DInt32, hkpShapeKey>();
+
 	hkpShapeKey shpKey = chunkShape->getFirstKey();
 	while(shpKey != HK_INVALID_SHAPE_KEY)
 	{
 		keys.pushBack(shpKey);
+		hkpShapeBuffer buff;
+		PolyVox::Vector3DInt32* vec = (PolyVox::Vector3DInt32*)chunkShape->getChildShape(shpKey, buff)->getUserData();
+		(*keyMap)[*vec] = shpKey;
+
 		shpKey = chunkShape->getNextKey(shpKey);
 	}
 
@@ -276,6 +282,10 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 	info.m_numShapeKeysInContactPointProperties = -1;
 
 	hkpRigidBody *body = new hkpRigidBody(info);
+
+	physicsMap[chunk] = body;
+	
+	body->setUserData((hkUlong)keyMap);
 
 	for(int i = 0; i < keys.getSize(); i++)
 		m_breakUtil->markPieceBreakable(body, keys[i], 100.f);
@@ -502,4 +512,20 @@ hkVector4 PhysicsManager::GetPlayerPosition()
 hkResult PhysicsManager::breakOffSubPart(const ContactImpulseLimitBreachedEvent& event, hkArray<hkpShapeKey>& keysBrokenOffOut, hkpPhysicsSystem& systemOut )
 {
 	return hkResult::HK_SUCCESS;
+}
+
+void PhysicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos)
+{
+	hkpRigidBody* body = physicsMap[chunk];
+	
+	std::map<PolyVox::Vector3DInt32, hkpShapeKey> *keyMap = (std::map<PolyVox::Vector3DInt32, hkpShapeKey>*)body->getUserData();
+	hkpShapeKey key = (*keyMap)[blockPos];
+
+	VoxelMat vox = polyVolume->getVoxelAt(blockPos);
+	vox.setMaterial(0);
+	polyVolume->setVoxelAt(blockPos, vox);
+
+	world->markForWrite();
+	m_breakUtil->removeKeysFromListShape(body, &key, 1);
+	world->unmarkForWrite();
 }
