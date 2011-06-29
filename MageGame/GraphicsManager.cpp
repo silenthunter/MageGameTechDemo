@@ -157,121 +157,6 @@ Ogre::Quaternion GraphicsManager::GetPlayerRotation()
 	return c_sn->getChild(0)->_getDerivedOrientation();
 }
 
-struct s_block
-{
-	int dir;
-	string name;
-};
-
-void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra)
-{
-	int widthChunks = wTerra.currWidth / chunkSize;
-	int heightChunks = wTerra.currHeight / chunkSize;
-	int depthChunks = wTerra.currDepth / chunkSize;
-	double elapsedTotal = 0;
-	GameTimer timer;
-
-	for(int i = 0; i < heightChunks; i++)
-	{
-		for(int j = 0; j < widthChunks; j++)
-		{
-			for(int k = 0; k < depthChunks; k++)
-			{
-				elapsedTotal += timer.getElapsedTimeSec();
-
-				if(elapsedTotal >= .1f)
-				{
-					float progress = (float)(i * widthChunks + j) / (float)(heightChunks * widthChunks);
-					bar->setProgress(progress);
-
-					root->renderOneFrame(1.f);
-					Ogre::WindowEventUtilities::messagePump();
-					elapsedTotal = 0;
-				}
-
-				Vector3DInt32 start(j * chunkSize, k * chunkSize, i * chunkSize);
-				Vector3DInt32 end((j + 1) * chunkSize - 1, (k + 1) * chunkSize - 1, (i + 1) * chunkSize - 1);
-
-				SurfaceMesh<PositionMaterial> mesh;
-				CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(&volData, Region(start, end), &mesh);
-				surfaceExtractor.execute();
-
-				ManualObject *obj = manager->createManualObject(); //Declare the manual object
-
-				//Estimate the vertex count to make it easier
-				obj->estimateVertexCount(mesh.getNoOfVertices());
-				obj->estimateIndexCount(mesh.getNoOfIndices());
-
-				//Get both the index and vertex data
-				vector<uint32_t> vecIndices = mesh.getIndices();
-				vector<PositionMaterial> vecVertices = mesh.getVertices();
-				
-				//Print current chunk information
-				char str[50];
-				sprintf(str, "%d-%d-%d", i, j, k);
-
-				//Set the object with the render operation and the .material
-				obj->begin("VoxelTexture", Ogre::RenderOperation::OT_TRIANGLE_LIST);
-
-				//Work with the vertices
-				vector<PositionMaterial>::iterator vecItr;
-				for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
-				{
-					Vector3DFloat pos = vecItr->getPosition() * worldScale;
-					pos += (Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize) * worldScale);
-					obj->position(pos.getX(), pos.getY(), pos.getZ());
-				}
-
-				//Work with the indices
-				vector<uint32_t>::iterator indVec;
-				for(indVec = vecIndices.begin(); indVec != vecIndices.end(); indVec++)
-				{
-					obj->index(*indVec);
-				}
-
-				obj->end(); //Done with the manual object
-
-				string strName(str);
-				manualObjects[strName] = obj;
-				root_sn->attachObject(obj);
-			}
-			printf("#");
-		}
-		printf("\n");
-	}
-
-	frame->setText("Loading Physics");
-	bar->setProgress(1.f);
-	root->renderOneFrame(1.f);
-	Ogre::WindowEventUtilities::messagePump();
-}
-
-void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra)
-{
-	for(int x = 0; x < wTerra.currWidth; x++)
-	{
-		for(int y = 0; y < wTerra.currHeight; y++)
-		{
-			for(int z = 0; z < wTerra.currDepth; z++)
-			{
-				double nx = (double)x / (double)wTerra.currWidth;
-				double ny = (double)y / (double)wTerra.currHeight;
-				double nz = (double)z / (double)wTerra.currDepth;
-
-				double v = wTerra.worldTerrain.GetValue(nx, nz, ny);
-                if(v > 0)
-				{
-					VoxelMat vox = volData.getVoxelAt(Vector3DInt32(x, z, y));
-					vox.setMaterial(v);
-					volData.setVoxelAt(x, z, y, vox);
-				}
-			}
-			if(x % 32 == 0 && y % 32 == 0) printf("#");
-		}
-		if(x % 32 == 0) printf("\n");
-	}
-}
-
 void GraphicsManager::SetUpWindow(string name)
 {
 	Ogre::NameValuePairList nvpl;
@@ -366,4 +251,163 @@ void GraphicsManager::UpdatePhysicsProgress(float progress)
 void GraphicsManager::CloseGUI()
 {
 	rootWin->setVisible(false);
+}
+
+void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra)
+{
+	for(int x = 0; x < wTerra.currWidth; x++)
+	{
+		for(int y = 0; y < wTerra.currHeight; y++)
+		{
+			for(int z = 0; z < wTerra.currDepth; z++)
+			{
+				double nx = (double)x / (double)wTerra.currWidth;
+				double ny = (double)y / (double)wTerra.currHeight;
+				double nz = (double)z / (double)wTerra.currDepth;
+
+				double v = wTerra.worldTerrain.GetValue(nx, nz, ny);
+                if(v > 0)
+				{
+					VoxelMat vox = volData.getVoxelAt(Vector3DInt32(x, z, y));
+					vox.setMaterial(v);
+					volData.setVoxelAt(x, z, y, vox);
+				}
+			}
+			if(x % 32 == 0 && y % 32 == 0) printf("#");
+		}
+		if(x % 32 == 0) printf("\n");
+	}
+}
+
+void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra)
+{
+	int widthChunks = wTerra.currWidth / chunkSize;
+	int heightChunks = wTerra.currHeight / chunkSize;
+	int depthChunks = wTerra.currDepth / chunkSize;
+	double elapsedTotal = 0;
+	GameTimer timer;
+
+	for(int i = 0; i < heightChunks; i++)
+	{
+		for(int j = 0; j < widthChunks; j++)
+		{
+			for(int k = 0; k < depthChunks; k++)
+			{
+				elapsedTotal += timer.getElapsedTimeSec();
+
+				if(elapsedTotal >= .1f)
+				{
+					float progress = (float)(i * widthChunks + j) / (float)(heightChunks * widthChunks);
+					bar->setProgress(progress);
+
+					root->renderOneFrame(1.f);
+					Ogre::WindowEventUtilities::messagePump();
+					elapsedTotal = 0;
+				}
+
+				Vector3DInt32 start(j * chunkSize, k * chunkSize, i * chunkSize);
+				Vector3DInt32 end((j + 1) * chunkSize - 1, (k + 1) * chunkSize - 1, (i + 1) * chunkSize - 1);
+
+				SurfaceMesh<PositionMaterial> mesh;
+				CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(&volData, Region(start, end), &mesh);
+				surfaceExtractor.execute();
+
+				ManualObject *obj = manager->createManualObject(); //Declare the manual object
+				obj->setDynamic(true);
+
+				//Estimate the vertex count to make it easier
+				obj->estimateVertexCount(mesh.getNoOfVertices());
+				obj->estimateIndexCount(mesh.getNoOfIndices());
+
+				//Get both the index and vertex data
+				vector<uint32_t> vecIndices = mesh.getIndices();
+				vector<PositionMaterial> vecVertices = mesh.getVertices();
+				
+				//Print current chunk information
+				char str[50];
+				sprintf(str, "%d-%d-%d", i, j, k);
+
+				//Set the object with the render operation and the .material
+				obj->begin("VoxelTexture", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+
+				//Work with the vertices
+				vector<PositionMaterial>::iterator vecItr;
+				for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
+				{
+					Vector3DFloat pos = vecItr->getPosition() * worldScale;
+					pos += (Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize) * worldScale);
+					obj->position(pos.getX(), pos.getY(), pos.getZ());
+				}
+
+				//Work with the indices
+				vector<uint32_t>::iterator indVec;
+				for(indVec = vecIndices.begin(); indVec != vecIndices.end(); indVec++)
+				{
+					obj->index(*indVec);
+				}
+
+				obj->end(); //Done with the manual object
+
+				string strName(str);
+				manualObjects.insert(std::map<string, ManualObject*>::value_type(str, obj));
+				root_sn->attachObject(obj);
+			}
+			printf("#");
+		}
+		printf("\n");
+	}
+
+	frame->setText("Loading Physics");
+	bar->setProgress(1.f);
+	root->renderOneFrame(1.f);
+	Ogre::WindowEventUtilities::messagePump();
+}
+
+void GraphicsManager::UpdateManualObject(SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra, Vector3DInt32 chunkNum)
+{
+	//Vector3DInt32 relChunk = chunkNum - lowestChunk;
+
+	int i = chunkNum.getX();
+	int j = chunkNum.getY();
+	int k = chunkNum.getZ();
+
+	cout << i << ", " << j << ", " << k << endl;
+
+	char str[50];
+	sprintf(str, "%d-%d-%d", i, k, j);
+
+	cout << str << endl;
+
+	Vector3DInt32 start(j, k, i);
+	Vector3DInt32 end((j + 1) * chunkSize - 1, (k + 1) * chunkSize - 1, (i + 1) * chunkSize - 1);
+
+	SurfaceMesh<PositionMaterial> mesh;
+	CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(&volData, Region(start, end), &mesh);
+	surfaceExtractor.execute();
+
+	ManualObject *obj = manualObjects[str];
+
+	obj->estimateVertexCount(mesh.getNoOfVertices());
+	obj->estimateIndexCount(mesh.getNoOfIndices());
+
+	vector<uint32_t> vecIndices = mesh.getIndices();
+	vector<PositionMaterial> vecVertices = mesh.getVertices();
+
+	obj->beginUpdate(0);
+
+	vector<PositionMaterial>::iterator vecItr;
+	for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
+	{
+		Vector3DFloat pos = vecItr->getPosition() * worldScale;
+		pos += (Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize) * worldScale);
+		obj->position(pos.getX(), pos.getY(), pos.getZ());
+	}
+
+	vector<uint32_t>::iterator indVec;
+	for(indVec = vecIndices.begin(); indVec != vecIndices.end(); indVec++)
+	{
+		obj->index(*indVec);
+	}
+
+	obj->end();
 }

@@ -22,15 +22,17 @@ public:
 	GraphicsManager(void);
 	~GraphicsManager(void);
 	void InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra);
+	void LoadManualObject(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra);
+	void UpdateManualObject(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra, PolyVox::Vector3DInt32 chunkNum);
 	void createSphereInVolume(PolyVox::SimpleVolume<VoxelMat>& volData, float fRadius, PolyVox::Vector3DFloat& v3dVolCenter);
+	void UpdatePhysicsProgress(float progress);
+	void CloseGUI();
+
 	Ogre::RenderWindow *GetWindow();
 	Ogre::SceneNode* GetPlayer();
 	Ogre::SceneNode* GetCamera();
 	Ogre::Root* GetRoot();
 	Ogre::Quaternion GetPlayerRotation();
-	void LoadManualObject(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra);
-	void UpdatePhysicsProgress(float progress);
-	void CloseGUI();
 	//Variables
 
 private:
@@ -50,6 +52,7 @@ private:
 	Ogre::SceneManager *manager;
 	Ogre::Viewport *vp;
 	std::map<std::string, Ogre::ManualObject*> manualObjects;
+	PolyVox::Vector3DInt32 lowestChunk;
 	int chunkSize;
 	float worldScale;
 	CEGUI::ProgressBar *bar;

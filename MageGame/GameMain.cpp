@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 	WorldTerrain wTer;
 	wTer.Init();
 	wTer.GenerateRegularWorld();
-	wTer.InputNewBoundary(160, 96, 160);
+	wTer.InputNewBoundary(64, 64, 64);
 #pragma endregion
 
 #pragma region GraphicsManager
@@ -121,6 +121,7 @@ int main(int argc, char* argv[])
 			{
 				PolyVox::Vector3DInt32 chunkNum = rayResults.intersectionVoxel / chunkSize;
 				physicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
+				graphicsManager.UpdateManualObject(volData, wTer, chunkNum);
 			}
 		}
 
