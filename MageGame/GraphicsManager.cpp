@@ -371,15 +371,11 @@ void GraphicsManager::UpdateManualObject(SimpleVolume<VoxelMat>& volData, WorldT
 	int j = chunkNum.getY();
 	int k = chunkNum.getZ();
 
-	cout << i << ", " << j << ", " << k << endl;
-
 	char str[50];
-	sprintf(str, "%d-%d-%d", i, k, j);
+	sprintf(str, "%d-%d-%d", k, i, j);
 
-	cout << str << endl;
-
-	Vector3DInt32 start(j, k, i);
-	Vector3DInt32 end((j + 1) * chunkSize - 1, (k + 1) * chunkSize - 1, (i + 1) * chunkSize - 1);
+	Vector3DInt32 start(i * chunkSize, j * chunkSize, k * chunkSize);
+	Vector3DInt32 end((i + 1) * chunkSize - 1, (j + 1) * chunkSize - 1, (k + 1) * chunkSize - 1);
 
 	SurfaceMesh<PositionMaterial> mesh;
 	CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(&volData, Region(start, end), &mesh);
@@ -399,7 +395,7 @@ void GraphicsManager::UpdateManualObject(SimpleVolume<VoxelMat>& volData, WorldT
 	for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
 	{
 		Vector3DFloat pos = vecItr->getPosition() * worldScale;
-		pos += (Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize) * worldScale);
+		pos += (Vector3DFloat(i * chunkSize, j * chunkSize, k * chunkSize) * worldScale);
 		obj->position(pos.getX(), pos.getY(), pos.getZ());
 	}
 

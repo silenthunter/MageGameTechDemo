@@ -58,7 +58,6 @@ private:
 	CEGUI::ProgressBar *bar;
 	CEGUI::DefaultWindow *rootWin;
 	CEGUI::FrameWindow *frame;
-
 	CEGUI::OgreRenderer *mCEGUIrenderer;
 };
 

@@ -119,6 +119,9 @@ int main(int argc, char* argv[])
 
 			if(rayResults.foundIntersection)
 			{
+				//rayResults.intersectionVoxel.setX(34);
+				//rayResults.intersectionVoxel.setY(3);
+				//rayResults.intersectionVoxel.setZ(5);
 				PolyVox::Vector3DInt32 chunkNum = rayResults.intersectionVoxel / chunkSize;
 				physicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
 				graphicsManager.UpdateManualObject(volData, wTer, chunkNum);
