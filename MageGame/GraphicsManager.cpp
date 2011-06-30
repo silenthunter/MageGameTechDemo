@@ -305,8 +305,13 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTer
 					elapsedTotal = 0;
 				}
 
-				Vector3DInt32 start(j * chunkSize, k * chunkSize, i * chunkSize);
-				Vector3DInt32 end((j + 1) * chunkSize - 1, (k + 1) * chunkSize - 1, (i + 1) * chunkSize - 1);
+				int iChunkSize = i * chunkSize;
+				int jChunkSize = j * chunkSize;
+				int kChunkSize = k * chunkSize;
+				int chunkAddition = chunkSize - 1;
+
+				Vector3DInt32 start(jChunkSize, kChunkSize, iChunkSize);
+				Vector3DInt32 end(jChunkSize + chunkAddition, kChunkSize + chunkAddition, iChunkSize + chunkAddition);
 
 				SurfaceMesh<PositionMaterial> mesh;
 				CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(&volData, Region(start, end), &mesh);
@@ -320,8 +325,8 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTer
 				obj->estimateIndexCount(mesh.getNoOfIndices());
 
 				//Get both the index and vertex data
-				vector<uint32_t> vecIndices = mesh.getIndices();
-				vector<PositionMaterial> vecVertices = mesh.getVertices();
+				const vector<uint32_t> &vecIndices = mesh.getIndices();
+				const vector<PositionMaterial> &vecVertices = mesh.getVertices();
 				
 				//Print current chunk information
 				char str[50];
@@ -331,17 +336,17 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTer
 				obj->begin("VoxelTexture", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
 				//Work with the vertices
-				vector<PositionMaterial>::iterator vecItr;
-				for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
+				
+				Vector3DFloat posOffset = Vector3DFloat(jChunkSize, kChunkSize, iChunkSize) * worldScale;
+				for(vector<PositionMaterial>::const_iterator vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
 				{
 					Vector3DFloat pos = vecItr->getPosition() * worldScale;
-					pos += (Vector3DFloat(j * chunkSize, k * chunkSize, i * chunkSize) * worldScale);
+					pos += posOffset;
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
 				}
 
 				//Work with the indices
-				vector<uint32_t>::iterator indVec;
-				for(indVec = vecIndices.begin(); indVec != vecIndices.end(); indVec++)
+				for(vector<uint32_t>::const_iterator indVec = vecIndices.begin(); indVec != vecIndices.end(); indVec++)
 				{
 					obj->index(*indVec);
 				}
@@ -363,7 +368,7 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTer
 	Ogre::WindowEventUtilities::messagePump();
 }
 
-void GraphicsManager::UpdateManualObject(SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra, Vector3DInt32 chunkNum)
+void GraphicsManager::UpdateChunk(SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra, Vector3DInt32 chunkNum)
 {
 	//Vector3DInt32 relChunk = chunkNum - lowestChunk;
 
@@ -374,8 +379,13 @@ void GraphicsManager::UpdateManualObject(SimpleVolume<VoxelMat>& volData, WorldT
 	char str[50];
 	sprintf(str, "%d-%d-%d", k, i, j);
 
-	Vector3DInt32 start(i * chunkSize, j * chunkSize, k * chunkSize);
-	Vector3DInt32 end((i + 1) * chunkSize - 1, (j + 1) * chunkSize - 1, (k + 1) * chunkSize - 1);
+	int iChunkSize = i * chunkSize;
+	int jChunkSize = j * chunkSize;
+	int kChunkSize = k * chunkSize;
+	int chunkAddition = chunkSize - 1;
+
+	Vector3DInt32 start(iChunkSize, jChunkSize, kChunkSize);
+	Vector3DInt32 end(iChunkSize + chunkAddition, jChunkSize + chunkAddition, kChunkSize + chunkAddition);
 
 	SurfaceMesh<PositionMaterial> mesh;
 	CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(&volData, Region(start, end), &mesh);
@@ -386,21 +396,20 @@ void GraphicsManager::UpdateManualObject(SimpleVolume<VoxelMat>& volData, WorldT
 	obj->estimateVertexCount(mesh.getNoOfVertices());
 	obj->estimateIndexCount(mesh.getNoOfIndices());
 
-	vector<uint32_t> vecIndices = mesh.getIndices();
-	vector<PositionMaterial> vecVertices = mesh.getVertices();
+	const vector<uint32_t> &vecIndices = mesh.getIndices();
+	const vector<PositionMaterial> &vecVertices = mesh.getVertices();
 
 	obj->beginUpdate(0);
 
-	vector<PositionMaterial>::iterator vecItr;
-	for(vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
+	Vector3DFloat posOffset = Vector3DFloat(iChunkSize, jChunkSize, kChunkSize) * worldScale;
+	for(vector<PositionMaterial>::const_iterator vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
 	{
 		Vector3DFloat pos = vecItr->getPosition() * worldScale;
-		pos += (Vector3DFloat(i * chunkSize, j * chunkSize, k * chunkSize) * worldScale);
+		pos += posOffset;
 		obj->position(pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	vector<uint32_t>::iterator indVec;
-	for(indVec = vecIndices.begin(); indVec != vecIndices.end(); indVec++)
+	for(vector<uint32_t>::const_iterator indVec = vecIndices.begin(); indVec != vecIndices.end(); indVec++)
 	{
 		obj->index(*indVec);
 	}

@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
 				//rayResults.intersectionVoxel.setZ(5);
 				PolyVox::Vector3DInt32 chunkNum = rayResults.intersectionVoxel / chunkSize;
 				physicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
-				graphicsManager.UpdateManualObject(volData, wTer, chunkNum);
+				graphicsManager.UpdateChunk(volData, wTer, chunkNum);
 			}
 		}
 

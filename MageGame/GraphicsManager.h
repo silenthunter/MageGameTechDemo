@@ -23,7 +23,7 @@ public:
 	~GraphicsManager(void);
 	void InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra);
 	void LoadManualObject(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra);
-	void UpdateManualObject(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra, PolyVox::Vector3DInt32 chunkNum);
+	void UpdateChunk(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra, PolyVox::Vector3DInt32 chunkNum);
 	void createSphereInVolume(PolyVox::SimpleVolume<VoxelMat>& volData, float fRadius, PolyVox::Vector3DFloat& v3dVolCenter);
 	void UpdatePhysicsProgress(float progress);
 	void CloseGUI();
