@@ -106,6 +106,9 @@ copy /Y "$(ProjectDir)Data\Shaders\" "$(TargetDir)Data\Shaders\"
 mkdir "$(TargetDir)Data\Textures\"
 copy /Y "$(ProjectDir)Data\Textures\" "$(TargetDir)Data\Textures\"
 
+mkdir "$(TargetDir)Data\GUI\"
+copy /Y "$(ProjectDir)Data\GUI\" "$(TargetDir)Data\GUI\"
+
 copy /Y "$(ProjectDir)plugins_release.cfg" "$(TargetDir)"
 copy /Y "$(ProjectDir)resources.cfg" "$(TargetDir)"
 copy /Y "$(SolutionDir)OGRE\Bin\release" "$(TargetDir)"
