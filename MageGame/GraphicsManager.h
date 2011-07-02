@@ -21,9 +21,10 @@ public:
 	//Functions
 	GraphicsManager(void);
 	~GraphicsManager(void);
-	void InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra);
-	void LoadManualObject(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra);
-	void UpdateChunk(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra, PolyVox::Vector3DInt32 chunkNum);
+	void InitVoxels(PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra);
+	void LoadManualObject();
+	VoxelMat RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos);
+	void UpdateChunk(PolyVox::Vector3DInt32 chunkNum);
 	void createSphereInVolume(PolyVox::SimpleVolume<VoxelMat>& volData, float fRadius, PolyVox::Vector3DFloat& v3dVolCenter);
 	void UpdatePhysicsProgress(float progress);
 	void CloseGUI();
@@ -52,6 +53,8 @@ private:
 	Ogre::RenderWindow *window;
 	Ogre::SceneManager *manager;
 	Ogre::Viewport *vp;
+	WorldTerrain* wTer;
+	PolyVox::SimpleVolume<VoxelMat>* polyVolume;
 	std::map<std::string, Ogre::ManualObject*> manualObjects;
 	PolyVox::Vector3DInt32 lowestChunk;
 	int chunkSize;

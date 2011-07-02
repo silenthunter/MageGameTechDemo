@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 	WorldTerrain wTer;
 	wTer.Init();
 	wTer.GenerateRegularWorld();
-	wTer.InputNewBoundary(64, 64, 64);
+	wTer.InputNewBoundary(128, 96, 64);
 #pragma endregion
 
 #pragma region GraphicsManager
@@ -54,8 +54,8 @@ int main(int argc, char* argv[])
 	ogreWindow->getCustomAttribute("WINDOW", &hWnd);
 
 	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(wTer.currWidth, wTer.currDepth, wTer.currHeight)));
-	graphicsManager.InitVoxels(volData, wTer);
-	graphicsManager.LoadManualObject(volData, wTer);
+	graphicsManager.InitVoxels(&volData, &wTer);
+	graphicsManager.LoadManualObject();
 #pragma endregion
 
 #pragma region PhysicsManager
@@ -117,12 +117,9 @@ int main(int argc, char* argv[])
 
 			if(rayResults.foundIntersection)
 			{
-				//rayResults.intersectionVoxel.setX(34);
-				//rayResults.intersectionVoxel.setY(3);
-				//rayResults.intersectionVoxel.setZ(5);
 				PolyVox::Vector3DInt32 chunkNum = rayResults.intersectionVoxel / chunkSize;
+				graphicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
 				physicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
-				graphicsManager.UpdateChunk(volData, wTer, chunkNum);
 			}
 		}
 

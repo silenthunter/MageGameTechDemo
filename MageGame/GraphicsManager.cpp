@@ -253,24 +253,27 @@ void GraphicsManager::CloseGUI()
 	rootWin->setVisible(false);
 }
 
-void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra)
+void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra)
 {
-	for(int x = 0; x < wTerra.currWidth; x++)
-	{
-		for(int y = 0; y < wTerra.currHeight; y++)
-		{
-			for(int z = 0; z < wTerra.currDepth; z++)
-			{
-				double nx = (double)x / (double)wTerra.currWidth;
-				double ny = (double)y / (double)wTerra.currHeight;
-				double nz = (double)z / (double)wTerra.currDepth;
+	polyVolume = volData;
+	wTer = wTerra;
 
-				double v = wTerra.worldTerrain.GetValue(nx, nz, ny);
+	for(int x = 0; x < wTer->currWidth; x++)
+	{
+		for(int y = 0; y < wTer->currHeight; y++)
+		{
+			for(int z = 0; z < wTer->currDepth; z++)
+			{
+				double nx = (double)x / (double)wTer->currWidth;
+				double ny = (double)y / (double)wTer->currHeight;
+				double nz = (double)z / (double)wTer->currDepth;
+
+				double v = wTer->worldTerrain.GetValue(nx, nz, ny);
                 if(v > 0)
 				{
-					VoxelMat vox = volData.getVoxelAt(Vector3DInt32(x, z, y));
+					VoxelMat vox = polyVolume->getVoxelAt(Vector3DInt32(x, z, y));
 					vox.setMaterial(v);
-					volData.setVoxelAt(x, z, y, vox);
+					polyVolume->setVoxelAt(x, z, y, vox);
 				}
 			}
 			if(x % 32 == 0 && y % 32 == 0) printf("#");
@@ -279,11 +282,11 @@ void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat>& volData, World
 	}
 }
 
-void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra)
+void GraphicsManager::LoadManualObject()
 {
-	int widthChunks = wTerra.currWidth / chunkSize;
-	int heightChunks = wTerra.currHeight / chunkSize;
-	int depthChunks = wTerra.currDepth / chunkSize;
+	int widthChunks = wTer->currWidth / chunkSize;
+	int heightChunks = wTer->currHeight / chunkSize;
+	int depthChunks = wTer->currDepth / chunkSize;
 	double elapsedTotal = 0;
 	GameTimer timer;
 
@@ -314,7 +317,7 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTer
 				Vector3DInt32 end(jChunkSize + chunkAddition, kChunkSize + chunkAddition, iChunkSize + chunkAddition);
 
 				SurfaceMesh<PositionMaterial> mesh;
-				CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(&volData, Region(start, end), &mesh);
+				CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(polyVolume, Region(start, end), &mesh);
 				surfaceExtractor.execute();
 
 				ManualObject *obj = manager->createManualObject(); //Declare the manual object
@@ -368,7 +371,7 @@ void GraphicsManager::LoadManualObject(SimpleVolume<VoxelMat>& volData, WorldTer
 	Ogre::WindowEventUtilities::messagePump();
 }
 
-void GraphicsManager::UpdateChunk(SimpleVolume<VoxelMat>& volData, WorldTerrain wTerra, Vector3DInt32 chunkNum)
+void GraphicsManager::UpdateChunk(Vector3DInt32 chunkNum)
 {
 	//Vector3DInt32 relChunk = chunkNum - lowestChunk;
 
@@ -388,7 +391,7 @@ void GraphicsManager::UpdateChunk(SimpleVolume<VoxelMat>& volData, WorldTerrain 
 	Vector3DInt32 end(iChunkSize + chunkAddition, jChunkSize + chunkAddition, kChunkSize + chunkAddition);
 
 	SurfaceMesh<PositionMaterial> mesh;
-	CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(&volData, Region(start, end), &mesh);
+	CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(polyVolume, Region(start, end), &mesh);
 	surfaceExtractor.execute();
 
 	ManualObject *obj = manualObjects[str];
@@ -415,6 +418,51 @@ void GraphicsManager::UpdateChunk(SimpleVolume<VoxelMat>& volData, WorldTerrain 
 	}
 
 	obj->end();
+}
+
+VoxelMat GraphicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos)
+{
+	VoxelMat vox = polyVolume->getVoxelAt(blockPos);
+	polyVolume->setVoxelAt(blockPos, 0);
+
+	UpdateChunk(chunk);
+	
+	int posX = blockPos.getX();
+	int posY = blockPos.getY();
+	int posZ = blockPos.getZ();
+	int chunkX = chunk.getX();
+	int chunkY = chunk.getY();
+	int chunkZ = chunk.getZ();
+	int chunkSizeEnd = chunkSize - 1;
+
+	if(posX != 0 && posX % chunkSize == 0)
+	{
+		UpdateChunk(Vector3DInt32(chunkX - 1, chunkY, chunkZ));
+	}
+	else if(posX != wTer->currWidth - 1 && posX % chunkSize == chunkSizeEnd)
+	{
+		UpdateChunk(Vector3DInt32(chunkX + 1, chunkY, chunkZ));
+	}
+
+	if(posY != 0 && posY % chunkSize == 0)
+	{
+		UpdateChunk(Vector3DInt32(chunkX, chunkY - 1, chunkZ));
+	}
+	else if(posY != wTer->currDepth - 1 && posY % chunkSize == chunkSizeEnd)
+	{
+		UpdateChunk(Vector3DInt32(chunkX, chunkY + 1, chunkZ));
+	}
+
+	if(posZ != 0 && posZ % chunkSize == 0)
+	{
+		UpdateChunk(Vector3DInt32(chunkX, chunkY, chunkZ - 1));
+	}
+	else if(posZ != wTer->currHeight - 1 && posZ % chunkSize == chunkSizeEnd)
+	{
+		UpdateChunk(Vector3DInt32(chunkX, chunkY, chunkZ + 1));
+	}
+
+	return vox;
 }
 
 void GraphicsManager::AdjustCamera(int xAxis, int yAxis)

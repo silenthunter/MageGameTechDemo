@@ -521,10 +521,6 @@ void PhysicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3
 	std::map<Vector3DInt32, hkpShapeKey> *keyMap = (std::map<Vector3DInt32, hkpShapeKey>*)body->getUserData();
 	hkpShapeKey key = (*keyMap)[blockPos];
 
-	VoxelMat vox = polyVolume->getVoxelAt(blockPos);
-	vox.setMaterial(0);
-	polyVolume->setVoxelAt(blockPos, vox);
-
 	world->markForWrite();
 	m_breakUtil->removeKeysFromListShape(body, &key, 1);
 	world->unmarkForWrite();
