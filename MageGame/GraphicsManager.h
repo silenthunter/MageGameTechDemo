@@ -27,6 +27,7 @@ public:
 	void createSphereInVolume(PolyVox::SimpleVolume<VoxelMat>& volData, float fRadius, PolyVox::Vector3DFloat& v3dVolCenter);
 	void UpdatePhysicsProgress(float progress);
 	void CloseGUI();
+	void AdjustCamera(int xAxis, int yAxis);
 
 	Ogre::RenderWindow *GetWindow();
 	Ogre::SceneNode* GetPlayer();

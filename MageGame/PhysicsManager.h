@@ -140,10 +140,10 @@ public:
 	void UpdateChunk(PolyVox::Vector3DInt32& chunk);
 
 	/**Calls UpdateChunk for a range of chunks
-	    @param start The beginning corner of the region to be updated
-		@param end The opposite corner of the region to be updated
-		@note start coordinates must be <= the ones in end
-		@sa UpdateChunk
+	@param start The beginning corner of the region to be updated
+	@param end The opposite corner of the region to be updated
+	@note start coordinates must be <= the ones in end
+	@sa UpdateChunk
 	*/
 	void UpdateChunkRange(PolyVox::Vector3DInt32& start, PolyVox::Vector3DInt32& end);
 
@@ -151,7 +151,7 @@ public:
 	@brief Updates the Havok by a specified time
 	@details A multithreaded step is called, advancing the physics engine by the inputed time
 	@param deltaTime How much time to simulate
-	@remark Havok runs optimally using a timestep of 1.f/60.f
+	@note Havok runs optimally using a timestep of 1.f/60.f
 	*/
 	void StepSimulation(float deltaTime);
 
@@ -169,6 +169,11 @@ public:
 	*/
 	hkVector4 GetPlayerPosition();
 
+	/**
+	@brief Removes a the physics for a block at a given location
+	@param chunk The chunk position
+	@param blockPos The absolute position for the block within the voxel volume
+	*/
 	void RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos);
 
 	virtual hkResult breakOffSubPart(   const ContactImpulseLimitBreachedEvent& event, hkArray<hkpShapeKey>& keysBrokenOffOut, hkpPhysicsSystem& systemOut );

@@ -88,9 +88,7 @@ int main(int argc, char* argv[])
 		OIS::MouseState m_MouseState = m_Mouse->getMouseState();
 		OIS::Axis xAxis = m_MouseState.X;
 		OIS::Axis yAxis = m_MouseState.Y;
-
-		player->yaw(Degree(xAxis.rel / -2));
-		c_sn->pitch(Degree(yAxis.rel / -2));
+		graphicsManager.AdjustCamera(xAxis.rel / -2, yAxis.rel / -2);
 
 #pragma endregion
 

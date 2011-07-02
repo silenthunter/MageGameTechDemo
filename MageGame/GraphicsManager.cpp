@@ -416,3 +416,20 @@ void GraphicsManager::UpdateChunk(SimpleVolume<VoxelMat>& volData, WorldTerrain 
 
 	obj->end();
 }
+
+void GraphicsManager::AdjustCamera(int xAxis, int yAxis)
+{
+	player->yaw(Ogre::Degree(xAxis));
+
+	Ogre::Quaternion ori = c_sn->getOrientation();
+	Ogre::Radian pitchRadian = ori.getPitch();
+	Ogre::Real pitchDegree = pitchRadian.valueDegrees();
+
+	Ogre::Real yAdjust = yAxis;
+	if(yAdjust + pitchDegree >= 89.0 || pitchDegree + yAdjust <= -89.0)
+	{
+
+	}
+	else
+		c_sn->pitch(Ogre::Degree(yAxis));
+}
