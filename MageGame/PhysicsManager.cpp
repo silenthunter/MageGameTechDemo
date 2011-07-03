@@ -222,6 +222,7 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 	hkArray<hkpConvexShape*> shapes;
 	hkArray<hkpShapeKey> keys;
 	hkpBoxShape* box = new hkpBoxShape(hkVector4(worldScale / 2, worldScale / 2, worldScale / 2));
+
 	int keyNum = 0;
 
 	for(int i = chunk.getX() * chunkSize; i < (chunk.getX() + 1) * chunkSize; i++)
@@ -363,7 +364,7 @@ void PhysicsManager::initPlayer()
 	info.m_maxForce = 1000.0f;
 	info.m_up = hkVector4(0, 1.0f, 0);
 	info.m_shape = m_standShape;
-	info.m_position = hkVector4(100, 300, 100);
+	info.m_position = hkVector4(100, 600, 100);
 
 	info.m_maxSlope = 70.0f * HK_REAL_DEG_TO_RAD;
 
@@ -408,9 +409,8 @@ void PhysicsManager::initPlayer()
 	world->unlock();
 }
 
-void PhysicsManager::UpdatePlayer(OIS::Keyboard* keyboard, OIS::Mouse* mouse, hkQuaternion &orientation)
+void PhysicsManager::UpdatePlayer(OIS::Keyboard* keyboard, OIS::Mouse* mouse, hkQuaternion &orientation, float m_timestep)
 {
-	float m_timestep = 1.f/60.f;
 	hkpCharacterInput input;
 	hkpCharacterOutput output;
 	{
