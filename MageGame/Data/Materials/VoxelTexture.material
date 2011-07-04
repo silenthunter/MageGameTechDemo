@@ -36,6 +36,7 @@ material VoxelTexture
 			texture_unit
 			{
 				texture TextureAtlas.png 2d
+				filtering point point point
 				tex_address_mode clamp
 			}
 		}

@@ -1,9 +1,7 @@
 #include "GraphicsManager.h"
 
-#define TEX_SIZE 16
-#define TEX_ATLAS_SIZE 64
+#define NUM_TEX_PER_ROW 4
 #define NUM_NONTEX_MATERIALS 1
-#define NUM_TEX_PER_ROW (TEX_ATLAS_SIZE / TEX_SIZE / 2)
 #define TEX_WIDTH_NORMALIZED (1.0 / NUM_TEX_PER_ROW)
 
 using std::string;
@@ -361,11 +359,16 @@ void GraphicsManager::LoadManualObject()
 					Ogre::ColourValue val;
 					VoxelMat vMat = vecItr->getMaterial();
 					uint16_t mat = vMat.getMaterial() - NUM_NONTEX_MATERIALS;
+					/*
+					r = u coords where the texture starts
+					g = v coords where the texture starts
+					b = direction of the block with 0.0, 0.25, 0.5, 0.75 as North, East, South, West
+					a = maybe used to flag that one of the faces uses a different texture?
+					*/
 					val.r = mat % NUM_TEX_PER_ROW * TEX_WIDTH_NORMALIZED;
 					val.g = mat / NUM_TEX_PER_ROW * TEX_WIDTH_NORMALIZED;
 					val.b = 0.0f;
 					val.a = 1.0f;
-
 					obj->colour(val);
 				}
 

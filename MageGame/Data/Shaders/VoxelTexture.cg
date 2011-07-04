@@ -1,8 +1,7 @@
 #define VOXELCENTEROFFSET 0.5
 #define WORLDSCALE 1.0
-#define TEXATLASSIZE 64
-#define TEXATLAS_TEXSIZE 16
-#define TEXATLAS_TEXSIZE_NORMALIZED (((float)TEXATLAS_TEXSIZE / (float)TEXATLASSIZE) * 2.0)
+#define NUM_TEX_PER_ROW 4
+#define TEX_WIDTH_NORMALIZED (1.0 / NUM_TEX_PER_ROW)
 
 void voxeltexture_vp(
 	float4 inPosition			: POSITION,
@@ -73,7 +72,7 @@ void voxeltexture_fp(
     }
 	
 	//Texture atlas handling
-	pos *= TEXATLAS_TEXSIZE_NORMALIZED;
+	pos *= TEX_WIDTH_NORMALIZED;
 	if(inColor.x != 0)
 	{
 		pos.x += inColor.x;
