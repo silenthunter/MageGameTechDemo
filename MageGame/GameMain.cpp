@@ -96,15 +96,15 @@ int main(int argc, char* argv[])
 
 		//Update physics character
 		Ogre::Quaternion playerOri = c_sn->_getDerivedOrientation();
-		physicsManager.UpdatePlayer(m_Keyboard, m_Mouse, hkQuaternion(playerOri.x, playerOri.y, playerOri.z, playerOri.w));
+		physicsManager.UpdatePlayer(m_Keyboard, m_Mouse, hkQuaternion(playerOri.x, playerOri.y, playerOri.z, playerOri.w), elapsed);
 
 		//Sync physics character with Ogre
 		hkVector4 hkPos = physicsManager.GetPlayerPosition();
 		player->setPosition(hkPos(0), hkPos(1), hkPos(2));
 
-		PolyVox::Vector3DFloat voxPos(hkPos(0), hkPos(1), hkPos(2));
+		PolyVox::Vector3DFloat voxPos(hkPos(0), hkPos(1) + 0.4f, hkPos(2));
 
-		if(m_Keyboard->isKeyDown(OIS::KC_E))
+		if(m_Keyboard->isKeyDown(OIS::KC_F) || (m_Keyboard->isKeyDown(OIS::KC_E) && !lastState[OIS::KC_E]))
 		{
 			Ogre::Vector3 forward(0, 0, -1);
 			forward = c_sn->_getDerivedOrientation() * forward;

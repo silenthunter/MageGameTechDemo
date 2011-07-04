@@ -161,7 +161,7 @@ public:
 	@param mouse Mouse state
 	@param orientation Current orientation of the Ogre character in the game world
 	*/
-	void UpdatePlayer(OIS::Keyboard* keyboard, OIS::Mouse* mouse, hkQuaternion &orientation);
+	void UpdatePlayer(OIS::Keyboard* keyboard, OIS::Mouse* mouse, hkQuaternion &orientation, float elapsed);
 
 	/**
 	@brief Returns the physics character's position
