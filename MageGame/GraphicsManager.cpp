@@ -1,5 +1,12 @@
 #include "GraphicsManager.h"
 
+#define TEX_SIZE 16
+#define TEX_ATLAS_SIZE 256
+#define NUM_NONTEX_MATERIALS 1
+#define NUM_TEX_PER_ROW (TEX_ATLAS_SIZE / TEX_SIZE)
+#define TOTAL_TEX 2
+#define TEX_WIDTH_NORMALIZED (float)(1 / NUM_TEX_PER_ROW)
+
 using std::string;
 using Ogre::ConfigFile;
 using Ogre::Vector3;
@@ -258,15 +265,19 @@ void GraphicsManager::InitVoxels(PolyVox::SimpleVolume<VoxelMat> *volData, World
 	polyVolume = volData;
 	wTer = wTerra;
 
-	for(int x = 0; x < wTer->currWidth; x++)
+	int wTerWidth = wTer->currWidth;
+	int wTerHeight = wTer->currHeight;
+	int wTerDepth = wTer->currDepth;
+
+	for(int x = 0; x < wTerWidth; x++)
 	{
-		for(int y = 0; y < wTer->currHeight; y++)
+		for(int y = 0; y < wTerHeight; y++)
 		{
-			for(int z = 0; z < wTer->currDepth; z++)
+			for(int z = 0; z < wTerDepth; z++)
 			{
-				double nx = (double)x / (double)wTer->currWidth;
-				double ny = (double)y / (double)wTer->currHeight;
-				double nz = (double)z / (double)wTer->currDepth;
+				double nx = (double)x / wTerWidth;
+				double ny = (double)y / wTerHeight;
+				double nz = (double)z / wTerDepth;
 
 				double v = wTer->worldTerrain.GetValue(nx, nz, ny);
                 if(v > 0)
@@ -290,6 +301,8 @@ void GraphicsManager::LoadManualObject()
 	double elapsedTotal = 0;
 	GameTimer timer;
 
+	float heightXWidth = heightChunks * widthChunks;
+
 	for(int i = 0; i < heightChunks; i++)
 	{
 		for(int j = 0; j < widthChunks; j++)
@@ -300,7 +313,7 @@ void GraphicsManager::LoadManualObject()
 
 				if(elapsedTotal >= .1f)
 				{
-					float progress = (float)(i * widthChunks + j) / (float)(heightChunks * widthChunks);
+					float progress = (float)(i * widthChunks + j) / heightXWidth;
 					bar->setProgress(progress);
 
 					root->renderOneFrame(1.f);
@@ -346,6 +359,14 @@ void GraphicsManager::LoadManualObject()
 					Vector3DFloat pos = vecItr->getPosition() * worldScale;
 					pos += posOffset;
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
+					Ogre::ColourValue val;
+					VoxelMat vMat = vecItr->getMaterial();
+					uint16_t mat = vMat.getMaterial() - 1;
+					val.r = mat % 2 * 0.5;
+					val.g = ((unsigned int) (mat / 2)) * 0.5;
+					val.b = 0.0f;
+					val.a = 1.0f;
+					obj->colour(val);
 				}
 
 				//Work with the indices

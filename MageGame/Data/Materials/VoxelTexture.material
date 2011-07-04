@@ -15,7 +15,7 @@ fragment_program VoxelTexture_FP cg
 {
 	source VoxelTexture.cg
 	entry_point voxeltexture_fp
-	profiles ps_2_x ps_2_0
+	profiles ps3_0 ps_2_x ps_2_0
 }
 
 material VoxelTexture
@@ -36,8 +36,7 @@ material VoxelTexture
 			texture_unit
 			{
 				texture Dirt.png 2d
-				filtering anisotropic
-                max_anisotropy 16
+				tex_address_mode clamp
 			}
 		}
 	}

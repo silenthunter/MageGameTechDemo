@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	Ogre::RenderWindow* ogreWindow = graphicsManager.GetWindow();
 	size_t hWnd = 0;
 	ogreWindow->getCustomAttribute("WINDOW", &hWnd);
-
+	
 	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(wTer.currWidth, wTer.currDepth, wTer.currHeight)));
 	graphicsManager.InitVoxels(&volData, &wTer);
 	graphicsManager.LoadManualObject();

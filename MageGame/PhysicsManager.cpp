@@ -224,11 +224,15 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 	hkpBoxShape* box = new hkpBoxShape(hkVector4(worldScale / 2, worldScale / 2, worldScale / 2));
 	int keyNum = 0;
 
-	for(int i = chunk.getX() * chunkSize; i < (chunk.getX() + 1) * chunkSize; i++)
+	int chunkX = (chunk.getX() + 1) * chunkSize;
+	int chunkY = (chunk.getY() + 1) * chunkSize;
+	int chunkZ = (chunk.getZ() + 1) * chunkSize;
+
+	for(int i = chunk.getX() * chunkSize; i < chunkX; i++)
 	{
-		for(int j = chunk.getY() * chunkSize; j < (chunk.getY() + 1) * chunkSize; j++)
+		for(int j = chunk.getY() * chunkSize; j < chunkY; j++)
 		{
-			for(int k = chunk.getZ() * chunkSize; k < (chunk.getZ() + 1) * chunkSize; k++)
+			for(int k = chunk.getZ() * chunkSize; k < chunkZ; k++)
 			{
 				VoxelMat voxel = polyVolume->getVoxelAt(PolyVox::Vector3DInt32(i, j, k));
 
