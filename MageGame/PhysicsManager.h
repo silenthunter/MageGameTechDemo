@@ -117,6 +117,7 @@ private:
 	hkpBreakOffPartsUtil* m_breakUtil;
 
 	std::map<PolyVox::Vector3DInt32, hkpRigidBody*> physicsMap;
+	hkArray<hkpRigidBody*> cubes;
 
 	int chunkSize;
 	float worldScale;
@@ -130,7 +131,6 @@ private:
 	PolyVox::SimpleVolume<VoxelMat>* polyVolume;
 
 	GraphicsManager* graphMan;
-	typedef void (*ProgessCallback)(float);
 
 public:
 	PhysicsManager(PolyVox::SimpleVolume<VoxelMat>* volume, GraphicsManager *manager = NULL);
@@ -175,6 +175,12 @@ public:
 	@param blockPos The absolute position for the block within the voxel volume
 	*/
 	void RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos);
+
+	/**
+	@brief Spawns a dynamic motion physics cube
+	@param position The position the cube will be spawned
+	*/
+	void SpawnCube(hkVector4 &position);
 
 	virtual hkResult breakOffSubPart(   const ContactImpulseLimitBreachedEvent& event, hkArray<hkpShapeKey>& keysBrokenOffOut, hkpPhysicsSystem& systemOut );
 };

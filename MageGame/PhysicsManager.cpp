@@ -529,3 +529,24 @@ void PhysicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3
 	m_breakUtil->removeKeysFromListShape(body, &key, 1);
 	world->unmarkForWrite();
 }
+
+void PhysicsManager::SpawnCube(hkVector4 &pos)
+{
+	hkVector4 halfExtents(.25, .25, .25);
+	hkpBoxShape *box = new hkpBoxShape(halfExtents);
+
+	hkpRigidBodyCinfo info;
+	info.m_shape = box;
+	info.m_motionType = hkpMotion::MOTION_DYNAMIC;
+	info.m_position = pos;
+
+	hkpRigidBody* body = new hkpRigidBody(info);
+
+	cubes.pushBack(body);
+
+	world->lock();
+	world->addEntity(body);
+	world->unlock();
+	body->removeReference();
+	box->removeReference();
+}
