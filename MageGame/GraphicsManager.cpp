@@ -1,11 +1,10 @@
 #include "GraphicsManager.h"
 
 #define TEX_SIZE 16
-#define TEX_ATLAS_SIZE 256
+#define TEX_ATLAS_SIZE 64
 #define NUM_NONTEX_MATERIALS 1
-#define NUM_TEX_PER_ROW (TEX_ATLAS_SIZE / TEX_SIZE)
-#define TOTAL_TEX 2
-#define TEX_WIDTH_NORMALIZED (float)(1 / NUM_TEX_PER_ROW)
+#define NUM_TEX_PER_ROW (TEX_ATLAS_SIZE / TEX_SIZE / 2)
+#define TEX_WIDTH_NORMALIZED (1.0 / NUM_TEX_PER_ROW)
 
 using std::string;
 using Ogre::ConfigFile;
@@ -361,11 +360,12 @@ void GraphicsManager::LoadManualObject()
 					obj->position(pos.getX(), pos.getY(), pos.getZ());
 					Ogre::ColourValue val;
 					VoxelMat vMat = vecItr->getMaterial();
-					uint16_t mat = vMat.getMaterial() - 1;
-					val.r = mat % 2 * 0.5;
-					val.g = ((unsigned int) (mat / 2)) * 0.5;
+					uint16_t mat = vMat.getMaterial() - NUM_NONTEX_MATERIALS;
+					val.r = mat % NUM_TEX_PER_ROW * TEX_WIDTH_NORMALIZED;
+					val.g = mat / NUM_TEX_PER_ROW * TEX_WIDTH_NORMALIZED;
 					val.b = 0.0f;
 					val.a = 1.0f;
+
 					obj->colour(val);
 				}
 

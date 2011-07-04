@@ -35,7 +35,7 @@ material VoxelTexture
 			
 			texture_unit
 			{
-				texture Dirt.png 2d
+				texture TextureAtlas.png 2d
 				tex_address_mode clamp
 			}
 		}

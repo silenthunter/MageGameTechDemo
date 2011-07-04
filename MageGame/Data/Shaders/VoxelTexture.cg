@@ -2,7 +2,7 @@
 #define WORLDSCALE 1.0
 #define TEXATLASSIZE 64
 #define TEXATLAS_TEXSIZE 16
-#define TEXATLAS_TEXSIZE_NORMALIZED ((float)TEXATLAS_TEXSIZE / (float)TEXATLASSIZE)
+#define TEXATLAS_TEXSIZE_NORMALIZED (((float)TEXATLAS_TEXSIZE / (float)TEXATLASSIZE) * 2.0)
 
 void voxeltexture_vp(
 	float4 inPosition			: POSITION,
@@ -71,6 +71,17 @@ void voxeltexture_fp(
         pos.x = 1 - pos.x;
 		pos.y = 1 - pos.y;
     }
+	
+	//Texture atlas handling
+	pos *= TEXATLAS_TEXSIZE_NORMALIZED;
+	if(inColor.x != 0)
+	{
+		pos.x += inColor.x;
+	}
+	if(inColor.y != 0)
+	{
+		pos.y += inColor.y;
+	}
 	
 	outColor = tex2D(texture, pos);
 }
