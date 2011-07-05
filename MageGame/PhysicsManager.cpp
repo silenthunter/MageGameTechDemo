@@ -51,6 +51,8 @@ PhysicsManager::PhysicsManager(PolyVox::SimpleVolume<VoxelMat>* volume, Graphics
 	int z = polyVolume->getDepth() / chunkSize;
 
 	worldScale = 1.f;
+	maxPageSize = 100;
+	maxRender = 100;
 
 	//Load the entire map
 	UpdateChunkRange(Vector3DInt32(0, 0, 0), Vector3DInt32(x, y, z));
@@ -217,6 +219,53 @@ void PhysicsManager::deInitHavok()
 
 void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 {
+	int upperX = polyVolume->getWidth() / chunkSize;
+	int upperY = polyVolume->getHeight() / chunkSize;
+	int upperZ = polyVolume->getDepth() / chunkSize;
+
+	if(chunk.getX() < 0 || chunk.getY() < 0 || chunk.getZ() < 0) return;//Lower bounds check
+	if(chunk.getX() > upperX || chunk.getY() > upperY || chunk.getZ() > upperZ) return;//Upper bounds check
+
+	if(pageQueue.getSize() >= maxPageSize)//Need to delete the LRU chunk
+	{
+		Vector3DInt32 LRUchunk = pageQueue[0];
+		pageQueue.removeAtAndCopy(0);//Pop the front chunk
+		hkpRigidBody* body = physicsMap[LRUchunk];
+		physicsMap.erase(LRUchunk);//delete the rigid body from the physics map
+		
+		if(body)//Ignore NULL values
+		{
+			world->lock();
+			world->removeEntity(body);
+			world->unlock();
+		}
+	}
+
+	bool isPaged = false;
+	int queuePos = -1;
+
+	for(int i = 0; i < pageQueue.getSize(); i++)
+		if(pageQueue[i] == chunk)
+		{
+			isPaged = true;
+			pageQueue.removeAtAndCopy(i);//Remove the element and shift the array
+			queuePos = i;
+			pageQueue.pushBack(chunk);//put chunk at the back of the queue
+			break;
+		}
+
+	//The chunk is still in memory
+	if(isPaged)
+	{
+		if(queuePos >= maxRender)//This chunk currently isn't in the world
+		{
+			hkpRigidBody *body = physicsMap[chunk];
+			world->lock();
+			world->addEntity(body);
+			world->unlock();
+		}
+		return;
+	}
 
 	hkpRigidBodyCinfo info;
 	hkArray<hkpConvexShape*> shapes;
@@ -252,6 +301,7 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 		}
 	}
 
+	pageQueue.pushBack(chunk);//put chunk at the back of the queue
 	if(shapes.getSize() == 0) return;
 
 	hkpExtendedMeshShape* chunkShape = new hkpExtendedMeshShape();
@@ -332,6 +382,15 @@ void PhysicsManager::UpdateChunkRange(Vector3DInt32 &start, Vector3DInt32 &end)
 void PhysicsManager::StepSimulation(float deltaTime)
 {
 	if(deltaTime <= 0) return; //You can't simulate nothing!
+
+	//Make sure the chunks surrounding the player are loaded
+	hkVector4 playerPos = m_characterRigidBody->getPosition();
+	Vector3DInt32 chunkNum(playerPos(0) / chunkSize, playerPos(1) / chunkSize, playerPos(2) / chunkSize);
+
+	Vector3DInt32 start = chunkNum - Vector3DInt32(1, 1, 1);
+	Vector3DInt32 end = chunkNum + Vector3DInt32(1, 1, 1);
+
+	UpdateChunkRange(start, end);
 
 	//step multithreaded simulation using this thread and all threads in the thread pool
 	world->stepMultithreaded(m_pJobQueue, m_pThreadPool, deltaTime);

@@ -118,8 +118,11 @@ private:
 
 	std::map<PolyVox::Vector3DInt32, hkpRigidBody*> physicsMap;
 	hkArray<hkpRigidBody*> cubes;
+	hkArray<PolyVox::Vector3DInt32> pageQueue;
 
 	int chunkSize;
+	int maxPageSize;
+	int maxRender;
 	float worldScale;
 
 	void initHavok();
