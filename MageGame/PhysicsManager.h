@@ -67,6 +67,10 @@
 #include <Physics/Utilities/CharacterControl/StateMachine/Jumping/hkpCharacterStateJumping.h>
 #include <Physics/Utilities/CharacterControl/StateMachine/OnGround/hkpCharacterStateOnGround.h>
 
+/////////////////////////////////////////////////////////////////////////////////////////////// Boost
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+
 #include <stdio.h>
 #include <vector>
 #include <PolyVoxCore/SimpleVolume.h>
@@ -119,6 +123,7 @@ private:
 	std::map<PolyVox::Vector3DInt32, hkpRigidBody*> physicsMap;
 	hkArray<hkpRigidBody*> cubes;
 	hkArray<PolyVox::Vector3DInt32> pageQueue;
+	hkQueue<hkpRigidBody*> readyRigidBodies;
 
 	int chunkSize;
 	int maxPageSize;
@@ -130,10 +135,13 @@ private:
 	void stepVisualDebugger(float deltaTime);
 	void registerVisualDebugger();
 	void initPlayer();
+	void Thread_UpdateChunk(PolyVox::Vector3DInt32* chunk);
 
 	PolyVox::SimpleVolume<VoxelMat>* polyVolume;
 
 	GraphicsManager* graphMan;
+
+	boost::shared_mutex mu;
 
 public:
 	PhysicsManager(PolyVox::SimpleVolume<VoxelMat>* volume, GraphicsManager *manager = NULL);

@@ -51,11 +51,11 @@ PhysicsManager::PhysicsManager(PolyVox::SimpleVolume<VoxelMat>* volume, Graphics
 	int z = polyVolume->getDepth() / chunkSize;
 
 	worldScale = 1.f;
-	maxPageSize = 100;
-	maxRender = 100;
+	maxPageSize = 45;
+	maxRender = 45;
 
 	//Load the entire map
-	UpdateChunkRange(Vector3DInt32(0, 0, 0), Vector3DInt32(x, y, z));
+	//UpdateChunkRange(Vector3DInt32(0, 0, 0), Vector3DInt32(x, y, z));
 }
 
 PhysicsManager::~PhysicsManager(void)
@@ -217,8 +217,12 @@ void PhysicsManager::deInitHavok()
 	hkBaseSystem::quit();
 }
 
+static int threadNum = 0;
+
 void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 {
+	if(threadNum > 5) return;//TOO MANY THREADS
+
 	int upperX = polyVolume->getWidth() / chunkSize;
 	int upperY = polyVolume->getHeight() / chunkSize;
 	int upperZ = polyVolume->getDepth() / chunkSize;
@@ -226,6 +230,7 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 	if(chunk.getX() < 0 || chunk.getY() < 0 || chunk.getZ() < 0) return;//Lower bounds check
 	if(chunk.getX() > upperX || chunk.getY() > upperY || chunk.getZ() > upperZ) return;//Upper bounds check
 
+	mu.lock();
 	if(pageQueue.getSize() >= maxPageSize)//Need to delete the LRU chunk
 	{
 		Vector3DInt32 LRUchunk = pageQueue[0];
@@ -233,7 +238,7 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 		hkpRigidBody* body = physicsMap[LRUchunk];
 		physicsMap.erase(LRUchunk);//delete the rigid body from the physics map
 		
-		if(body)//Ignore NULL values
+		if(body && body->getWorld())//Ignore NULL values
 		{
 			world->lock();
 			world->removeEntity(body);
@@ -250,9 +255,9 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 			isPaged = true;
 			pageQueue.removeAtAndCopy(i);//Remove the element and shift the array
 			queuePos = i;
-			pageQueue.pushBack(chunk);//put chunk at the back of the queue
 			break;
 		}
+	pageQueue.pushBack(chunk);//put chunk at the back of the queue
 
 	//The chunk is still in memory
 	if(isPaged)
@@ -264,8 +269,27 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 			world->addEntity(body);
 			world->unlock();
 		}
+		mu.unlock();
 		return;
 	}
+	mu.unlock();
+
+	Vector3DInt32* chunkPtr = new Vector3DInt32(chunk.getX(), chunk.getY(), chunk.getZ());
+	boost::thread t(&PhysicsManager::Thread_UpdateChunk, this, chunkPtr);
+	t.detach();
+}
+
+void PhysicsManager::Thread_UpdateChunk(Vector3DInt32* chunk)
+{
+	mu.lock();
+	threadNum++;
+	mu.unlock();
+
+	//Init the thread's heap
+	hkMemoryRouter memoryRouter;
+	hkMemorySystem::getInstance().threadInit( memoryRouter, "hkCpuJobThreadPool" );
+	hkBaseSystem::initThread( &memoryRouter );
+	{
 
 	hkpRigidBodyCinfo info;
 	hkArray<hkpConvexShape*> shapes;
@@ -274,15 +298,15 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 
 	int keyNum = 0;
 
-	int chunkX = (chunk.getX() + 1) * chunkSize;
-	int chunkY = (chunk.getY() + 1) * chunkSize;
-	int chunkZ = (chunk.getZ() + 1) * chunkSize;
+	int chunkX = (chunk->getX() + 1) * chunkSize;
+	int chunkY = (chunk->getY() + 1) * chunkSize;
+	int chunkZ = (chunk->getZ() + 1) * chunkSize;
 
-	for(int i = chunk.getX() * chunkSize; i < chunkX; i++)
+	for(int i = chunk->getX() * chunkSize; i < chunkX; i++)
 	{
-		for(int j = chunk.getY() * chunkSize; j < chunkY; j++)
+		for(int j = chunk->getY() * chunkSize; j < chunkY; j++)
 		{
-			for(int k = chunk.getZ() * chunkSize; k < chunkZ; k++)
+			for(int k = chunk->getZ() * chunkSize; k < chunkZ; k++)
 			{
 				VoxelMat voxel = polyVolume->getVoxelAt(PolyVox::Vector3DInt32(i, j, k));
 
@@ -301,59 +325,78 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 		}
 	}
 
-	pageQueue.pushBack(chunk);//put chunk at the back of the queue
-	if(shapes.getSize() == 0) return;
-
-	hkpExtendedMeshShape* chunkShape = new hkpExtendedMeshShape();
-	hkpExtendedMeshShape::ShapesSubpart sub(&shapes[0], shapes.getSize());
-
-	chunkShape->addShapesSubpart(sub);
-	int num = chunkShape->getNumChildShapes();
-	std::map<PolyVox::Vector3DInt32, hkpShapeKey> *keyMap = new std::map<PolyVox::Vector3DInt32, hkpShapeKey>();
-
-	hkpShapeKey shpKey = chunkShape->getFirstKey();
-	while(shpKey != HK_INVALID_SHAPE_KEY)
+	if(shapes.getSize() > 0)
 	{
-		keys.pushBack(shpKey);
-		hkpShapeBuffer buff;
-		PolyVox::Vector3DInt32* vec = (PolyVox::Vector3DInt32*)chunkShape->getChildShape(shpKey, buff)->getUserData();
-		(*keyMap)[*vec] = shpKey;
 
-		shpKey = chunkShape->getNextKey(shpKey);
+		hkpExtendedMeshShape* chunkShape = new hkpExtendedMeshShape();
+		hkpExtendedMeshShape::ShapesSubpart sub(&shapes[0], shapes.getSize());
+
+		chunkShape->addShapesSubpart(sub);
+		int num = chunkShape->getNumChildShapes();
+		std::map<PolyVox::Vector3DInt32, hkpShapeKey> *keyMap = new std::map<PolyVox::Vector3DInt32, hkpShapeKey>();
+
+		hkpShapeKey shpKey = chunkShape->getFirstKey();
+		while(shpKey != HK_INVALID_SHAPE_KEY)
+		{
+			keys.pushBack(shpKey);
+			hkpShapeBuffer buff;
+			PolyVox::Vector3DInt32* vec = (PolyVox::Vector3DInt32*)chunkShape->getChildShape(shpKey, buff)->getUserData();
+			(*keyMap)[*vec] = shpKey;
+
+			shpKey = chunkShape->getNextKey(shpKey);
+		}
+
+		//hkpListShape *chunkShape = new hkpListShape(&shapes[0], shapes.getSize());
+
+		hkpMoppCompilerInput mci;
+		mci.m_enableChunkSubdivision = true;
+
+		hkpMoppCode *code = hkpMoppUtility::buildCode(chunkShape, mci);
+
+		hkpMoppBvTreeShape* moppShape = new hkpMoppBvTreeShape(chunkShape, code);
+
+		info.m_motionType = hkpMotion::MOTION_FIXED;
+		info.m_shape = moppShape;
+		info.m_position = hkVector4(0, 0, 0);
+		info.m_numShapeKeysInContactPointProperties = -1;
+
+		hkpRigidBody *body = new hkpRigidBody(info);
+
+		mu.lock();
+		physicsMap[*chunk] = body;
+		mu.unlock();
+	
+		body->setUserData((hkUlong)keyMap);
+
+		for(int i = 0; i < keys.getSize(); i++)
+			m_breakUtil->markPieceBreakable(body, keys[i], 100.f);
+
+		//hkpBreakOffPartsUtil::removeKeysFromListShape(body, &keys[0], keys.getSize());
+
+		/*world->lock();
+		world->markForWrite();
+		world->addEntity(body);
+		world->unmarkForWrite();
+		body->removeReference();*/
+		chunkShape->removeReference();
+		box->removeReference();
+
+		mu.lock();
+		readyRigidBodies.enqueue(body);
+		mu.unlock();
+
+		//world->unlock();
+	}
 	}
 
-	//hkpListShape *chunkShape = new hkpListShape(&shapes[0], shapes.getSize());
+	hkBaseSystem::quitThread();
+	hkMemorySystem::getInstance().threadQuit( memoryRouter );
 
-	hkpMoppCompilerInput mci;
-	mci.m_enableChunkSubdivision = true;
+	mu.lock();
+	threadNum--;
+	mu.unlock();
 
-	hkpMoppCode *code = hkpMoppUtility::buildCode(chunkShape, mci);
-
-	hkpMoppBvTreeShape* moppShape = new hkpMoppBvTreeShape(chunkShape, code);
-
-	info.m_motionType = hkpMotion::MOTION_FIXED;
-	info.m_shape = moppShape;
-	info.m_position = hkVector4(0, 0, 0);
-	info.m_numShapeKeysInContactPointProperties = -1;
-
-	hkpRigidBody *body = new hkpRigidBody(info);
-
-	physicsMap[chunk] = body;
-	
-	body->setUserData((hkUlong)keyMap);
-
-	for(int i = 0; i < keys.getSize(); i++)
-		m_breakUtil->markPieceBreakable(body, keys[i], 100.f);
-
-	//hkpBreakOffPartsUtil::removeKeysFromListShape(body, &keys[0], keys.getSize());
-
-	world->lock();
-	world->addEntity(body);
-	body->removeReference();
-	chunkShape->removeReference();
-	box->removeReference();
-
-	world->unlock();
+	return;
 }
 
 void PhysicsManager::UpdateChunkRange(Vector3DInt32 &start, Vector3DInt32 &end)
@@ -382,6 +425,22 @@ void PhysicsManager::UpdateChunkRange(Vector3DInt32 &start, Vector3DInt32 &end)
 void PhysicsManager::StepSimulation(float deltaTime)
 {
 	if(deltaTime <= 0) return; //You can't simulate nothing!
+
+	//Load next available chunk
+	if(!readyRigidBodies.isEmpty())
+	{
+		hkpRigidBody* nextRigid = NULL;
+		readyRigidBodies.dequeue(nextRigid);
+
+		world->markForWrite();
+		world->lock();
+
+		world->addEntity(nextRigid);
+		nextRigid->removeReference();
+
+		world->unlock();
+		world->unmarkForWrite();
+	}
 
 	//Make sure the chunks surrounding the player are loaded
 	hkVector4 playerPos = m_characterRigidBody->getPosition();
@@ -427,7 +486,7 @@ void PhysicsManager::initPlayer()
 	info.m_maxForce = 1000.0f;
 	info.m_up = hkVector4(0, 1.0f, 0);
 	info.m_shape = m_standShape;
-	info.m_position = hkVector4(100, 600, 100);
+	info.m_position = hkVector4(50, 300, 50);
 
 	info.m_maxSlope = 70.0f * HK_REAL_DEG_TO_RAD;
 
