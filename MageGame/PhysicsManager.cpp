@@ -644,7 +644,9 @@ void PhysicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3
 	hkpShapeKey key = (*keyMap)[blockPos];
 
 	world->markForWrite();
+	world->lock();
 	m_breakUtil->removeKeysFromListShape(body, &key, 1);
+	world->unlock();
 	world->unmarkForWrite();
 }
 
