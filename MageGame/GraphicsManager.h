@@ -19,9 +19,9 @@ class GraphicsManager
 
 public:
 	//Functions
-	GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra);
+	GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra, GameParser *gm_gameParser);
 	~GraphicsManager(void);
-	void InitVoxels(int minX, int minY, int minZ, int maxX, int maxY, int maxZ);
+	void InitVoxels(PolyVox::Vector3DInt32 chunkNum);
 	void LoadManualObjects(int minX, int minY, int minZ, int maxX, int maxY, int maxZ);
 	void LoadSingleMO(int i, int j, int k, int iDiff, int kDiff);
 	void DestroyMO(PolyVox::Vector3DInt32 chunkNum);
@@ -59,8 +59,9 @@ private:
 	Ogre::RenderWindow *window;
 	Ogre::SceneManager *manager;
 	Ogre::Viewport *vp;
-	WorldTerrain* wTer;
-	PolyVox::SimpleVolume<VoxelMat>* polyVolume;
+	WorldTerrain *wTer;
+	PolyVox::SimpleVolume<VoxelMat> *polyVolume;
+	GameParser *gameParser;
 	std::map<std::string, Ogre::ManualObject*> manualObjects;
 	PolyVox::Vector3DInt32 playerChunk;
 	int chunkSize;

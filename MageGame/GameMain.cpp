@@ -57,7 +57,10 @@ int main(int argc, char* argv[])
 
 #pragma region GraphicsManager
 	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(wTer.currWidth, wTer.currDepth, wTer.currHeight)));
-	GraphicsManager graphicsManager(chunkSize, worldScale, viewDist, verticalMax, &volData, &wTer);
+
+	gameParser.SetPolyVolume(&volData);
+
+	GraphicsManager graphicsManager(chunkSize, worldScale, viewDist, verticalMax, &volData, &wTer, &gameParser);
 	Ogre::SceneNode* player = graphicsManager.GetPlayer();
 	Ogre::SceneNode* c_sn = graphicsManager.GetCamera();
 	Ogre::Root* root = graphicsManager.GetRoot();
@@ -65,8 +68,7 @@ int main(int argc, char* argv[])
 	Ogre::RenderWindow* ogreWindow = graphicsManager.GetWindow();
 	size_t hWnd = 0;
 	ogreWindow->getCustomAttribute("WINDOW", &hWnd);
-	
-	graphicsManager.InitVoxels(0, 0, 0, wTer.currWidth, wTer.currDepth, wTer.currHeight);
+
 	graphicsManager.LoadManualObjects(0, 0, 0, wTer.currWidth, wTer.currDepth, wTer.currHeight);
 #pragma endregion
 

@@ -17,17 +17,31 @@ using PolyVox::PositionMaterial;
 using PolyVox::CubicSurfaceExtractor;
 using PolyVox::Region;
 
-GraphicsManager::GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra)
+GraphicsManager::GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra, GameParser *gm_gameParser)
 {
 	init();
 	polyVolume = volData;
 	wTer = wTerra;
+	gameParser = gm_gameParser;
 	chunkSize = gm_chunkSize;
 	worldScale = gm_worldScale;
 	centerChunk = gm_viewDist + 1;
 	playerChunk.setX(centerChunk);
 	playerChunk.setZ(centerChunk);
 	verticalMax = gm_verticalMax;
+
+	int horizontalChunk = gm_viewDist * 2 + 1;
+	int verticalChunk = gm_verticalMax / gm_chunkSize;
+	for(int i = 0; i < horizontalChunk; ++i)
+	{
+		for(int j = 0; j < verticalChunk; ++j)
+		{
+			for(int k = 0; k < horizontalChunk; ++k)
+			{
+				InitVoxels(Vector3DInt32(i, j, k));
+			}
+		}
+	}
 }
 
 GraphicsManager::~GraphicsManager(void)
@@ -242,38 +256,47 @@ void GraphicsManager::CloseGUI()
 	rootWin->setVisible(false);
 }
 
-void GraphicsManager::InitVoxels(int minX, int minY, int minZ, int maxX, int maxY, int maxZ)
+void GraphicsManager::InitVoxels(PolyVox::Vector3DInt32 chunkNum)
 {
-	int wTerWidth = maxX - minX;
-	int wTerDepth = maxY - minY;
-	int wTerHeight = maxZ - minZ;
+	float regionWidth = 1.0;
+	float regionHeight = 1.0;
+	float regionDepth = 1.0;
 
-	int xDiff = (centerChunk - playerChunk.getX()) * chunkSize;
-	int zDiff = (centerChunk - playerChunk.getZ()) * chunkSize;
+	int chunkNumX = chunkNum.getX();
+	int chunkNumY = chunkNum.getY();
+	int chunkNumZ = chunkNum.getZ();
 
-	for(int x = minX; x < maxX; x++)
+	int chunkX = (chunkNumX + playerChunk.getX() - centerChunk) * regionWidth;
+	int chunkY = chunkNumY * regionDepth;
+	int chunkZ = (chunkNumZ + playerChunk.getZ() - centerChunk) * regionHeight;
+
+	int xOffset = chunkNumX * chunkSize;
+	int yOffset = chunkNumY * chunkSize;
+	int zOffset = chunkNumZ * chunkSize;
+
+	for(int x = 0; x < chunkSize; x++)
 	{
-		for(int z = minZ; z < maxZ; z++)
+		for(int z = 0; z < chunkSize; z++)
 		{
-			for(int y = minY; y < maxY; y++)
+			for(int y = 0; y < chunkSize; y++)
 			{
-				double nx = (double)x / wTerWidth;
-				double ny = (double)y / wTerDepth;
-				double nz = (double)z / wTerHeight;
+				double nx = (double)x / chunkSize;
+				double ny = (double)y / chunkSize;
+				double nz = (double)z / chunkSize;
+
+				nx = chunkX + nx * regionWidth;
+				ny = chunkY + ny * regionHeight;
+				nz = chunkZ + nz * regionDepth;
 
 				double v = wTer->worldTerrain.GetValue(nx, ny, nz);
                 if(v > 0)
 				{
-					int newX = x + xDiff;
-					int newZ = z + zDiff;
-					VoxelMat vox = polyVolume->getVoxelAt(Vector3DInt32(newX, y, newZ));
+					VoxelMat vox;
 					vox.setMaterial(v);
-					polyVolume->setVoxelAt(newX, y, newZ, vox);
+					polyVolume->setVoxelAt(x + xOffset, y + yOffset, z + zOffset, vox);
 				}
 			}
-			if(x % chunkSize == 0 && z % chunkSize == 0) printf("#");
 		}
-		if(x % chunkSize == 0) printf("\n");
 	}
 }
 
@@ -493,43 +516,85 @@ void GraphicsManager::UpdateChunk(Vector3DInt32 chunkNum)
 
 void GraphicsManager::MoveNorth()
 {
-	int horizontalCount = (centerChunk - 1) * 2;
-	int horizontalSize = horizontalCount * chunkSize * verticalMax;
-	int chunkSlice = chunkSize * verticalMax;
-	int moveSize = horizontalSize - chunkSlice;
+	int xDiff = playerChunk.getX() - centerChunk;
+	int zDiff = playerChunk.getZ() - centerChunk;
 
-	for(int i = 0; i < horizontalCount; ++i)
-	{
-		memmove(polyVolume + (horizontalSize * i + chunkSlice), polyVolume + (horizontalSize * i), moveSize);
-	}
+	int horizontalChunk = centerChunk * 2 + 1;
+	int horizontalSize = horizontalChunk * chunkSize;
+	int size = horizontalSize * verticalMax;
+
+	gameParser->PlayerMoveStore(xDiff, zDiff, horizontalChunk, verticalMax / chunkSize, 0);
+
+	memmove(polyVolume + size, polyVolume, size);
+
+	playerChunk.setZ(playerChunk.getZ() - 1);
 }
 
 void GraphicsManager::MoveSouth()
 {
-	int horizontalCount = (centerChunk - 1) * 2;
-	int horizontalSize = horizontalCount * chunkSize * verticalMax;
-	int chunkSlice = chunkSize * verticalMax;
-	int moveSize = horizontalSize - chunkSlice;
+	int xDiff = playerChunk.getX() - centerChunk;
+	int zDiff = playerChunk.getZ() - centerChunk;
 
-	for(int i = 0; i < horizontalCount; ++i)
-	{
-		memmove(polyVolume + (horizontalSize * i), polyVolume + (horizontalSize * i + chunkSlice), moveSize);
-	}
+	int horizontalChunk = centerChunk * 2 + 1;
+	int horizontalSize = horizontalChunk * chunkSize;
+	int start = horizontalSize * verticalMax;
+	int size = (horizontalSize - 1) * horizontalSize * verticalMax;
+
+	gameParser->PlayerMoveStore(xDiff, zDiff, horizontalChunk, verticalMax / chunkSize, 2);
+
+	memmove(polyVolume, polyVolume + start, size);
+
+	playerChunk.setZ(playerChunk.getZ() + 1);
 }
 
 void GraphicsManager::MoveEast()
 {
-	int horizontalSize = (centerChunk - 1) * 2 * chunkSize;
-	int start = horizontalSize * verticalMax;
-	int size = (horizontalSize - 1) * horizontalSize * verticalMax;
-	memmove(polyVolume, polyVolume + start, size);
+	int xDiff = playerChunk.getX() - centerChunk;
+	int zDiff = playerChunk.getZ() - centerChunk;
+
+	int horizontalChunk = (centerChunk * 2 + 1);
+	int horizontalSize = horizontalChunk * chunkSize;
+	int horizontalSlice = horizontalSize * verticalMax;
+	int start = chunkSize;
+	int size = horizontalSize - chunkSize;
+	int verticalChunk = verticalMax / chunkSize;
+
+	gameParser->PlayerMoveStore(xDiff, zDiff, horizontalChunk, verticalChunk, 1);
+
+	for(int i = 0; i < horizontalChunk; ++i)
+	{
+		for(int j = 0; j < verticalChunk; ++j)
+		{
+			memmove(polyVolume + (horizontalSlice * i + horizontalSize * j), polyVolume + (horizontalSlice * i + horizontalSize * j + start), size);
+		}
+	}
+
+	playerChunk.setX(playerChunk.getX() + 1);
 }
 
 void GraphicsManager::MoveWest()
 {
-	int horizontalSize = (centerChunk - 1) * 2 * chunkSize;
-	int size = horizontalSize * verticalMax;
-	memmove(polyVolume + size, polyVolume, size);
+	int xDiff = playerChunk.getX() - centerChunk;
+	int zDiff = playerChunk.getZ() - centerChunk;
+
+	int horizontalChunk = (centerChunk * 2 + 1);
+	int horizontalSize = horizontalChunk * chunkSize;
+	int horizontalSlice = horizontalSize * verticalMax;
+	int end = chunkSize;
+	int size = horizontalSize - chunkSize;
+	int verticalChunk = verticalMax / chunkSize;
+
+	gameParser->PlayerMoveStore(xDiff, zDiff, horizontalChunk, verticalChunk, 3);
+
+	for(int i = 0; i < horizontalChunk; ++i)
+	{
+		for(int j = 0; j < verticalChunk; ++j)
+		{
+			memmove(polyVolume + (horizontalSlice * i + horizontalSize * j + end), polyVolume + (horizontalSlice * i + horizontalSize * j), size);
+		}
+	}
+
+	playerChunk.setX(playerChunk.getX() - 1);
 }
 
 void GraphicsManager::AdjustCamera(int xAxis, int yAxis)

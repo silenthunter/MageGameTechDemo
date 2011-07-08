@@ -19,7 +19,7 @@ GameParser::~GameParser()
 
 }
 
-void GameParser::SetChunkSize(unsigned short gp_chunkSize)
+void GameParser::SetChunkSize(int gp_chunkSize)
 {
 	chunkSize = gp_chunkSize;
 }
@@ -107,7 +107,71 @@ void GameParser::DataIDInput(StrU16Map& map, const std::string& data, const std:
 	map.insert(StrU16Map::value_type(data, boost::lexical_cast<unsigned short>(id)));
 }
 
-bool GameParser::StoreChunk(PolyVox::SimpleVolume<VoxelMat> *volData, PolyVox::Vector3DInt32 chunkNum)
+void GameParser::SetPolyVolume(PolyVox::SimpleVolume<VoxelMat>* gp_polyVolume)
+{
+	polyVolume = gp_polyVolume;
+}
+
+bool GameParser::PlayerMoveStore(int xDiff, int zDiff, int horizontalChunk, int verticalChunk, int direction)
+{
+	switch(direction)
+	{
+	case 0: //North
+		{
+		int lastChunk = horizontalChunk - 1;
+		for(int i = 0; i < horizontalChunk; ++i)
+		{
+			for(int j = 0; j < verticalChunk; ++j)
+			{
+				StoreChunk(Vector3DInt32(i, j, lastChunk), xDiff, zDiff);
+			}
+		}
+		break;
+		}
+	case 1: //East
+		{
+		int lastChunk = horizontalChunk - 1;
+		for(int i = 0; i < horizontalChunk; ++i)
+		{
+			for(int j = 0; j < verticalChunk; ++j)
+			{
+				StoreChunk(Vector3DInt32(lastChunk, j, i), xDiff, zDiff);
+			}
+		}
+		break;
+		}
+	case 2: //South
+		{
+		for(int i = 0; i < horizontalChunk; ++i)
+		{
+			for(int j = 0; j < verticalChunk; ++j)
+			{
+				StoreChunk(Vector3DInt32(i, j, 0), xDiff, zDiff);
+			}
+		}
+		break;
+		}
+	case 3: //West
+		{
+		for(int i = 0; i < horizontalChunk; ++i)
+		{
+			for(int j = 0; j < verticalChunk; ++j)
+			{
+				StoreChunk(Vector3DInt32(0, j, i), xDiff, zDiff);
+			}
+		}
+		break;
+		}
+	default:
+		{
+		cerr << "Direction: " << direction << " is unknown." << endl;
+		return false;
+		}
+	}
+	return true;
+}
+
+bool GameParser::StoreChunk(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff)
 {
 	unsigned int iChunkStart = chunkNum.getX() * chunkSize;
 	unsigned int jChunkStart = chunkNum.getY() * chunkSize;
@@ -119,7 +183,7 @@ bool GameParser::StoreChunk(PolyVox::SimpleVolume<VoxelMat> *volData, PolyVox::V
 	unsigned int kChunkEnd = kChunkStart + chunkAddition;
 
 	char chunkInfo[50];
-	sprintf(chunkInfo, "%d_%d_%d", chunkNum.getX(), chunkNum.getY(), chunkNum.getZ());
+	sprintf(chunkInfo, "%d_%d_%d", chunkNum.getX() + xDiff, chunkNum.getY(), chunkNum.getZ() + zDiff);
 
 	string filepath = chunkDataFP;
 	filepath += chunkInfo;
@@ -139,6 +203,44 @@ bool GameParser::StoreChunk(PolyVox::SimpleVolume<VoxelMat> *volData, PolyVox::V
 			{
 				VoxelMat vox = polyVolume->getVoxelAt(Vector3DInt32(i, j, k));
 				chunkFile << vox.getMaterial() << " ";
+			}
+		}
+	}
+
+	chunkFile.close();
+	return true;
+}
+
+bool GameParser::LoadChunk(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff)
+{
+	char chunkInfo[50];
+	sprintf(chunkInfo, "%d_%d_%d", chunkNum.getX() + xDiff, chunkNum.getY(), chunkNum.getZ() + zDiff);
+
+	string filepath = chunkDataFP;
+	filepath += chunkInfo;
+
+	ifstream chunkFile(filepath);
+	if(!chunkFile.is_open()) return false;
+
+	unsigned int iChunkStart = chunkNum.getX() * chunkSize;
+	unsigned int jChunkStart = chunkNum.getY() * chunkSize;
+	unsigned int kChunkStart = chunkNum.getZ() * chunkSize;
+	unsigned short chunkAddition = chunkSize - 1;
+
+	unsigned int iChunkEnd = iChunkStart + chunkAddition;
+	unsigned int jChunkEnd = jChunkStart + chunkAddition;
+	unsigned int kChunkEnd = kChunkStart + chunkAddition;
+
+	for(int i = iChunkStart; i < iChunkEnd; ++i)
+	{
+		for(int j = jChunkStart; j < jChunkEnd; ++j)
+		{
+			for(int k = kChunkStart; k < kChunkEnd; ++k)
+			{
+				VoxelMat vox = polyVolume->getVoxelAt(Vector3DInt32(i, j, k));
+				int currMat;
+				chunkFile >> currMat;
+				vox.setMaterial(currMat);
 			}
 		}
 	}
