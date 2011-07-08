@@ -19,10 +19,12 @@ class GraphicsManager
 
 public:
 	//Functions
-	GraphicsManager(void);
+	GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_viewDist, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra);
 	~GraphicsManager(void);
-	void InitVoxels(PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra);
-	void LoadManualObject();
+	void InitVoxels(int minX, int minY, int minZ, int maxX, int maxY, int maxZ);
+	void LoadManualObjects(int minX, int minY, int minZ, int maxX, int maxY, int maxZ);
+	void LoadSingleMO(int i, int j, int k, int iDiff, int kDiff);
+	void DestroyMO(PolyVox::Vector3DInt32 chunkNum);
 	VoxelMat RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos);
 	void UpdateChunk(PolyVox::Vector3DInt32 chunkNum);
 	void createSphereInVolume(PolyVox::SimpleVolume<VoxelMat>& volData, float fRadius, PolyVox::Vector3DFloat& v3dVolCenter);
@@ -56,8 +58,9 @@ private:
 	WorldTerrain* wTer;
 	PolyVox::SimpleVolume<VoxelMat>* polyVolume;
 	std::map<std::string, Ogre::ManualObject*> manualObjects;
-	PolyVox::Vector3DInt32 lowestChunk;
+	PolyVox::Vector3DInt32 playerChunk;
 	int chunkSize;
+	int centerChunk;
 	float worldScale;
 	CEGUI::ProgressBar *bar;
 	CEGUI::DefaultWindow *rootWin;

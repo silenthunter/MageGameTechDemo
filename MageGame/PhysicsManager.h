@@ -144,7 +144,7 @@ private:
 	boost::shared_mutex mu;
 
 public:
-	PhysicsManager(PolyVox::SimpleVolume<VoxelMat>* volume, GraphicsManager *manager = NULL);
+	PhysicsManager(int pm_chunkSize, float pm_worldScale, PolyVox::SimpleVolume<VoxelMat>* volume, GraphicsManager *manager = NULL);
 	~PhysicsManager(void);
 
 	///Updates a single chunk

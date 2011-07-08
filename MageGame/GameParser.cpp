@@ -1,9 +1,11 @@
 #include "GameParser.h"
 
 using std::ifstream;
+using std::ofstream;
 using std::string;
 using std::cerr;
 using std::endl;
+using PolyVox::Vector3DInt32;
 
 GameParser::GameParser(const string& gp_gameDataFP, const string& gp_chunkDataFP)
 	: gameDataFP(gp_gameDataFP), 
@@ -15,6 +17,11 @@ GameParser::GameParser(const string& gp_gameDataFP, const string& gp_chunkDataFP
 GameParser::~GameParser()
 {
 
+}
+
+void GameParser::SetChunkSize(unsigned short gp_chunkSize)
+{
+	chunkSize = gp_chunkSize;
 }
 
 bool GameParser::ParseFile(const string& filepath, StrFloatMap& map)
@@ -98,4 +105,44 @@ void GameParser::DataIDInput(StrU16Map& map, const std::string& data)
 void GameParser::DataIDInput(StrU16Map& map, const std::string& data, const std::string& id)
 {
 	map.insert(StrU16Map::value_type(data, boost::lexical_cast<unsigned short>(id)));
+}
+
+bool GameParser::StoreChunk(PolyVox::SimpleVolume<VoxelMat> *volData, PolyVox::Vector3DInt32 chunkNum)
+{
+	unsigned int iChunkStart = chunkNum.getX() * chunkSize;
+	unsigned int jChunkStart = chunkNum.getY() * chunkSize;
+	unsigned int kChunkStart = chunkNum.getZ() * chunkSize;
+	unsigned short chunkAddition = chunkSize - 1;
+
+	unsigned int iChunkEnd = iChunkStart + chunkAddition;
+	unsigned int jChunkEnd = jChunkStart + chunkAddition;
+	unsigned int kChunkEnd = kChunkStart + chunkAddition;
+
+	char chunkInfo[50];
+	sprintf(chunkInfo, "%d_%d_%d", chunkNum.getX(), chunkNum.getY(), chunkNum.getZ());
+
+	string filepath = chunkDataFP;
+	filepath += chunkInfo;
+
+	ofstream chunkFile(filepath);
+	if(!chunkFile.is_open())
+	{
+		cerr << "Unable to open filepath to save chunk: " << filepath << endl;
+		return false;
+	}
+
+	for(int i = iChunkStart; i < iChunkEnd; ++i)
+	{
+		for(int j = jChunkStart; j < jChunkEnd; ++j)
+		{
+			for(int k = kChunkStart; k < kChunkEnd; ++k)
+			{
+				VoxelMat vox = polyVolume->getVoxelAt(Vector3DInt32(i, j, k));
+				chunkFile << vox.getMaterial() << " ";
+			}
+		}
+	}
+
+	chunkFile.close();
+	return true;
 }

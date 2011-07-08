@@ -15,6 +15,7 @@
 
 using PolyVox::SimpleVolume;
 using PolyVox::Vector3DInt32;
+using PolyVox::Vector3DFloat;
 using Ogre::Vector3;
 using Ogre::Degree;
 
@@ -27,7 +28,8 @@ int main(int argc, char* argv[])
 {
 	atexit(ExitMain); //Call ExitMain if the program quits for any reason
 
-	GameParser gameParser("Data/GameInfo/", "");
+#pragma region GameParser
+	GameParser gameParser("Data/GameInfo/", "World1/ChunkData/");
 
 	gameParser.ParseFile("WorldData.ini", WorldDataMap);
 	gameParser.ParseFile("ItemData.ini", ItemDataMap);
@@ -38,16 +40,23 @@ int main(int argc, char* argv[])
 	gameParser.ParseIDFile("MaterialID.ini", MaterialIDMap);
 
 	int chunkSize = WorldDataMap["ChunkSize"];
+	float worldScale = WorldDataMap["WorldScale"];
+	int viewDist = ((1.0f / worldScale) * WorldDataMap["ViewDistance"] + 0.5);
+
+	gameParser.SetChunkSize(chunkSize);
+#pragma endregion
 
 #pragma region Map Generation
 	WorldTerrain wTer;
 	wTer.Init();
 	wTer.GenerateRegularWorld();
-	wTer.InputNewBoundary(128, 96, 64);
+	int horizontalChunkSize = ((viewDist << 1) + 1) * chunkSize;
+	wTer.InputNewBoundary(horizontalChunkSize, WorldDataMap["VerticalMax"], horizontalChunkSize);
 #pragma endregion
 
 #pragma region GraphicsManager
-	GraphicsManager graphicsManager;
+	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(wTer.currWidth, wTer.currDepth, wTer.currHeight)));
+	GraphicsManager graphicsManager(chunkSize, worldScale, viewDist, &volData, &wTer);
 	Ogre::SceneNode* player = graphicsManager.GetPlayer();
 	Ogre::SceneNode* c_sn = graphicsManager.GetCamera();
 	Ogre::Root* root = graphicsManager.GetRoot();
@@ -56,13 +65,12 @@ int main(int argc, char* argv[])
 	size_t hWnd = 0;
 	ogreWindow->getCustomAttribute("WINDOW", &hWnd);
 	
-	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(wTer.currWidth, wTer.currDepth, wTer.currHeight)));
-	graphicsManager.InitVoxels(&volData, &wTer);
-	graphicsManager.LoadManualObject();
+	graphicsManager.InitVoxels(0, 0, 0, wTer.currWidth, wTer.currDepth, wTer.currHeight);
+	graphicsManager.LoadManualObjects(0, 0, 0, wTer.currWidth, wTer.currDepth, wTer.currHeight);
 #pragma endregion
 
 #pragma region PhysicsManager
-	PhysicsManager physicsManager(&volData, &graphicsManager);
+	PhysicsManager physicsManager(chunkSize, worldScale, &volData, &graphicsManager);
 #pragma endregion
 
 #pragma region Keyboard and Mouse
@@ -109,18 +117,18 @@ int main(int argc, char* argv[])
 
 		if(m_Keyboard->isKeyDown(OIS::KC_F) || (m_Keyboard->isKeyDown(OIS::KC_E) && !lastState[OIS::KC_E]))
 		{
-			Ogre::Vector3 forward(0, 0, -1);
+			Vector3 forward(0, 0, -1);
 			forward = c_sn->_getDerivedOrientation() * forward;
-			PolyVox::Vector3DFloat rayDirection(forward.x, forward.y, forward.z);
+			Vector3DFloat rayDirection(forward.x, forward.y, forward.z);
 			rayDirection *= 1000;
 
 			PolyVox::RaycastResult rayResults;
-			PolyVox::Raycast<PolyVox::SimpleVolume, VoxelMat> ray(&volData, voxPos, rayDirection, rayResults);
+			PolyVox::Raycast<SimpleVolume, VoxelMat> ray(&volData, voxPos, rayDirection, rayResults);
 			ray.execute();
 
 			if(rayResults.foundIntersection)
 			{
-				PolyVox::Vector3DInt32 chunkNum = rayResults.intersectionVoxel / chunkSize;
+				Vector3DInt32 chunkNum = rayResults.intersectionVoxel / chunkSize;
 				graphicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
 				physicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
 			}

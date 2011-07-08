@@ -16,15 +16,14 @@ public:
 	WorldTerrain();
 	~WorldTerrain();
 	void Init(int seedVar = time(0)); //Input a custom seed or leave it blank for a random seed using time(0)
-	void InputNewBoundary(int width, int depth, int height);
+	void InputNewBoundary(unsigned short width, unsigned short depth, unsigned short height);
 	void GenerateRegularWorld();
 
 	//Variables
 	noise::module::Multiply worldTerrain;
-	int chunkSize;
-	int currWidth;
-	int currDepth;
-	int currHeight;
+	unsigned short currWidth;
+	unsigned short currDepth;
+	unsigned short currHeight;
 
 private:
 	//Functions

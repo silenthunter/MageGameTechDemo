@@ -9,7 +9,6 @@ using std::variate_generator;
 
 WorldTerrain::WorldTerrain()
 {
-	chunkSize = WorldDataMap["ChunkSize"];
 	constMat.SetConstValue(1); //Start with stone
 }
 
@@ -22,7 +21,7 @@ void WorldTerrain::Init(int seedVar)
 	currSeed = seedVar;
 }
 
-void WorldTerrain::InputNewBoundary(int width, int depth, int height)
+void WorldTerrain::InputNewBoundary(unsigned short width, unsigned short depth, unsigned short height)
 {
 	currWidth = width;
 	currDepth = depth;
