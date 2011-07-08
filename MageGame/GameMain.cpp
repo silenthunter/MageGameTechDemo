@@ -1,6 +1,7 @@
 #include <Ogre.h>
 #include <OIS.h>
 #include <PolyVoxUtil/VolumeChangeTracker.h>
+#include <PolyVoxCore/SimpleVolume.h>
 #include <PolyVoxCore/MeshDecimator.h>
 #include <PolyVoxCore/Raycast.h>
 #include <Common/Base/hkBase.h>
@@ -26,13 +27,15 @@ int main(int argc, char* argv[])
 {
 	atexit(ExitMain); //Call ExitMain if the program quits for any reason
 
-	ParseFile("Data/GameInfo/WorldData.ini", WorldDataMap);
-	ParseFile("Data/GameInfo/ItemData.ini", ItemDataMap);
-	ParseFile("Data/GameInfo/CharacterData.ini", CharacterDataMap);
-	ParseFile("Data/GameInfo/WorldGeneration.ini", WorldGenerationMap);
-	ParseFile("Data/GameInfo/WaterData.ini", WaterDataMap);
+	GameParser gameParser("Data/GameInfo/", "");
 
-	ParseIDFile("Data/GameInfo/MaterialID.ini", MaterialIDMap);
+	gameParser.ParseFile("WorldData.ini", WorldDataMap);
+	gameParser.ParseFile("ItemData.ini", ItemDataMap);
+	gameParser.ParseFile("CharacterData.ini", CharacterDataMap);
+	gameParser.ParseFile("WorldGeneration.ini", WorldGenerationMap);
+	gameParser.ParseFile("WaterData.ini", WaterDataMap);
+
+	gameParser.ParseIDFile("MaterialID.ini", MaterialIDMap);
 
 	int chunkSize = WorldDataMap["ChunkSize"];
 

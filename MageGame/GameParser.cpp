@@ -1,20 +1,25 @@
 #include "GameParser.h"
-#include "GameGlobals.h"
-#include <stdlib.h>
-#include <fstream>
-#include <string>
-#include <iostream>
-#include <algorithm>
-#include <boost/lexical_cast.hpp>
 
 using std::ifstream;
 using std::string;
 using std::cerr;
 using std::endl;
 
-bool ParseFile(const string& filepath, StrFloatMap& map)
+GameParser::GameParser(const string& gp_gameDataFP, const string& gp_chunkDataFP)
+	: gameDataFP(gp_gameDataFP), 
+	chunkDataFP(gp_chunkDataFP)
 {
-	ifstream gameData(filepath.c_str());
+
+}
+
+GameParser::~GameParser()
+{
+
+}
+
+bool GameParser::ParseFile(const string& filepath, StrFloatMap& map)
+{
+	ifstream gameData((gameDataFP + filepath).c_str());
 	string str;
 
 	if(gameData.is_open())
@@ -29,7 +34,7 @@ bool ParseFile(const string& filepath, StrFloatMap& map)
 			size_t end = str.find('=');
 			if(end == string::npos)
 			{
-				cerr << "Error: GameParser.cpp/ParseFile(): end returned -1 on file: \"" << filepath << "\"" << endl;
+				cerr << "Error: GameParser.cpp/ParseFile(): end returned -1 on file: \"" << (gameDataFP + filepath) << "\"" << endl;
 				gameData.close();
 				return false;
 			}
@@ -42,19 +47,19 @@ bool ParseFile(const string& filepath, StrFloatMap& map)
 	}
 	else
 	{
-		cerr << "Unable to open filepath: " << filepath << endl;
+		cerr << "Unable to open filepath: " << (gameDataFP + filepath) << endl;
 		return false;
 	}
 }
 
-void DataInput(StrFloatMap& map, const string& prefix, const string& data)
+void GameParser::DataInput(StrFloatMap& map, const string& prefix, const string& data)
 {
 	map.insert(StrFloatMap::value_type(prefix, boost::lexical_cast<float>(data)));
 }
 
-bool ParseIDFile(const std::string& filepath, StrU16Map& map)
+bool GameParser::ParseIDFile(const std::string& filepath, StrU16Map& map)
 {
-	ifstream gameData(filepath.c_str());
+	ifstream gameData((gameDataFP + filepath).c_str());
 	string str;
 
 	if(gameData.is_open())
@@ -80,17 +85,17 @@ bool ParseIDFile(const std::string& filepath, StrU16Map& map)
 	}
 	else
 	{
-		cerr << "Unable to open filepath: " << filepath << endl;
+		cerr << "Unable to open filepath: " << (gameDataFP + filepath) << endl;
 		return false;
 	}
 }
 
-void DataIDInput(StrU16Map& map, const std::string& data)
+void GameParser::DataIDInput(StrU16Map& map, const std::string& data)
 {
 	map.insert(StrU16Map::value_type(data, static_cast<unsigned short>(map.size() + 1)));
 }
 
-void DataIDInput(StrU16Map& map, const std::string& data, const std::string& id)
+void GameParser::DataIDInput(StrU16Map& map, const std::string& data, const std::string& id)
 {
 	map.insert(StrU16Map::value_type(data, boost::lexical_cast<unsigned short>(id)));
 }
