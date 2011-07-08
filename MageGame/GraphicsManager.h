@@ -19,7 +19,7 @@ class GraphicsManager
 
 public:
 	//Functions
-	GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_viewDist, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra);
+	GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra);
 	~GraphicsManager(void);
 	void InitVoxels(int minX, int minY, int minZ, int maxX, int maxY, int maxZ);
 	void LoadManualObjects(int minX, int minY, int minZ, int maxX, int maxY, int maxZ);
@@ -27,6 +27,10 @@ public:
 	void DestroyMO(PolyVox::Vector3DInt32 chunkNum);
 	VoxelMat RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos);
 	void UpdateChunk(PolyVox::Vector3DInt32 chunkNum);
+	void MoveNorth();
+	void MoveSouth();
+	void MoveEast();
+	void MoveWest();
 	void createSphereInVolume(PolyVox::SimpleVolume<VoxelMat>& volData, float fRadius, PolyVox::Vector3DFloat& v3dVolCenter);
 	void UpdatePhysicsProgress(float progress);
 	void CloseGUI();
@@ -62,6 +66,7 @@ private:
 	int chunkSize;
 	int centerChunk;
 	float worldScale;
+	int verticalMax;
 	CEGUI::ProgressBar *bar;
 	CEGUI::DefaultWindow *rootWin;
 	CEGUI::FrameWindow *frame;

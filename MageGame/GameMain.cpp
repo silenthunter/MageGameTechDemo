@@ -50,13 +50,14 @@ int main(int argc, char* argv[])
 	WorldTerrain wTer;
 	wTer.Init();
 	wTer.GenerateRegularWorld();
-	int horizontalChunkSize = ((viewDist << 1) + 1) * chunkSize;
-	wTer.InputNewBoundary(horizontalChunkSize, WorldDataMap["VerticalMax"], horizontalChunkSize);
+	int horizontalChunkSize = ((viewDist * 2) + 1) * chunkSize;
+	int verticalMax = WorldDataMap["VerticalMax"];
+	wTer.InputNewBoundary(horizontalChunkSize, verticalMax, horizontalChunkSize);
 #pragma endregion
 
 #pragma region GraphicsManager
 	SimpleVolume<VoxelMat> volData(PolyVox::Region(Vector3DInt32(0, 0, 0), Vector3DInt32(wTer.currWidth, wTer.currDepth, wTer.currHeight)));
-	GraphicsManager graphicsManager(chunkSize, worldScale, viewDist, &volData, &wTer);
+	GraphicsManager graphicsManager(chunkSize, worldScale, viewDist, verticalMax, &volData, &wTer);
 	Ogre::SceneNode* player = graphicsManager.GetPlayer();
 	Ogre::SceneNode* c_sn = graphicsManager.GetCamera();
 	Ogre::Root* root = graphicsManager.GetRoot();

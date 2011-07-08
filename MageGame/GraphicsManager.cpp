@@ -17,7 +17,7 @@ using PolyVox::PositionMaterial;
 using PolyVox::CubicSurfaceExtractor;
 using PolyVox::Region;
 
-GraphicsManager::GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_viewDist, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra)
+GraphicsManager::GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra)
 {
 	init();
 	polyVolume = volData;
@@ -27,6 +27,7 @@ GraphicsManager::GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_v
 	centerChunk = gm_viewDist + 1;
 	playerChunk.setX(centerChunk);
 	playerChunk.setZ(centerChunk);
+	verticalMax = gm_verticalMax;
 }
 
 GraphicsManager::~GraphicsManager(void)
@@ -395,6 +396,51 @@ void GraphicsManager::DestroyMO(PolyVox::Vector3DInt32 chunkNum)
 	manualObjects.erase(str);
 }
 
+VoxelMat GraphicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos)
+{
+	VoxelMat vox = polyVolume->getVoxelAt(blockPos);
+	polyVolume->setVoxelAt(blockPos, 0);
+
+	UpdateChunk(chunk);
+	
+	int posX = blockPos.getX();
+	int posY = blockPos.getY();
+	int posZ = blockPos.getZ();
+	int chunkX = chunk.getX();
+	int chunkY = chunk.getY();
+	int chunkZ = chunk.getZ();
+	unsigned short chunkSizeEnd = chunkSize - 1;
+
+	if(posX != 0 && posX % chunkSize == 0)
+	{
+		UpdateChunk(Vector3DInt32(chunkX - 1, chunkY, chunkZ));
+	}
+	else if(posX != wTer->currWidth - 1 && posX % chunkSize == chunkSizeEnd)
+	{
+		UpdateChunk(Vector3DInt32(chunkX + 1, chunkY, chunkZ));
+	}
+
+	if(posY != 0 && posY % chunkSize == 0)
+	{
+		UpdateChunk(Vector3DInt32(chunkX, chunkY - 1, chunkZ));
+	}
+	else if(posY != wTer->currDepth - 1 && posY % chunkSize == chunkSizeEnd)
+	{
+		UpdateChunk(Vector3DInt32(chunkX, chunkY + 1, chunkZ));
+	}
+
+	if(posZ != 0 && posZ % chunkSize == 0)
+	{
+		UpdateChunk(Vector3DInt32(chunkX, chunkY, chunkZ - 1));
+	}
+	else if(posZ != wTer->currHeight - 1 && posZ % chunkSize == chunkSizeEnd)
+	{
+		UpdateChunk(Vector3DInt32(chunkX, chunkY, chunkZ + 1));
+	}
+
+	return vox;
+}
+
 void GraphicsManager::UpdateChunk(Vector3DInt32 chunkNum)
 {
 	int i = chunkNum.getX();
@@ -445,49 +491,45 @@ void GraphicsManager::UpdateChunk(Vector3DInt32 chunkNum)
 	obj->end();
 }
 
-VoxelMat GraphicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos)
+void GraphicsManager::MoveNorth()
 {
-	VoxelMat vox = polyVolume->getVoxelAt(blockPos);
-	polyVolume->setVoxelAt(blockPos, 0);
+	int horizontalCount = (centerChunk - 1) * 2;
+	int horizontalSize = horizontalCount * chunkSize * verticalMax;
+	int chunkSlice = chunkSize * verticalMax;
+	int moveSize = horizontalSize - chunkSlice;
 
-	UpdateChunk(chunk);
-	
-	int posX = blockPos.getX();
-	int posY = blockPos.getY();
-	int posZ = blockPos.getZ();
-	int chunkX = chunk.getX();
-	int chunkY = chunk.getY();
-	int chunkZ = chunk.getZ();
-	unsigned short chunkSizeEnd = chunkSize - 1;
+	for(int i = 0; i < horizontalCount; ++i)
+	{
+		memmove(polyVolume + (horizontalSize * i + chunkSlice), polyVolume + (horizontalSize * i), moveSize);
+	}
+}
 
-	if(posX != 0 && posX % chunkSize == 0)
-	{
-		UpdateChunk(Vector3DInt32(chunkX - 1, chunkY, chunkZ));
-	}
-	else if(posX != wTer->currWidth - 1 && posX % chunkSize == chunkSizeEnd)
-	{
-		UpdateChunk(Vector3DInt32(chunkX + 1, chunkY, chunkZ));
-	}
+void GraphicsManager::MoveSouth()
+{
+	int horizontalCount = (centerChunk - 1) * 2;
+	int horizontalSize = horizontalCount * chunkSize * verticalMax;
+	int chunkSlice = chunkSize * verticalMax;
+	int moveSize = horizontalSize - chunkSlice;
 
-	if(posY != 0 && posY % chunkSize == 0)
+	for(int i = 0; i < horizontalCount; ++i)
 	{
-		UpdateChunk(Vector3DInt32(chunkX, chunkY - 1, chunkZ));
+		memmove(polyVolume + (horizontalSize * i), polyVolume + (horizontalSize * i + chunkSlice), moveSize);
 	}
-	else if(posY != wTer->currDepth - 1 && posY % chunkSize == chunkSizeEnd)
-	{
-		UpdateChunk(Vector3DInt32(chunkX, chunkY + 1, chunkZ));
-	}
+}
 
-	if(posZ != 0 && posZ % chunkSize == 0)
-	{
-		UpdateChunk(Vector3DInt32(chunkX, chunkY, chunkZ - 1));
-	}
-	else if(posZ != wTer->currHeight - 1 && posZ % chunkSize == chunkSizeEnd)
-	{
-		UpdateChunk(Vector3DInt32(chunkX, chunkY, chunkZ + 1));
-	}
+void GraphicsManager::MoveEast()
+{
+	int horizontalSize = (centerChunk - 1) * 2 * chunkSize;
+	int start = horizontalSize * verticalMax;
+	int size = (horizontalSize - 1) * horizontalSize * verticalMax;
+	memmove(polyVolume, polyVolume + start, size);
+}
 
-	return vox;
+void GraphicsManager::MoveWest()
+{
+	int horizontalSize = (centerChunk - 1) * 2 * chunkSize;
+	int size = horizontalSize * verticalMax;
+	memmove(polyVolume + size, polyVolume, size);
 }
 
 void GraphicsManager::AdjustCamera(int xAxis, int yAxis)
