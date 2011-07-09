@@ -68,8 +68,6 @@ int main(int argc, char* argv[])
 	Ogre::RenderWindow* ogreWindow = graphicsManager.GetWindow();
 	size_t hWnd = 0;
 	ogreWindow->getCustomAttribute("WINDOW", &hWnd);
-
-	graphicsManager.LoadManualObjects(0, 0, 0, wTer.currWidth, wTer.currDepth, wTer.currHeight);
 #pragma endregion
 
 #pragma region PhysicsManager

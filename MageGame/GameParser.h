@@ -27,7 +27,6 @@ public:
 
 	//Chunk saving/loading
 	void SetPolyVolume(PolyVox::SimpleVolume<VoxelMat>* gp_polyVolume);
-	bool PlayerMoveStore(int xDiff, int zDiff, int horizontalChunk, int verticalChunk, int direction);
 	bool StoreChunk(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
 	bool LoadChunk(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
 

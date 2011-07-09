@@ -112,65 +112,6 @@ void GameParser::SetPolyVolume(PolyVox::SimpleVolume<VoxelMat>* gp_polyVolume)
 	polyVolume = gp_polyVolume;
 }
 
-bool GameParser::PlayerMoveStore(int xDiff, int zDiff, int horizontalChunk, int verticalChunk, int direction)
-{
-	switch(direction)
-	{
-	case 0: //North
-		{
-		int lastChunk = horizontalChunk - 1;
-		for(int i = 0; i < horizontalChunk; ++i)
-		{
-			for(int j = 0; j < verticalChunk; ++j)
-			{
-				StoreChunk(Vector3DInt32(i, j, lastChunk), xDiff, zDiff);
-			}
-		}
-		break;
-		}
-	case 1: //East
-		{
-		int lastChunk = horizontalChunk - 1;
-		for(int i = 0; i < horizontalChunk; ++i)
-		{
-			for(int j = 0; j < verticalChunk; ++j)
-			{
-				StoreChunk(Vector3DInt32(lastChunk, j, i), xDiff, zDiff);
-			}
-		}
-		break;
-		}
-	case 2: //South
-		{
-		for(int i = 0; i < horizontalChunk; ++i)
-		{
-			for(int j = 0; j < verticalChunk; ++j)
-			{
-				StoreChunk(Vector3DInt32(i, j, 0), xDiff, zDiff);
-			}
-		}
-		break;
-		}
-	case 3: //West
-		{
-		for(int i = 0; i < horizontalChunk; ++i)
-		{
-			for(int j = 0; j < verticalChunk; ++j)
-			{
-				StoreChunk(Vector3DInt32(0, j, i), xDiff, zDiff);
-			}
-		}
-		break;
-		}
-	default:
-		{
-		cerr << "Direction: " << direction << " is unknown." << endl;
-		return false;
-		}
-	}
-	return true;
-}
-
 bool GameParser::StoreChunk(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff)
 {
 	unsigned int iChunkStart = chunkNum.getX() * chunkSize;

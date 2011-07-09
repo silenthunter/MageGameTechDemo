@@ -38,7 +38,9 @@ GraphicsManager::GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_v
 		{
 			for(int k = 0; k < horizontalChunk; ++k)
 			{
-				InitVoxels(Vector3DInt32(i, j, k));
+				Vector3DInt32 currChunk(i, j, k);
+				InitVoxels(currChunk, 0, 0);
+				LoadSingleMO(currChunk, 0, 0);
 			}
 		}
 	}
@@ -256,7 +258,7 @@ void GraphicsManager::CloseGUI()
 	rootWin->setVisible(false);
 }
 
-void GraphicsManager::InitVoxels(PolyVox::Vector3DInt32 chunkNum)
+void GraphicsManager::InitVoxels(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff)
 {
 	float regionWidth = 1.0;
 	float regionHeight = 1.0;
@@ -266,9 +268,9 @@ void GraphicsManager::InitVoxels(PolyVox::Vector3DInt32 chunkNum)
 	int chunkNumY = chunkNum.getY();
 	int chunkNumZ = chunkNum.getZ();
 
-	int chunkX = (chunkNumX + playerChunk.getX() - centerChunk) * regionWidth;
+	int chunkX = (chunkNumX + xDiff) * regionWidth;
 	int chunkY = chunkNumY * regionDepth;
-	int chunkZ = (chunkNumZ + playerChunk.getZ() - centerChunk) * regionHeight;
+	int chunkZ = (chunkNumZ + zDiff) * regionHeight;
 
 	int xOffset = chunkNumX * chunkSize;
 	int yOffset = chunkNumY * chunkSize;
@@ -300,51 +302,12 @@ void GraphicsManager::InitVoxels(PolyVox::Vector3DInt32 chunkNum)
 	}
 }
 
-void GraphicsManager::LoadManualObjects(int minX, int minY, int minZ, int maxX, int maxY, int maxZ)
+void GraphicsManager::LoadSingleMO(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff)
 {
-	unsigned int widthChunks = maxX / chunkSize;
-	unsigned int depthChunks = maxY / chunkSize;
-	unsigned int heightChunks = maxZ / chunkSize;
-	int iDiff = centerChunk - playerChunk.getX();
-	int kDiff = centerChunk - playerChunk.getZ();
-	double elapsedTotal = 0;
-	GameTimer timer;
+	int i = chunkNum.getX();
+	int j = chunkNum.getY();
+	int k = chunkNum.getZ();
 
-	float heightXWidth = heightChunks * widthChunks;
-
-	for(int i = minX; i < widthChunks; ++i)
-	{
-		for(int j = minY; j < depthChunks; ++j)
-		{
-			for(int k = minZ; k < heightChunks; ++k)
-			{
-				elapsedTotal += timer.getElapsedTimeSec();
-
-				if(elapsedTotal >= .1f)
-				{
-					float progress = (float)(k * widthChunks + i) / heightXWidth;
-					bar->setProgress(progress);
-
-					root->renderOneFrame(1.f);
-					Ogre::WindowEventUtilities::messagePump();
-					elapsedTotal = 0;
-				}
-
-				LoadSingleMO(i, j, k, iDiff, kDiff);
-			}
-			printf("#");
-		}
-		printf("\n");
-	}
-
-	frame->setText("Loading Physics");
-	bar->setProgress(1.f);
-	root->renderOneFrame(1.f);
-	Ogre::WindowEventUtilities::messagePump();
-}
-
-void GraphicsManager::LoadSingleMO(int i, int j, int k, int iDiff, int kDiff)
-{
 	unsigned int iChunkSize = i * chunkSize;
 	unsigned int jChunkSize = j * chunkSize;
 	unsigned int kChunkSize = k * chunkSize;
@@ -370,14 +333,13 @@ void GraphicsManager::LoadSingleMO(int i, int j, int k, int iDiff, int kDiff)
 				
 	//Print current chunk information
 	char str[50];
-	sprintf(str, "%d_%d_%d", i + iDiff, j, k + kDiff);
+	sprintf(str, "%d_%d_%d", i + xDiff, j, k + zDiff);
 
 	//Set the object with the render operation and the .material
 	obj->begin("VoxelTexture", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
 	//Work with the vertices
-				
-	Vector3DFloat posOffset = Vector3DFloat(iChunkSize, jChunkSize, kChunkSize) * worldScale;
+	Vector3DFloat posOffset = Vector3DFloat(iChunkSize + xDiff * chunkSize, jChunkSize, kChunkSize + zDiff * chunkSize) * worldScale;
 	for(vector<PositionMaterial>::const_iterator vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
 	{
 		Vector3DFloat pos = vecItr->getPosition() * worldScale;
@@ -412,10 +374,10 @@ void GraphicsManager::LoadSingleMO(int i, int j, int k, int iDiff, int kDiff)
 	root_sn->attachObject(obj);
 }
 
-void GraphicsManager::DestroyMO(PolyVox::Vector3DInt32 chunkNum)
+void GraphicsManager::DestroyMO(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff)
 {
 	char str[50];
-	sprintf(str, "%d_%d_%d", chunkNum.getX(), chunkNum.getY(), chunkNum.getZ());
+	sprintf(str, "%d_%d_%d", chunkNum.getX() + xDiff, chunkNum.getY(), chunkNum.getZ() + zDiff);
 	manualObjects.erase(str);
 }
 
@@ -424,7 +386,10 @@ VoxelMat GraphicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Ve
 	VoxelMat vox = polyVolume->getVoxelAt(blockPos);
 	polyVolume->setVoxelAt(blockPos, 0);
 
-	UpdateChunk(chunk);
+	int xDiff = playerChunk.getX() - centerChunk;
+	int zDiff = playerChunk.getZ() - centerChunk;
+
+	UpdateChunk(chunk, xDiff, zDiff);
 	
 	int posX = blockPos.getX();
 	int posY = blockPos.getY();
@@ -436,45 +401,42 @@ VoxelMat GraphicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Ve
 
 	if(posX != 0 && posX % chunkSize == 0)
 	{
-		UpdateChunk(Vector3DInt32(chunkX - 1, chunkY, chunkZ));
+		UpdateChunk(Vector3DInt32(chunkX - 1, chunkY, chunkZ), xDiff, zDiff);
 	}
 	else if(posX != wTer->currWidth - 1 && posX % chunkSize == chunkSizeEnd)
 	{
-		UpdateChunk(Vector3DInt32(chunkX + 1, chunkY, chunkZ));
+		UpdateChunk(Vector3DInt32(chunkX + 1, chunkY, chunkZ), xDiff, zDiff);
 	}
 
 	if(posY != 0 && posY % chunkSize == 0)
 	{
-		UpdateChunk(Vector3DInt32(chunkX, chunkY - 1, chunkZ));
+		UpdateChunk(Vector3DInt32(chunkX, chunkY - 1, chunkZ), xDiff, zDiff);
 	}
 	else if(posY != wTer->currDepth - 1 && posY % chunkSize == chunkSizeEnd)
 	{
-		UpdateChunk(Vector3DInt32(chunkX, chunkY + 1, chunkZ));
+		UpdateChunk(Vector3DInt32(chunkX, chunkY + 1, chunkZ), xDiff, zDiff);
 	}
 
 	if(posZ != 0 && posZ % chunkSize == 0)
 	{
-		UpdateChunk(Vector3DInt32(chunkX, chunkY, chunkZ - 1));
+		UpdateChunk(Vector3DInt32(chunkX, chunkY, chunkZ - 1), xDiff, zDiff);
 	}
 	else if(posZ != wTer->currHeight - 1 && posZ % chunkSize == chunkSizeEnd)
 	{
-		UpdateChunk(Vector3DInt32(chunkX, chunkY, chunkZ + 1));
+		UpdateChunk(Vector3DInt32(chunkX, chunkY, chunkZ + 1), xDiff, zDiff);
 	}
 
 	return vox;
 }
 
-void GraphicsManager::UpdateChunk(Vector3DInt32 chunkNum)
+void GraphicsManager::UpdateChunk(Vector3DInt32 chunkNum, int xDiff, int zDiff)
 {
 	int i = chunkNum.getX();
 	int j = chunkNum.getY();
 	int k = chunkNum.getZ();
 
-	int iDiff = playerChunk.getX() - centerChunk;
-	int kDiff = playerChunk.getZ() - centerChunk;
-
 	char str[50];
-	sprintf(str, "%d_%d_%d", i + iDiff, j, k + kDiff);
+	sprintf(str, "%d_%d_%d", i + xDiff, j, k + zDiff);
 
 	unsigned int iChunkSize = i * chunkSize;
 	unsigned int jChunkSize = j * chunkSize;
@@ -498,7 +460,7 @@ void GraphicsManager::UpdateChunk(Vector3DInt32 chunkNum)
 
 	obj->beginUpdate(0);
 
-	Vector3DFloat posOffset = Vector3DFloat(iChunkSize, jChunkSize, kChunkSize) * worldScale;
+	Vector3DFloat posOffset = Vector3DFloat(iChunkSize + xDiff * chunkSize, jChunkSize, kChunkSize + zDiff * chunkSize) * worldScale;
 	for(vector<PositionMaterial>::const_iterator vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
 	{
 		Vector3DFloat pos = vecItr->getPosition() * worldScale;
@@ -522,12 +484,42 @@ void GraphicsManager::MoveNorth()
 	int horizontalChunk = centerChunk * 2 + 1;
 	int horizontalSize = horizontalChunk * chunkSize;
 	int size = horizontalSize * verticalMax;
+	int verticalChunk = verticalMax / chunkSize;
+	int lastChunk = horizontalChunk - 1;
 
-	gameParser->PlayerMoveStore(xDiff, zDiff, horizontalChunk, verticalMax / chunkSize, 0);
+	//Save the chunks you won't see anymore
+	for(int i = 0; i < horizontalChunk; ++i)
+	{
+		for(int j = 0; j < verticalChunk; ++j)
+		{
+			Vector3DInt32 currChunk(i, j, lastChunk);
+			gameParser->StoreChunk(currChunk, xDiff, zDiff);
+			DestroyMO(currChunk, xDiff, zDiff);
+		}
+	}
 
+	//Move the voxels
 	memmove(polyVolume + size, polyVolume, size);
 
+	//Recalculate playerChunk
 	playerChunk.setZ(playerChunk.getZ() - 1);
+	//Recalculate xDiff and zDiff
+	xDiff = playerChunk.getX() - centerChunk;
+	zDiff = playerChunk.getZ() - centerChunk;
+
+	//Attempt to load the chunks you'll need
+	for(int i = 0; i < horizontalChunk; ++i)
+	{
+		for(int j = 0; j < verticalChunk; ++j)
+		{
+			Vector3DInt32 currChunk(i, j, 0);
+			if(!gameParser->LoadChunk(currChunk, xDiff, zDiff))
+			{
+				InitVoxels(currChunk, xDiff, zDiff); //Chunk hasn't been loaded yet, generate it
+			}
+			LoadSingleMO(currChunk, xDiff, zDiff);
+		}
+	}
 }
 
 void GraphicsManager::MoveSouth()
@@ -539,12 +531,42 @@ void GraphicsManager::MoveSouth()
 	int horizontalSize = horizontalChunk * chunkSize;
 	int start = horizontalSize * verticalMax;
 	int size = (horizontalSize - 1) * horizontalSize * verticalMax;
+	int verticalChunk = verticalMax / chunkSize;
+	int lastChunk = horizontalChunk - 1;
 
-	gameParser->PlayerMoveStore(xDiff, zDiff, horizontalChunk, verticalMax / chunkSize, 2);
+	//Save the chunks you won't see anymore
+	for(int i = 0; i < horizontalChunk; ++i)
+	{
+		for(int j = 0; j < verticalChunk; ++j)
+		{
+			Vector3DInt32 currChunk(i, j, 0);
+			gameParser->StoreChunk(currChunk, xDiff, zDiff);
+			DestroyMO(currChunk, xDiff, zDiff);
+		}
+	}
 
+	//Move the voxels
 	memmove(polyVolume, polyVolume + start, size);
 
+	//Recalculate playerChunk
 	playerChunk.setZ(playerChunk.getZ() + 1);
+	//Recalculate xDiff and zDiff
+	xDiff = playerChunk.getX() - centerChunk;
+	zDiff = playerChunk.getZ() - centerChunk;
+
+	//Attempt to load the chunks you'll need
+	for(int i = 0; i < horizontalChunk; ++i)
+	{
+		for(int j = 0; j < verticalChunk; ++j)
+		{
+			Vector3DInt32 currChunk(i, j, lastChunk);
+			if(!gameParser->LoadChunk(currChunk, xDiff, zDiff))
+			{
+				InitVoxels(currChunk, xDiff, zDiff); //Chunk hasn't been loaded yet, generate it
+			}
+			LoadSingleMO(currChunk, xDiff, zDiff);
+		}
+	}
 }
 
 void GraphicsManager::MoveEast()
@@ -558,9 +580,20 @@ void GraphicsManager::MoveEast()
 	int start = chunkSize;
 	int size = horizontalSize - chunkSize;
 	int verticalChunk = verticalMax / chunkSize;
+	int lastChunk = horizontalChunk - 1;
 
-	gameParser->PlayerMoveStore(xDiff, zDiff, horizontalChunk, verticalChunk, 1);
+	//Save the chunks you won't see anymore
+	for(int i = 0; i < horizontalChunk; ++i)
+	{
+		for(int j = 0; j < verticalChunk; ++j)
+		{
+			Vector3DInt32 currChunk(0, j, i);
+			gameParser->StoreChunk(currChunk, xDiff, zDiff);
+			DestroyMO(currChunk, xDiff, zDiff);
+		}
+	}
 
+	//Move the voxels
 	for(int i = 0; i < horizontalChunk; ++i)
 	{
 		for(int j = 0; j < verticalChunk; ++j)
@@ -569,7 +602,25 @@ void GraphicsManager::MoveEast()
 		}
 	}
 
+	//Recalculate playerChunk
 	playerChunk.setX(playerChunk.getX() + 1);
+	//Recalculate xDiff and zDiff
+	xDiff = playerChunk.getX() - centerChunk;
+	zDiff = playerChunk.getZ() - centerChunk;
+
+	//Attempt to load the chunks you'll need
+	for(int i = 0; i < horizontalChunk; ++i)
+	{
+		for(int j = 0; j < verticalChunk; ++j)
+		{
+			Vector3DInt32 currChunk(lastChunk, j, i);
+			if(!gameParser->LoadChunk(currChunk, xDiff, zDiff))
+			{
+				InitVoxels(currChunk, xDiff, zDiff); //Chunk hasn't been loaded yet, generate it
+			}
+			LoadSingleMO(currChunk, xDiff, zDiff);
+		}
+	}
 }
 
 void GraphicsManager::MoveWest()
@@ -583,9 +634,20 @@ void GraphicsManager::MoveWest()
 	int end = chunkSize;
 	int size = horizontalSize - chunkSize;
 	int verticalChunk = verticalMax / chunkSize;
+	int lastChunk = horizontalChunk - 1;
 
-	gameParser->PlayerMoveStore(xDiff, zDiff, horizontalChunk, verticalChunk, 3);
+	//Save the chunks you won't see anymore
+	for(int i = 0; i < horizontalChunk; ++i)
+	{
+		for(int j = 0; j < verticalChunk; ++j)
+		{
+			Vector3DInt32 currChunk(lastChunk, j, i);
+			gameParser->StoreChunk(currChunk, xDiff, zDiff);
+			DestroyMO(currChunk, xDiff, zDiff);
+		}
+	}
 
+	//Move the voxels
 	for(int i = 0; i < horizontalChunk; ++i)
 	{
 		for(int j = 0; j < verticalChunk; ++j)
@@ -594,7 +656,25 @@ void GraphicsManager::MoveWest()
 		}
 	}
 
+	//Recalculate playerChunk
 	playerChunk.setX(playerChunk.getX() - 1);
+	//Recalculate xDiff and zDiff
+	xDiff = playerChunk.getX() - centerChunk;
+	zDiff = playerChunk.getZ() - centerChunk;
+
+	//Attempt to load the chunks you'll need
+	for(int i = 0; i < horizontalChunk; ++i)
+	{
+		for(int j = 0; j < verticalChunk; ++j)
+		{
+			Vector3DInt32 currChunk(0, j, i);
+			if(!gameParser->LoadChunk(currChunk, xDiff, zDiff))
+			{
+				InitVoxels(currChunk, xDiff, zDiff); //Chunk hasn't been loaded yet, generate it
+			}
+			LoadSingleMO(currChunk, xDiff, zDiff);
+		}
+	}
 }
 
 void GraphicsManager::AdjustCamera(int xAxis, int yAxis)

@@ -21,12 +21,11 @@ public:
 	//Functions
 	GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra, GameParser *gm_gameParser);
 	~GraphicsManager(void);
-	void InitVoxels(PolyVox::Vector3DInt32 chunkNum);
-	void LoadManualObjects(int minX, int minY, int minZ, int maxX, int maxY, int maxZ);
-	void LoadSingleMO(int i, int j, int k, int iDiff, int kDiff);
-	void DestroyMO(PolyVox::Vector3DInt32 chunkNum);
+	void InitVoxels(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
+	void LoadSingleMO(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
+	void DestroyMO(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
 	VoxelMat RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos);
-	void UpdateChunk(PolyVox::Vector3DInt32 chunkNum);
+	void UpdateChunk(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
 	void MoveNorth();
 	void MoveSouth();
 	void MoveEast();
