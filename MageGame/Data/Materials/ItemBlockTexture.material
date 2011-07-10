@@ -1,0 +1,44 @@
+vertex_program ItemBlockTexture_VP cg
+{
+	source ItemBlockTexture.cg
+	entry_point itemblocktexture_vp
+	profiles vs_1_1
+
+	default_params
+    {
+		param_named_auto world world_matrix
+		param_named_auto viewProj viewproj_matrix
+    }
+}
+
+fragment_program ItemBlockTexture_FP cg
+{
+	source ItemBlockTexture.cg
+	entry_point itemblocktexture_fp
+	profiles ps3_0 ps_2_x ps_2_0
+}
+
+material ItemBlockTexture
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			vertex_program_ref ItemBlockTexture_VP
+			{
+			}
+			
+			fragment_program_ref ItemBlockTexture_FP
+			{
+			}
+			
+			texture_unit
+			{
+				texture TextureAtlas.png 2d
+				filtering point point point
+				tex_address_mode clamp
+			}
+		}
+	}
+}

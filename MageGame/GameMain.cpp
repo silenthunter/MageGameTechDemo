@@ -41,6 +41,7 @@ int main(int argc, char* argv[])
 
 	int chunkSize = WorldDataMap["ChunkSize"];
 	float worldScale = WorldDataMap["WorldScale"];
+	float blockItemWorldScale = WorldDataMap["BlockItemWorldScale"];
 	int viewDist = ((1.0f / worldScale) * WorldDataMap["ViewDistance"] + 0.5);
 
 	gameParser.SetChunkSize(chunkSize);
@@ -60,7 +61,7 @@ int main(int argc, char* argv[])
 
 	gameParser.SetPolyVolume(&volData);
 
-	GraphicsManager graphicsManager(chunkSize, worldScale, viewDist, verticalMax, &volData, &wTer, &gameParser);
+	GraphicsManager graphicsManager(chunkSize, worldScale, blockItemWorldScale, viewDist, verticalMax, &volData, &wTer, &gameParser);
 	Ogre::SceneNode* player = graphicsManager.GetPlayer();
 	Ogre::SceneNode* c_sn = graphicsManager.GetCamera();
 	Ogre::Root* root = graphicsManager.GetRoot();
@@ -130,17 +131,49 @@ int main(int argc, char* argv[])
 			if(rayResults.foundIntersection)
 			{
 				Vector3DInt32 chunkNum = rayResults.intersectionVoxel / chunkSize;
-				graphicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
+				VoxelMat blockMat = graphicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
 				physicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
+				graphicsManager.AddItemBlock(rayResults.intersectionVoxel, blockMat, timer.getElapsedTimeSec());
 			}
 		}
 
+#pragma region Player Movement and Chunk Paging
+		/*
+		//Check player movement
+		Vector3DInt32 currPlayerChunk(hkPos(0) / chunkSize, hkPos(1) / chunkSize, hkPos(2) / chunkSize);
+
+		//East-West
+		int playerChunkX = currPlayerChunk.getX() - graphicsManager.playerChunk.getX();
+		if(playerChunkX > 0) //East
+		{
+			graphicsManager.MoveEast();
+		}
+		else if(playerChunkX < 0) //West
+		{
+			graphicsManager.MoveWest();
+		}
+			
+		//North-South
+		int playerChunkZ = currPlayerChunk.getZ() - graphicsManager.playerChunk.getZ();
+		if(playerChunkZ > 0) //South
+		{
+			graphicsManager.MoveSouth();
+		}
+		else if(playerChunkZ < 0) //North
+		{
+			graphicsManager.MoveNorth();
+		}
+		*/
+#pragma endregion
+
 		if(count % 50 == 0)
 		{
-			cout << hkPos(0) << ", " << hkPos(1) << ", " << hkPos(2) << endl;
-
-			printf("FPS: %f\n", 1/elapsed);
-			//std::cout << getCurrentChunk(&physicsManager, &world);
+#pragma region Print Statements
+			//cout << "Chunk: " << currPlayerChunk.getX() << ", " << currPlayerChunk.getY() << ", " << currPlayerChunk.getZ() << endl;
+			cout << "Position: " << hkPos(0) << ", " << hkPos(1) << ", " << hkPos(2) << endl;
+			cout << "FPS: " << 1 / elapsed << endl;
+			cout << endl;
+#pragma endregion
 
 			//Set player listener position for sound
 			//fslSetListenerPosition(btVec.x(), btVec.y(), btVec.z());

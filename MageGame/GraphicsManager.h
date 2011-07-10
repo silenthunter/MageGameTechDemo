@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Ogre.h>
+#include <vector>
 #include "WorldTerrain.h"
 #include "GameGlobals.h"
 #include "GameParser.h"
@@ -12,14 +13,20 @@
 #include <cegui/CEGUI.h>
 #include <cegui/RendererModules/Ogre/CEGUIOgreRenderer.h>
 
-#include "GameTimer.h";
+#include "GameTimer.h"
+
+struct ItemBlock
+{
+	Ogre::ManualObject *mo;
+	double time;
+};
 
 class GraphicsManager
 {
 
 public:
 	//Functions
-	GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra, GameParser *gm_gameParser);
+	GraphicsManager(int gm_chunkSize, float gm_worldScale, float gm_blockItemWorldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra, GameParser *gm_gameParser);
 	~GraphicsManager(void);
 	void InitVoxels(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
 	void LoadSingleMO(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
@@ -30,17 +37,19 @@ public:
 	void MoveSouth();
 	void MoveEast();
 	void MoveWest();
+	void AddItemBlock(PolyVox::Vector3DInt32 blockPos, VoxelMat cubeMat, double time);
 	void createSphereInVolume(PolyVox::SimpleVolume<VoxelMat>& volData, float fRadius, PolyVox::Vector3DFloat& v3dVolCenter);
 	void UpdatePhysicsProgress(float progress);
 	void CloseGUI();
 	void AdjustCamera(int xAxis, int yAxis);
 
+	//Variables
 	Ogre::RenderWindow *GetWindow();
 	Ogre::SceneNode* GetPlayer();
 	Ogre::SceneNode* GetCamera();
 	Ogre::Root* GetRoot();
 	Ogre::Quaternion GetPlayerRotation();
-	//Variables
+	PolyVox::Vector3DInt32 playerChunk;
 
 private:
 	//Functions
@@ -62,14 +71,14 @@ private:
 	PolyVox::SimpleVolume<VoxelMat> *polyVolume;
 	GameParser *gameParser;
 	std::map<std::string, Ogre::ManualObject*> manualObjects;
-	PolyVox::Vector3DInt32 playerChunk;
+	std::vector<ItemBlock> itemBlocks;
 	int chunkSize;
 	int centerChunk;
 	float worldScale;
+	float blockItemWorldScale;
 	int verticalMax;
 	CEGUI::ProgressBar *bar;
 	CEGUI::DefaultWindow *rootWin;
 	CEGUI::FrameWindow *frame;
 	CEGUI::OgreRenderer *mCEGUIrenderer;
 };
-

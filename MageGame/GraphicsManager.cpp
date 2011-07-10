@@ -5,6 +5,8 @@
 #define TEX_WIDTH_NORMALIZED (1.0 / NUM_TEX_PER_ROW)
 
 using std::string;
+using std::vector;
+
 using Ogre::ConfigFile;
 using Ogre::Vector3;
 using Ogre::ManualObject;
@@ -17,7 +19,7 @@ using PolyVox::PositionMaterial;
 using PolyVox::CubicSurfaceExtractor;
 using PolyVox::Region;
 
-GraphicsManager::GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra, GameParser *gm_gameParser)
+GraphicsManager::GraphicsManager(int gm_chunkSize, float gm_worldScale, float gm_blockItemWorldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra, GameParser *gm_gameParser)
 {
 	init();
 	polyVolume = volData;
@@ -25,6 +27,7 @@ GraphicsManager::GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_v
 	gameParser = gm_gameParser;
 	chunkSize = gm_chunkSize;
 	worldScale = gm_worldScale;
+	blockItemWorldScale = gm_blockItemWorldScale;
 	centerChunk = gm_viewDist + 1;
 	playerChunk.setX(centerChunk);
 	playerChunk.setZ(centerChunk);
@@ -49,6 +52,8 @@ GraphicsManager::GraphicsManager(int gm_chunkSize, float gm_worldScale, int gm_v
 GraphicsManager::~GraphicsManager(void)
 {
 	delete root;
+	manualObjects.clear();
+	itemBlocks.clear();
 }
 
 void GraphicsManager::init()
@@ -278,17 +283,17 @@ void GraphicsManager::InitVoxels(PolyVox::Vector3DInt32 chunkNum, int xDiff, int
 
 	for(int x = 0; x < chunkSize; x++)
 	{
-		for(int z = 0; z < chunkSize; z++)
+		for(int y = 0; y < chunkSize; y++)
 		{
-			for(int y = 0; y < chunkSize; y++)
+			for(int z = 0; z < chunkSize; z++)
 			{
 				double nx = (double)x / chunkSize;
 				double ny = (double)y / chunkSize;
 				double nz = (double)z / chunkSize;
 
 				nx = chunkX + nx * regionWidth;
-				ny = chunkY + ny * regionHeight;
-				nz = chunkZ + nz * regionDepth;
+				ny = chunkY + ny * regionDepth;
+				nz = chunkZ + nz * regionHeight;
 
 				double v = wTer->worldTerrain.GetValue(nx, ny, nz);
                 if(v > 0)
@@ -481,7 +486,7 @@ void GraphicsManager::MoveNorth()
 	int xDiff = playerChunk.getX() - centerChunk;
 	int zDiff = playerChunk.getZ() - centerChunk;
 
-	int horizontalChunk = centerChunk * 2 + 1;
+	int horizontalChunk = centerChunk * 2 - 1;
 	int horizontalSize = horizontalChunk * chunkSize;
 	int size = horizontalSize * verticalMax;
 	int verticalChunk = verticalMax / chunkSize;
@@ -527,7 +532,7 @@ void GraphicsManager::MoveSouth()
 	int xDiff = playerChunk.getX() - centerChunk;
 	int zDiff = playerChunk.getZ() - centerChunk;
 
-	int horizontalChunk = centerChunk * 2 + 1;
+	int horizontalChunk = centerChunk * 2 - 1;
 	int horizontalSize = horizontalChunk * chunkSize;
 	int start = horizontalSize * verticalMax;
 	int size = (horizontalSize - 1) * horizontalSize * verticalMax;
@@ -574,7 +579,7 @@ void GraphicsManager::MoveEast()
 	int xDiff = playerChunk.getX() - centerChunk;
 	int zDiff = playerChunk.getZ() - centerChunk;
 
-	int horizontalChunk = (centerChunk * 2 + 1);
+	int horizontalChunk = centerChunk * 2 - 1;
 	int horizontalSize = horizontalChunk * chunkSize;
 	int horizontalSlice = horizontalSize * verticalMax;
 	int start = chunkSize;
@@ -594,11 +599,11 @@ void GraphicsManager::MoveEast()
 	}
 
 	//Move the voxels
-	for(int i = 0; i < horizontalChunk; ++i)
+	for(int i = 0; i < horizontalSize; ++i)
 	{
-		for(int j = 0; j < verticalChunk; ++j)
+		for(int j = 0; j < verticalMax; ++j)
 		{
-			memmove(polyVolume + (horizontalSlice * i + horizontalSize * j), polyVolume + (horizontalSlice * i + horizontalSize * j + start), size);
+			memmove(polyVolume + (horizontalSlice * i + horizontalSize * j), polyVolume + (horizontalSlice * i + horizontalSize * j + chunkSize), size);
 		}
 	}
 
@@ -628,10 +633,9 @@ void GraphicsManager::MoveWest()
 	int xDiff = playerChunk.getX() - centerChunk;
 	int zDiff = playerChunk.getZ() - centerChunk;
 
-	int horizontalChunk = (centerChunk * 2 + 1);
+	int horizontalChunk = centerChunk * 2 - 1;
 	int horizontalSize = horizontalChunk * chunkSize;
 	int horizontalSlice = horizontalSize * verticalMax;
-	int end = chunkSize;
 	int size = horizontalSize - chunkSize;
 	int verticalChunk = verticalMax / chunkSize;
 	int lastChunk = horizontalChunk - 1;
@@ -648,11 +652,16 @@ void GraphicsManager::MoveWest()
 	}
 
 	//Move the voxels
-	for(int i = 0; i < horizontalChunk; ++i)
+	for(int i = 0; i < horizontalSize; ++i)
 	{
-		for(int j = 0; j < verticalChunk; ++j)
+		for(int j = 0; j < verticalMax; ++j)
 		{
-			memmove(polyVolume + (horizontalSlice * i + horizontalSize * j + end), polyVolume + (horizontalSlice * i + horizontalSize * j), size);
+			cout << "Dest: " << (horizontalSlice * i + horizontalSize * j + chunkSize) << endl;
+			cout << "Start: " << (horizontalSlice * i + horizontalSize * j) << endl;
+			cout << "Size: "<< size << endl;
+			cout << "i: " << i << endl;
+			cout << "j: " << j << endl;
+			memmove(polyVolume + (horizontalSlice * i + horizontalSize * j + chunkSize), polyVolume + (horizontalSlice * i + horizontalSize * j), size);
 		}
 	}
 
@@ -675,6 +684,102 @@ void GraphicsManager::MoveWest()
 			LoadSingleMO(currChunk, xDiff, zDiff);
 		}
 	}
+}
+
+void GraphicsManager::AddItemBlock(PolyVox::Vector3DInt32 blockPos, VoxelMat cubeMat, double time)
+{
+	int posX = blockPos.getX();
+	int posY = blockPos.getY();
+	int posZ = blockPos.getZ();
+
+	float halfScale = blockItemWorldScale / 2.0f;
+	float lowerPosX = posX - halfScale;
+	float upperPosX = posX + halfScale;
+	float lowerPosY = posY - halfScale;
+	float upperPosY = posY + halfScale;
+	float lowerPosZ = posZ - halfScale;
+	float upperPosZ = posZ + halfScale;
+
+	cout << "BlockPos: (" << posX << ", " << posY << ", " << posZ << ")" << endl;
+	cout << "X: " << lowerPosX << " and " << upperPosX << endl;
+	cout << "Y: " << lowerPosY << " and " << upperPosY << endl;
+	cout << "z: " << lowerPosZ << " and " << upperPosZ << endl;
+	cout << endl;
+	
+	//Set the coordinates for the right texture in the texture atlas
+	uint16_t mat = cubeMat.getMaterial() - NUM_NONTEX_MATERIALS;
+	/*
+	r = u coords where the texture starts
+	g = v coords where the texture starts
+	b = direction of the block with 0.0, 0.25, 0.5, 0.75 as North, East, South, West
+	a = maybe used to flag that one of the faces uses a different texture?
+	*/
+	Ogre::ColourValue val;
+	val.r = mat % NUM_TEX_PER_ROW * TEX_WIDTH_NORMALIZED;
+	val.g = mat / NUM_TEX_PER_ROW * TEX_WIDTH_NORMALIZED;
+	val.b = 0.0f;
+	val.a = 1.0f;
+
+	ManualObject *cubeMO = manager->createManualObject();
+
+	///Down face
+	cubeMO->begin("ItemBlockTexture", Ogre::RenderOperation::OT_TRIANGLE_FAN);
+	cubeMO->position(lowerPosX, lowerPosY, lowerPosZ); //0
+	cubeMO->position(upperPosX, lowerPosY, lowerPosZ); //1
+	cubeMO->position(upperPosX, lowerPosY, upperPosZ); //2
+	cubeMO->position(lowerPosX, lowerPosY, upperPosZ); //3
+	cubeMO->colour(val);
+	cubeMO->end();
+
+	//Left face
+	cubeMO->begin("ItemBlockTexture", Ogre::RenderOperation::OT_TRIANGLE_FAN);
+	cubeMO->position(lowerPosX, lowerPosY, upperPosZ); //3
+	cubeMO->position(lowerPosX, upperPosY, upperPosZ); //7
+	cubeMO->position(lowerPosX, upperPosY, lowerPosZ); //4
+	cubeMO->position(lowerPosX, lowerPosY, lowerPosZ); //0
+	cubeMO->colour(val);
+	cubeMO->end();
+
+	//Up face
+	cubeMO->begin("ItemBlockTexture", Ogre::RenderOperation::OT_TRIANGLE_FAN);
+	cubeMO->position(lowerPosX, upperPosY, lowerPosZ); //4
+	cubeMO->position(lowerPosX, upperPosY, upperPosZ); //7
+	cubeMO->position(upperPosX, upperPosY, upperPosZ); //6
+	cubeMO->position(upperPosX, upperPosY, lowerPosZ); //5
+	cubeMO->colour(val);
+	cubeMO->end();
+
+	//Right face
+	cubeMO->begin("ItemBlockTexture", Ogre::RenderOperation::OT_TRIANGLE_FAN);
+	cubeMO->position(upperPosX, lowerPosY, lowerPosZ); //1
+	cubeMO->position(upperPosX, upperPosY, lowerPosZ); //5
+	cubeMO->position(upperPosX, upperPosY, upperPosZ); //6
+	cubeMO->position(upperPosX, lowerPosY, upperPosZ); //2
+	cubeMO->colour(val);
+	cubeMO->end();
+ 
+	//Front face
+	cubeMO->begin("ItemBlockTexture", Ogre::RenderOperation::OT_TRIANGLE_FAN);
+	cubeMO->position(upperPosX, lowerPosY, lowerPosZ); //1
+	cubeMO->position(lowerPosX, lowerPosY, lowerPosZ); //0
+	cubeMO->position(lowerPosX, upperPosY, lowerPosZ); //4
+	cubeMO->position(upperPosX, upperPosY, lowerPosZ); //5
+	cubeMO->colour(val);
+	cubeMO->end();
+ 
+	//Back face
+	cubeMO->begin("ItemBlockTexture", Ogre::RenderOperation::OT_TRIANGLE_FAN);
+	cubeMO->position(upperPosX, lowerPosY, upperPosZ); //2
+	cubeMO->position(upperPosX, upperPosY, upperPosZ); //6
+	cubeMO->position(lowerPosX, upperPosY, upperPosZ); //7
+	cubeMO->position(lowerPosX, lowerPosY, upperPosZ); //3
+	cubeMO->colour(val);
+	cubeMO->end();
+
+	root_sn->attachObject(cubeMO); //Attach it to the root scenenode
+
+	ItemBlock cubeBlock = {cubeMO, time};
+	itemBlocks.push_back(cubeBlock); //Save it in the vector
 }
 
 void GraphicsManager::AdjustCamera(int xAxis, int yAxis)
