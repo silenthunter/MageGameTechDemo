@@ -1,8 +1,10 @@
 #include "GraphicsManager.h"
 
-#define NUM_TEX_PER_ROW 4
+#define NUM_TEX_PER_ROW 6
+#define NUM_TEX_PER_COL 16
 #define NUM_NONTEX_MATERIALS 1
 #define TEX_WIDTH_NORMALIZED (1.0 / NUM_TEX_PER_ROW)
+#define TEX_HEIGHT_NORMALIZED (1.0 / NUM_TEX_PER_COL)
 
 using std::string;
 using std::vector;
@@ -354,13 +356,13 @@ void GraphicsManager::LoadSingleMO(PolyVox::Vector3DInt32 chunkNum, int xDiff, i
 		VoxelMat vMat = vecItr->getMaterial();
 		uint16_t mat = vMat.getMaterial() - NUM_NONTEX_MATERIALS;
 		/*
-		r = u coords where the texture starts
-		g = v coords where the texture starts
-		b = direction of the block with 0.0, 0.25, 0.5, 0.75 as North, East, South, West
-		a = maybe used to flag that one of the faces uses a different texture?
+		r = v coordinate of where the texture starts
+		g = direction of the block with 0.1, 0.2, 0.3, and 0.4 as North, East, South, and West
+		b = ?
+		a = alpha?
 		*/
-		val.r = mat % NUM_TEX_PER_ROW * TEX_WIDTH_NORMALIZED;
-		val.g = mat / NUM_TEX_PER_ROW * TEX_WIDTH_NORMALIZED;
+		val.r = mat * TEX_HEIGHT_NORMALIZED;
+		val.g = 0.0f;
 		val.b = 0.0f;
 		val.a = 1.0f;
 		obj->colour(val);
@@ -704,8 +706,8 @@ void GraphicsManager::AddItemBlock(PolyVox::Vector3DInt32 blockPos, VoxelMat cub
 	a = maybe used to flag that one of the faces uses a different texture?
 	*/
 	Ogre::ColourValue val;
-	val.r = mat % NUM_TEX_PER_ROW * TEX_WIDTH_NORMALIZED;
-	val.g = mat / NUM_TEX_PER_ROW * TEX_WIDTH_NORMALIZED;
+	val.r = mat * TEX_HEIGHT_NORMALIZED;
+	val.g = 0.0f;
 	val.b = 0.0f;
 	val.a = 1.0f;
 
