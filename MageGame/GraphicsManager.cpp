@@ -27,7 +27,7 @@ GraphicsManager::GraphicsManager(int gm_chunkSize, float gm_worldScale, float gm
 	gameParser = gm_gameParser;
 	chunkSize = gm_chunkSize;
 	worldScale = gm_worldScale;
-	blockItemWorldScale = gm_blockItemWorldScale;
+	blockItemHalfScale = gm_blockItemWorldScale / 2.0f;
 	centerChunk = gm_viewDist + 1;
 	playerChunk.setX(centerChunk);
 	playerChunk.setZ(centerChunk);
@@ -688,23 +688,12 @@ void GraphicsManager::MoveWest()
 
 void GraphicsManager::AddItemBlock(PolyVox::Vector3DInt32 blockPos, VoxelMat cubeMat, double time)
 {
-	int posX = blockPos.getX();
-	int posY = blockPos.getY();
-	int posZ = blockPos.getZ();
-
-	float halfScale = blockItemWorldScale / 2.0f;
-	float lowerPosX = posX - halfScale;
-	float upperPosX = posX + halfScale;
-	float lowerPosY = posY - halfScale;
-	float upperPosY = posY + halfScale;
-	float lowerPosZ = posZ - halfScale;
-	float upperPosZ = posZ + halfScale;
-
-	cout << "BlockPos: (" << posX << ", " << posY << ", " << posZ << ")" << endl;
-	cout << "X: " << lowerPosX << " and " << upperPosX << endl;
-	cout << "Y: " << lowerPosY << " and " << upperPosY << endl;
-	cout << "z: " << lowerPosZ << " and " << upperPosZ << endl;
-	cout << endl;
+	float lowerPosX = -blockItemHalfScale;
+	float upperPosX = blockItemHalfScale;
+	float lowerPosY = -blockItemHalfScale;
+	float upperPosY = blockItemHalfScale;
+	float lowerPosZ = -blockItemHalfScale;
+	float upperPosZ = blockItemHalfScale;
 	
 	//Set the coordinates for the right texture in the texture atlas
 	uint16_t mat = cubeMat.getMaterial() - NUM_NONTEX_MATERIALS;
@@ -728,7 +717,6 @@ void GraphicsManager::AddItemBlock(PolyVox::Vector3DInt32 blockPos, VoxelMat cub
 	cubeMO->position(upperPosX, lowerPosY, lowerPosZ); //1
 	cubeMO->position(upperPosX, lowerPosY, upperPosZ); //2
 	cubeMO->position(lowerPosX, lowerPosY, upperPosZ); //3
-	cubeMO->colour(val);
 	cubeMO->end();
 
 	//Left face
@@ -737,7 +725,6 @@ void GraphicsManager::AddItemBlock(PolyVox::Vector3DInt32 blockPos, VoxelMat cub
 	cubeMO->position(lowerPosX, upperPosY, upperPosZ); //7
 	cubeMO->position(lowerPosX, upperPosY, lowerPosZ); //4
 	cubeMO->position(lowerPosX, lowerPosY, lowerPosZ); //0
-	cubeMO->colour(val);
 	cubeMO->end();
 
 	//Up face
@@ -746,7 +733,6 @@ void GraphicsManager::AddItemBlock(PolyVox::Vector3DInt32 blockPos, VoxelMat cub
 	cubeMO->position(lowerPosX, upperPosY, upperPosZ); //7
 	cubeMO->position(upperPosX, upperPosY, upperPosZ); //6
 	cubeMO->position(upperPosX, upperPosY, lowerPosZ); //5
-	cubeMO->colour(val);
 	cubeMO->end();
 
 	//Right face
@@ -755,7 +741,6 @@ void GraphicsManager::AddItemBlock(PolyVox::Vector3DInt32 blockPos, VoxelMat cub
 	cubeMO->position(upperPosX, upperPosY, lowerPosZ); //5
 	cubeMO->position(upperPosX, upperPosY, upperPosZ); //6
 	cubeMO->position(upperPosX, lowerPosY, upperPosZ); //2
-	cubeMO->colour(val);
 	cubeMO->end();
  
 	//Front face
@@ -764,7 +749,6 @@ void GraphicsManager::AddItemBlock(PolyVox::Vector3DInt32 blockPos, VoxelMat cub
 	cubeMO->position(lowerPosX, lowerPosY, lowerPosZ); //0
 	cubeMO->position(lowerPosX, upperPosY, lowerPosZ); //4
 	cubeMO->position(upperPosX, upperPosY, lowerPosZ); //5
-	cubeMO->colour(val);
 	cubeMO->end();
  
 	//Back face
@@ -776,9 +760,12 @@ void GraphicsManager::AddItemBlock(PolyVox::Vector3DInt32 blockPos, VoxelMat cub
 	cubeMO->colour(val);
 	cubeMO->end();
 
-	root_sn->attachObject(cubeMO); //Attach it to the root scenenode
+	Ogre::SceneNode *cubeSN = manager->createSceneNode();
+	cubeSN->setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+	cubeSN->attachObject(cubeMO);
+	root_sn->addChild(cubeSN); //Attach the new sceneNode to the root scenenode
 
-	ItemBlock cubeBlock = {cubeMO, time};
+	ItemBlock cubeBlock = {cubeSN, time};
 	itemBlocks.push_back(cubeBlock); //Save it in the vector
 }
 

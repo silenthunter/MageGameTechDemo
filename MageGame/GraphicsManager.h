@@ -17,7 +17,7 @@
 
 struct ItemBlock
 {
-	Ogre::ManualObject *mo;
+	Ogre::SceneNode *sn;
 	double time;
 };
 
@@ -75,7 +75,7 @@ private:
 	int chunkSize;
 	int centerChunk;
 	float worldScale;
-	float blockItemWorldScale;
+	float blockItemHalfScale;
 	int verticalMax;
 	CEGUI::ProgressBar *bar;
 	CEGUI::DefaultWindow *rootWin;
