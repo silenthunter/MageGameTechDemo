@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 #pragma endregion
 
 #pragma region PhysicsManager
-	PhysicsManager physicsManager(chunkSize, worldScale, &volData, &graphicsManager);
+	PhysicsManager physicsManager((viewDist + 0.5f) * chunkSize, chunkSize, worldScale, &volData, &graphicsManager);
 #pragma endregion
 
 #pragma region Keyboard and Mouse

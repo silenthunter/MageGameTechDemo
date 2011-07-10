@@ -134,7 +134,7 @@ private:
 	void deInitHavok();
 	void stepVisualDebugger(float deltaTime);
 	void registerVisualDebugger();
-	void initPlayer();
+	void initPlayer(int startingHorizontalPos);
 	void Thread_UpdateChunk(PolyVox::Vector3DInt32* chunk);
 
 	PolyVox::SimpleVolume<VoxelMat>* polyVolume;
@@ -144,7 +144,7 @@ private:
 	boost::shared_mutex mu;
 
 public:
-	PhysicsManager(int pm_chunkSize, float pm_worldScale, PolyVox::SimpleVolume<VoxelMat>* volume, GraphicsManager *manager = NULL);
+	PhysicsManager(int startingHorizontalPos, int pm_chunkSize, float pm_worldScale, PolyVox::SimpleVolume<VoxelMat>* volume, GraphicsManager *manager = NULL);
 	~PhysicsManager(void);
 
 	///Updates a single chunk

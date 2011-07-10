@@ -38,12 +38,12 @@ using PolyVox::Vector3DFloat;
 using PolyVox::SurfaceMesh;
 
 
-PhysicsManager::PhysicsManager(int pm_chunkSize, float pm_worldScale, PolyVox::SimpleVolume<VoxelMat>* volume, GraphicsManager *manager)
+PhysicsManager::PhysicsManager(int startingHorizontalPos, int pm_chunkSize, float pm_worldScale, PolyVox::SimpleVolume<VoxelMat>* volume, GraphicsManager *manager)
 {
 	graphMan = manager;
 	chunkSize = pm_chunkSize;
 	initHavok();
-	initPlayer();
+	initPlayer(startingHorizontalPos);
 
 	polyVolume = volume;
 	int x = polyVolume->getWidth() / chunkSize;
@@ -467,7 +467,7 @@ void PhysicsManager::stepVisualDebugger(float deltaTime)
 	#endif	
 }
 
-void PhysicsManager::initPlayer()
+void PhysicsManager::initPlayer(int startingHorizontalPos)
 {
 	hkVector4 vertexA(0, 0.4f, 0);
 	hkVector4 vertexB(0, -0.4f, 0);
@@ -486,7 +486,7 @@ void PhysicsManager::initPlayer()
 	info.m_maxForce = 1000.0f;
 	info.m_up = hkVector4(0, 1.0f, 0);
 	info.m_shape = m_standShape;
-	info.m_position = hkVector4(50, 300, 50);
+	info.m_position = hkVector4(startingHorizontalPos, 300, startingHorizontalPos);
 
 	info.m_maxSlope = 70.0f * HK_REAL_DEG_TO_RAD;
 
