@@ -34,19 +34,15 @@ GraphicsManager::GraphicsManager(int gm_chunkSize, float gm_worldScale, float gm
 	playerChunk.setX(centerChunk);
 	playerChunk.setZ(centerChunk);
 	verticalMax = gm_verticalMax;
+	verticalChunk = verticalMax / chunkSize;
 
 	int horizontalChunk = gm_viewDist * 2 + 1;
-	int verticalChunk = gm_verticalMax / gm_chunkSize;
 	for(int i = 0; i < horizontalChunk; ++i)
 	{
-		for(int j = 0; j < verticalChunk; ++j)
+		for(int j = 0; j < horizontalChunk; ++j)
 		{
-			for(int k = 0; k < horizontalChunk; ++k)
-			{
-				Vector3DInt32 currChunk(i, j, k);
-				InitVoxels(currChunk, 0, 0);
-				LoadSingleMO(currChunk, 0, 0);
-			}
+			InitVoxels(i, j, 0, 0);
+			LoadMO(i, j, 0, 0);
 		}
 	}
 }
@@ -265,120 +261,113 @@ void GraphicsManager::CloseGUI()
 	rootWin->setVisible(false);
 }
 
-void GraphicsManager::InitVoxels(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff)
+void GraphicsManager::InitVoxels(int chunkNumX, int chunkNumZ, int xDiff, int zDiff)
 {
-	float regionWidth = 1.0;
-	float regionHeight = 1.0;
-	float regionDepth = 1.0;
+    float regionWidth = 1.0;
+    float regionHeight = 1.0;
+    float regionDepth = 1.0;
 
-	int chunkNumX = chunkNum.getX();
-	int chunkNumY = chunkNum.getY();
-	int chunkNumZ = chunkNum.getZ();
+    int chunkX = (chunkNumX + xDiff) * regionWidth;
+    int chunkZ = (chunkNumZ + zDiff) * regionHeight;
 
-	int chunkX = (chunkNumX + xDiff) * regionWidth;
-	int chunkY = chunkNumY * regionDepth;
-	int chunkZ = (chunkNumZ + zDiff) * regionHeight;
+    int xOffset = chunkNumX * chunkSize;
+    int zOffset = chunkNumZ * chunkSize;
 
-	int xOffset = chunkNumX * chunkSize;
-	int yOffset = chunkNumY * chunkSize;
-	int zOffset = chunkNumZ * chunkSize;
-
-	for(int x = 0; x < chunkSize; x++)
-	{
-		for(int y = 0; y < chunkSize; y++)
+    for(int x = 0; x < chunkSize; ++x)
+    {
+        for(int y = 0; y < verticalMax; ++y)
 		{
-			for(int z = 0; z < chunkSize; z++)
-			{
-				double nx = (double)x / chunkSize;
-				double ny = (double)y / chunkSize;
-				double nz = (double)z / chunkSize;
+            for(int z = 0; z < chunkSize; ++z)
+            {
+                double nx = (double)x / chunkSize;
+                double ny = (double)y / verticalMax;
+                double nz = (double)z / chunkSize;
 
-				nx = chunkX + nx * regionWidth;
-				ny = chunkY + ny * regionDepth;
-				nz = chunkZ + nz * regionHeight;
+                nx = chunkX + nx * regionWidth;
+                ny *= regionDepth;
+                nz = chunkZ + nz * regionHeight;
 
 				double v = wTer->worldTerrain.GetValue(nx, ny, nz);
-                if(v > 0)
+				if(v > 0)
 				{
 					VoxelMat vox;
 					vox.setMaterial(v);
-					polyVolume->setVoxelAt(x + xOffset, y + yOffset, z + zOffset, vox);
+					polyVolume->setVoxelAt(x + xOffset, y, z + zOffset, vox);
 				}
 			}
 		}
-	}
+    }
 }
 
-void GraphicsManager::LoadSingleMO(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff)
+void GraphicsManager::LoadMO(int chunkNumX, int chunkNumZ, int xDiff, int zDiff)
 {
-	int i = chunkNum.getX();
-	int j = chunkNum.getY();
-	int k = chunkNum.getZ();
-
-	unsigned int iChunkSize = i * chunkSize;
-	unsigned int jChunkSize = j * chunkSize;
-	unsigned int kChunkSize = k * chunkSize;
+	unsigned int xChunkSize = chunkNumX * chunkSize;
+	unsigned int zChunkSize = chunkNumZ * chunkSize;
 	unsigned int chunkAddition = chunkSize - 1;
 
-	Vector3DInt32 start(iChunkSize, jChunkSize, kChunkSize);
-	Vector3DInt32 end(iChunkSize + chunkAddition, jChunkSize + chunkAddition, kChunkSize + chunkAddition);
+	for(int i = 0; i < verticalChunk; ++i)
+	{
+		int yChunkSize = i * chunkSize;
+		Vector3DInt32 start(xChunkSize, yChunkSize, zChunkSize);
+		Vector3DInt32 end(xChunkSize + chunkAddition, yChunkSize + chunkAddition, zChunkSize + chunkAddition);
 
-	SurfaceMesh<PositionMaterial> mesh;
-	CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(polyVolume, Region(start, end), &mesh);
-	surfaceExtractor.execute();
+		SurfaceMesh<PositionMaterial> mesh;
+		CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(polyVolume, Region(start, end), &mesh);
+		surfaceExtractor.execute();
 
-	ManualObject *obj = manager->createManualObject(); //Declare the manual object
-	obj->setDynamic(true);
+		ManualObject *obj = manager->createManualObject(); //Declare the manual object
+		obj->setDynamic(true);
 
-	//Estimate the vertex count to make it easier
-	obj->estimateVertexCount(mesh.getNoOfVertices());
-	obj->estimateIndexCount(mesh.getNoOfIndices());
+		//Estimate the vertex count to make it easier
+		obj->estimateVertexCount(mesh.getNoOfVertices());
+		obj->estimateIndexCount(mesh.getNoOfIndices());
 
-	//Get both the index and vertex data
-	const vector<uint32_t> &vecIndices = mesh.getIndices();
-	const vector<PositionMaterial> &vecVertices = mesh.getVertices();
+		//Get both the index and vertex data
+		const vector<uint32_t> &vecIndices = mesh.getIndices();
+		const vector<PositionMaterial> &vecVertices = mesh.getVertices();
 				
-	//Print current chunk information
-	char str[50];
-	sprintf(str, "%d_%d_%d", i + xDiff, j, k + zDiff);
+		//Print current chunk information
+		char str[50];
+		sprintf(str, "%d_%d_%d", chunkNumX + xDiff, i, chunkNumZ + zDiff);
 
-	//Set the object with the render operation and the .material
-	obj->begin("VoxelTexture", Ogre::RenderOperation::OT_TRIANGLE_LIST);
+		//Set the object with the render operation and the .material
+		obj->begin("VoxelTexture", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
-	//Work with the vertices
-	Vector3DFloat posOffset = Vector3DFloat(iChunkSize + xDiff * chunkSize, jChunkSize, kChunkSize + zDiff * chunkSize) * worldScale;
-	for(vector<PositionMaterial>::const_iterator vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
-	{
-		Vector3DFloat pos = vecItr->getPosition() * worldScale;
-		pos += posOffset;
-		obj->position(pos.getX(), pos.getY(), pos.getZ());
-		Ogre::ColourValue val;
-		VoxelMat vMat = vecItr->getMaterial();
-		uint16_t mat = vMat.getMaterial() - NUM_NONTEX_MATERIALS;
-		/*
-		r = v coordinate of where the texture starts
-		g = direction of the block with 0.1, 0.2, 0.3, and 0.4 as North, East, South, and West
-		b = ?
-		a = alpha?
-		*/
-		val.r = mat * TEX_HEIGHT_NORMALIZED;
-		val.g = 0.0f;
-		val.b = 0.0f;
-		val.a = 1.0f;
-		obj->colour(val);
+		//Work with the vertices
+		Vector3DFloat posOffset = Vector3DFloat(xChunkSize + xDiff * chunkSize, yChunkSize, zChunkSize + zDiff * chunkSize) * worldScale;
+		for(vector<PositionMaterial>::const_iterator vecItr = vecVertices.begin(); vecItr != vecVertices.end(); vecItr++)
+		{
+			Vector3DFloat pos = vecItr->getPosition() * worldScale;
+			pos += posOffset;
+			obj->position(pos.getX(), pos.getY(), pos.getZ());
+			Ogre::ColourValue val;
+			VoxelMat vMat = vecItr->getMaterial();
+			uint16_t mat = vMat.getMaterial() - NUM_NONTEX_MATERIALS;
+			/*
+			r = v coordinate of where the texture starts
+			g = direction of the block with 0.1, 0.2, 0.3, and 0.4 as North, East, South, and West
+			b = ?
+			a = alpha?
+			*/
+			val.r = mat * TEX_HEIGHT_NORMALIZED;
+			val.g = 0.0f;
+			val.b = 0.0f;
+			val.a = 1.0f;
+			obj->colour(val);
+		}
+
+		//Work with the indices
+		for(vector<uint32_t>::const_iterator indVec = vecIndices.begin(); indVec != vecIndices.end(); indVec++)
+		{
+			obj->index(*indVec);
+		}
+
+		obj->end(); //Done with the manual object
+
+		string strName(str);
+		manualObjects.insert(std::map<string, ManualObject*>::value_type(str, obj));
+		root_sn->attachObject(obj);
 	}
-
-	//Work with the indices
-	for(vector<uint32_t>::const_iterator indVec = vecIndices.begin(); indVec != vecIndices.end(); indVec++)
-	{
-		obj->index(*indVec);
-	}
-
-	obj->end(); //Done with the manual object
-
-	string strName(str);
-	manualObjects.insert(std::map<string, ManualObject*>::value_type(str, obj));
-	root_sn->attachObject(obj);
 }
 
 void GraphicsManager::DestroyMO(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff)
@@ -483,6 +472,7 @@ void GraphicsManager::UpdateChunk(Vector3DInt32 chunkNum, int xDiff, int zDiff)
 	obj->end();
 }
 
+/*
 void GraphicsManager::MoveNorth()
 {
 	int xDiff = playerChunk.getX() - centerChunk;
@@ -491,7 +481,6 @@ void GraphicsManager::MoveNorth()
 	int horizontalChunk = centerChunk * 2 - 1;
 	int horizontalSize = horizontalChunk * chunkSize;
 	int size = horizontalSize * verticalMax;
-	int verticalChunk = verticalMax / chunkSize;
 	int lastChunk = horizontalChunk - 1;
 
 	//Save the chunks you won't see anymore
@@ -687,6 +676,7 @@ void GraphicsManager::MoveWest()
 		}
 	}
 }
+*/
 
 void GraphicsManager::AddItemBlock(PolyVox::Vector3DInt32 blockPos, VoxelMat cubeMat, double time)
 {

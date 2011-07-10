@@ -28,8 +28,8 @@ public:
 	//Functions
 	GraphicsManager(int gm_chunkSize, float gm_worldScale, float gm_blockItemWorldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra, GameParser *gm_gameParser);
 	~GraphicsManager(void);
-	void InitVoxels(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
-	void LoadSingleMO(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
+	void InitVoxels(int chunkNumX, int chunkNumZ, int xDiff, int zDiff);
+	void LoadMO(int chunkNumX, int chunkNumZ, int xDiff, int zDiff);
 	void DestroyMO(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
 	VoxelMat RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos);
 	void UpdateChunk(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
@@ -78,6 +78,7 @@ private:
 	float worldScale;
 	float blockItemHalfScale;
 	int verticalMax;
+	int verticalChunk;
 	CEGUI::ProgressBar *bar;
 	CEGUI::DefaultWindow *rootWin;
 	CEGUI::FrameWindow *frame;
