@@ -787,3 +787,8 @@ void GraphicsManager::AdjustCamera(int xAxis, int yAxis)
 	else
 		c_sn->pitch(Ogre::Degree(yAxis));
 }
+
+std::vector<ItemBlock> GraphicsManager::getItemBlocks()
+{
+	return itemBlocks;
+}

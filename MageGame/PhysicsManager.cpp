@@ -533,6 +533,8 @@ void PhysicsManager::initPlayer(int startingHorizontalPos)
 
 void PhysicsManager::UpdatePlayer(OIS::Keyboard* keyboard, OIS::Mouse* mouse, hkQuaternion &orientation, float m_timestep)
 {
+	if(m_timestep <= 0) return;
+
 	hkpCharacterInput input;
 	hkpCharacterOutput output;
 	{
@@ -652,7 +654,7 @@ void PhysicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3
 
 void PhysicsManager::SpawnCube(hkVector4 &pos)
 {
-	hkVector4 halfExtents(.25, .25, .25);
+	hkVector4 halfExtents(.0625, .0625, .0625);
 	hkpBoxShape *box = new hkpBoxShape(halfExtents);
 
 	hkpRigidBodyCinfo info;
@@ -669,4 +671,21 @@ void PhysicsManager::SpawnCube(hkVector4 &pos)
 	world->unlock();
 	body->removeReference();
 	box->removeReference();
+}
+
+void PhysicsManager::SyncItemBlocks(std::vector<ItemBlock> &itemBlocks)
+{
+	assert(cubes.getSize() == itemBlocks.size());//Physics and graphics should have the same blocks tracked
+
+	std::vector<ItemBlock>::iterator gfxIt = itemBlocks.begin();
+	hkArray<hkpRigidBody*>::iterator physIt = cubes.begin();
+
+	for(;gfxIt != itemBlocks.end(); gfxIt++, physIt++)
+	{
+		hkpRigidBody* block = *physIt;
+		hkVector4 pos = block->getPosition();
+		hkQuaternion quat = block->getRotation();
+		(*gfxIt).sn->setPosition(pos(0), pos(1), pos(2));
+		(*gfxIt).sn->setOrientation(quat(3), quat(0), quat(1), quat(2));
+	}
 }

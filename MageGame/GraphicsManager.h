@@ -42,6 +42,7 @@ public:
 	void UpdatePhysicsProgress(float progress);
 	void CloseGUI();
 	void AdjustCamera(int xAxis, int yAxis);
+	std::vector<ItemBlock> getItemBlocks();
 
 	//Variables
 	Ogre::RenderWindow *GetWindow();

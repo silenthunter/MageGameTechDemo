@@ -193,6 +193,12 @@ public:
 	*/
 	void SpawnCube(hkVector4 &position);
 
+	/**
+	@brief Syncs the graphics for the item blocks with the physics
+	@param itemBlocks The list of ItemBlocks from the graphics manager
+	*/
+	void SyncItemBlocks(std::vector<ItemBlock> &itemBlocks);
+
 	virtual hkResult breakOffSubPart(   const ContactImpulseLimitBreachedEvent& event, hkArray<hkpShapeKey>& keysBrokenOffOut, hkpPhysicsSystem& systemOut );
 };
 

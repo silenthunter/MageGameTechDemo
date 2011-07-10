@@ -114,6 +114,7 @@ int main(int argc, char* argv[])
 		//Sync physics character with Ogre
 		hkVector4 hkPos = physicsManager.GetPlayerPosition();
 		player->setPosition(hkPos(0), hkPos(1), hkPos(2));
+		physicsManager.SyncItemBlocks(graphicsManager.getItemBlocks());
 
 		PolyVox::Vector3DFloat voxPos(hkPos(0), hkPos(1) + 0.4f, hkPos(2));
 
@@ -134,6 +135,8 @@ int main(int argc, char* argv[])
 				VoxelMat blockMat = graphicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
 				physicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
 				graphicsManager.AddItemBlock(rayResults.intersectionVoxel, blockMat, timer.getElapsedTimeSec());
+				hkVector4 spawnPos(rayResults.intersectionVoxel.getX(), rayResults.intersectionVoxel.getY(), rayResults.intersectionVoxel.getZ());
+				physicsManager.SpawnCube(spawnPos);
 			}
 		}
 
