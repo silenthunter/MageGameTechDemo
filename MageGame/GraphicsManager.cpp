@@ -21,20 +21,30 @@ using PolyVox::PositionMaterial;
 using PolyVox::CubicSurfaceExtractor;
 using PolyVox::Region;
 
-GraphicsManager::GraphicsManager(int gm_chunkSize, float gm_worldScale, float gm_blockItemWorldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra, GameParser *gm_gameParser)
+GraphicsManager::GraphicsManager(int gm_chunkSize,
+					float gm_worldScale,
+					float gm_blockItemWorldScale,
+					int gm_viewDist,
+					int gm_verticalMax,
+					int gm_verticalChunk,
+					PolyVox::SimpleVolume<VoxelMat> *volData,
+					WorldTerrain *wTerra,
+					GameParser *gm_gameParser)
+					:
+					chunkSize(gm_chunkSize),
+					worldScale(gm_worldScale),
+					blockItemHalfScale(gm_blockItemWorldScale / 2.0f),
+					centerChunk(gm_viewDist + 1),
+					verticalMax(gm_verticalMax),
+					verticalChunk(gm_verticalMax / chunkSize),
+					polyVolume(volData),
+					wTer(wTerra),
+					gameParser(gm_gameParser)
 {
 	init();
-	polyVolume = volData;
-	wTer = wTerra;
-	gameParser = gm_gameParser;
-	chunkSize = gm_chunkSize;
-	worldScale = gm_worldScale;
-	blockItemHalfScale = gm_blockItemWorldScale / 2.0f;
-	centerChunk = gm_viewDist + 1;
+
 	playerChunk.setX(centerChunk);
 	playerChunk.setZ(centerChunk);
-	verticalMax = gm_verticalMax;
-	verticalChunk = verticalMax / chunkSize;
 
 	int horizontalChunk = gm_viewDist * 2 + 1;
 	for(int i = 0; i < horizontalChunk; ++i)
@@ -370,11 +380,14 @@ void GraphicsManager::LoadMO(int chunkNumX, int chunkNumZ, int xDiff, int zDiff)
 	}
 }
 
-void GraphicsManager::DestroyMO(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff)
+void GraphicsManager::DestroyMO(int chunkNumX, int chunkNumZ, int xDiff, int zDiff)
 {
-	char str[50];
-	sprintf(str, "%d_%d_%d", chunkNum.getX() + xDiff, chunkNum.getY(), chunkNum.getZ() + zDiff);
-	manualObjects.erase(str);
+	for(int i = 0; i < verticalChunk; ++i)
+	{
+		char str[50];
+		sprintf(str, "%d_%d_%d", chunkNumX + xDiff, i, chunkNumZ + zDiff);
+		manualObjects.erase(str);
+	}
 }
 
 VoxelMat GraphicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos)
@@ -472,7 +485,7 @@ void GraphicsManager::UpdateChunk(Vector3DInt32 chunkNum, int xDiff, int zDiff)
 	obj->end();
 }
 
-/*
+
 void GraphicsManager::MoveNorth()
 {
 	int xDiff = playerChunk.getX() - centerChunk;
@@ -486,12 +499,8 @@ void GraphicsManager::MoveNorth()
 	//Save the chunks you won't see anymore
 	for(int i = 0; i < horizontalChunk; ++i)
 	{
-		for(int j = 0; j < verticalChunk; ++j)
-		{
-			Vector3DInt32 currChunk(i, j, lastChunk);
-			gameParser->StoreChunk(currChunk, xDiff, zDiff);
-			DestroyMO(currChunk, xDiff, zDiff);
-		}
+		gameParser->StoreChunks(i, lastChunk, xDiff, zDiff);
+		DestroyMO(i, lastChunk, xDiff, zDiff);
 	}
 
 	//Move the voxels
@@ -506,15 +515,11 @@ void GraphicsManager::MoveNorth()
 	//Attempt to load the chunks you'll need
 	for(int i = 0; i < horizontalChunk; ++i)
 	{
-		for(int j = 0; j < verticalChunk; ++j)
+		if(!gameParser->LoadChunks(i, 0, xDiff, zDiff))
 		{
-			Vector3DInt32 currChunk(i, j, 0);
-			if(!gameParser->LoadChunk(currChunk, xDiff, zDiff))
-			{
-				InitVoxels(currChunk, xDiff, zDiff); //Chunk hasn't been loaded yet, generate it
-			}
-			LoadSingleMO(currChunk, xDiff, zDiff);
+			InitVoxels(i, 0, xDiff, zDiff); //Chunk hasn't been loaded yet, generate it
 		}
+		LoadMO(i, 0, xDiff, zDiff);
 	}
 }
 
@@ -527,18 +532,13 @@ void GraphicsManager::MoveSouth()
 	int horizontalSize = horizontalChunk * chunkSize;
 	int start = horizontalSize * verticalMax;
 	int size = (horizontalSize - 1) * horizontalSize * verticalMax;
-	int verticalChunk = verticalMax / chunkSize;
 	int lastChunk = horizontalChunk - 1;
 
 	//Save the chunks you won't see anymore
 	for(int i = 0; i < horizontalChunk; ++i)
 	{
-		for(int j = 0; j < verticalChunk; ++j)
-		{
-			Vector3DInt32 currChunk(i, j, 0);
-			gameParser->StoreChunk(currChunk, xDiff, zDiff);
-			DestroyMO(currChunk, xDiff, zDiff);
-		}
+		gameParser->StoreChunks(i, 0, xDiff, zDiff);
+		DestroyMO(i, 0, xDiff, zDiff);
 	}
 
 	//Move the voxels
@@ -553,15 +553,11 @@ void GraphicsManager::MoveSouth()
 	//Attempt to load the chunks you'll need
 	for(int i = 0; i < horizontalChunk; ++i)
 	{
-		for(int j = 0; j < verticalChunk; ++j)
+		if(!gameParser->LoadChunks(i, lastChunk, xDiff, zDiff))
 		{
-			Vector3DInt32 currChunk(i, j, lastChunk);
-			if(!gameParser->LoadChunk(currChunk, xDiff, zDiff))
-			{
-				InitVoxels(currChunk, xDiff, zDiff); //Chunk hasn't been loaded yet, generate it
-			}
-			LoadSingleMO(currChunk, xDiff, zDiff);
+			InitVoxels(i, lastChunk, xDiff, zDiff); //Chunk hasn't been loaded yet, generate it
 		}
+		LoadMO(i, lastChunk, xDiff, zDiff);
 	}
 }
 
@@ -575,18 +571,13 @@ void GraphicsManager::MoveEast()
 	int horizontalSlice = horizontalSize * verticalMax;
 	int start = chunkSize;
 	int size = horizontalSize - chunkSize;
-	int verticalChunk = verticalMax / chunkSize;
 	int lastChunk = horizontalChunk - 1;
 
 	//Save the chunks you won't see anymore
 	for(int i = 0; i < horizontalChunk; ++i)
 	{
-		for(int j = 0; j < verticalChunk; ++j)
-		{
-			Vector3DInt32 currChunk(0, j, i);
-			gameParser->StoreChunk(currChunk, xDiff, zDiff);
-			DestroyMO(currChunk, xDiff, zDiff);
-		}
+		gameParser->StoreChunks(0, i, xDiff, zDiff);
+		DestroyMO(0, i, xDiff, zDiff);
 	}
 
 	//Move the voxels
@@ -607,15 +598,11 @@ void GraphicsManager::MoveEast()
 	//Attempt to load the chunks you'll need
 	for(int i = 0; i < horizontalChunk; ++i)
 	{
-		for(int j = 0; j < verticalChunk; ++j)
+		if(!gameParser->LoadChunks(lastChunk, i, xDiff, zDiff))
 		{
-			Vector3DInt32 currChunk(lastChunk, j, i);
-			if(!gameParser->LoadChunk(currChunk, xDiff, zDiff))
-			{
-				InitVoxels(currChunk, xDiff, zDiff); //Chunk hasn't been loaded yet, generate it
-			}
-			LoadSingleMO(currChunk, xDiff, zDiff);
+			InitVoxels(lastChunk, i, xDiff, zDiff); //Chunk hasn't been loaded yet, generate it
 		}
+		LoadMO(lastChunk, i, xDiff, zDiff);
 	}
 }
 
@@ -628,18 +615,13 @@ void GraphicsManager::MoveWest()
 	int horizontalSize = horizontalChunk * chunkSize;
 	int horizontalSlice = horizontalSize * verticalMax;
 	int size = horizontalSize - chunkSize;
-	int verticalChunk = verticalMax / chunkSize;
 	int lastChunk = horizontalChunk - 1;
 
 	//Save the chunks you won't see anymore
 	for(int i = 0; i < horizontalChunk; ++i)
 	{
-		for(int j = 0; j < verticalChunk; ++j)
-		{
-			Vector3DInt32 currChunk(lastChunk, j, i);
-			gameParser->StoreChunk(currChunk, xDiff, zDiff);
-			DestroyMO(currChunk, xDiff, zDiff);
-		}
+		gameParser->StoreChunks(lastChunk, i, xDiff, zDiff);
+		DestroyMO(lastChunk, i, xDiff, zDiff);
 	}
 
 	//Move the voxels
@@ -665,18 +647,13 @@ void GraphicsManager::MoveWest()
 	//Attempt to load the chunks you'll need
 	for(int i = 0; i < horizontalChunk; ++i)
 	{
-		for(int j = 0; j < verticalChunk; ++j)
+		if(!gameParser->LoadChunks(0, i, xDiff, zDiff))
 		{
-			Vector3DInt32 currChunk(0, j, i);
-			if(!gameParser->LoadChunk(currChunk, xDiff, zDiff))
-			{
-				InitVoxels(currChunk, xDiff, zDiff); //Chunk hasn't been loaded yet, generate it
-			}
-			LoadSingleMO(currChunk, xDiff, zDiff);
+			InitVoxels(0, i, xDiff, zDiff); //Chunk hasn't been loaded yet, generate it
 		}
+		LoadMO(0, i, xDiff, zDiff);
 	}
 }
-*/
 
 void GraphicsManager::AddItemBlock(PolyVox::Vector3DInt32 blockPos, VoxelMat cubeMat, double time)
 {

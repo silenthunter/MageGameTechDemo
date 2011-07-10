@@ -26,11 +26,19 @@ class GraphicsManager
 
 public:
 	//Functions
-	GraphicsManager(int gm_chunkSize, float gm_worldScale, float gm_blockItemWorldScale, int gm_viewDist, int gm_verticalMax, PolyVox::SimpleVolume<VoxelMat> *volData, WorldTerrain *wTerra, GameParser *gm_gameParser);
+	GraphicsManager(int gm_chunkSize,
+					float gm_worldScale,
+					float gm_blockItemWorldScale,
+					int gm_viewDist,
+					int gm_verticalMax,
+					int gm_verticalChunk,
+					PolyVox::SimpleVolume<VoxelMat> *volData,
+					WorldTerrain *wTerra,
+					GameParser *gm_gameParser);
 	~GraphicsManager(void);
 	void InitVoxels(int chunkNumX, int chunkNumZ, int xDiff, int zDiff);
 	void LoadMO(int chunkNumX, int chunkNumZ, int xDiff, int zDiff);
-	void DestroyMO(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
+	void DestroyMO(int chunkNumX, int chunkNumZ, int xDiff, int zDiff);
 	VoxelMat RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos);
 	void UpdateChunk(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
 	void MoveNorth();

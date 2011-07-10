@@ -17,6 +17,7 @@ public:
 	GameParser(const std::string& gp_gameDataFP, const std::string& gp_chunkDataFP);
 	~GameParser();
 	void SetChunkSize(int gp_chunkSize);
+	void SetVerticalChunk(int gp_verticalChunk);
 
 	//Parsing data files
 	bool ParseFile(const std::string& filepath, StrFloatMap& map);
@@ -27,11 +28,12 @@ public:
 
 	//Chunk saving/loading
 	void SetPolyVolume(PolyVox::SimpleVolume<VoxelMat>* gp_polyVolume);
-	bool StoreChunk(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
-	bool LoadChunk(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
+	bool StoreChunks(int chunkNumX, int chunkNumZ, int xDiff, int zDiff);
+	bool LoadChunks(int chunkNumX, int chunkNumZ, int xDiff, int zDiff);
 
 private:
 	int chunkSize;
+	int verticalChunk;
 	std::string gameDataFP;
 	std::string chunkDataFP;
 	PolyVox::SimpleVolume<VoxelMat>* polyVolume;

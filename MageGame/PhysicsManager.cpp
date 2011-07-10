@@ -38,19 +38,24 @@ using PolyVox::Vector3DFloat;
 using PolyVox::SurfaceMesh;
 
 
-PhysicsManager::PhysicsManager(int startingHorizontalPos, int pm_chunkSize, float pm_worldScale, PolyVox::SimpleVolume<VoxelMat>* volume, GraphicsManager *manager)
+PhysicsManager::PhysicsManager(int startingHorizontalPos,
+							   int pm_chunkSize,
+							   float pm_worldScale,
+							   PolyVox::SimpleVolume<VoxelMat> *volume,
+							   GraphicsManager *manager)
+							   :
+							   chunkSize(pm_chunkSize),
+							   worldScale(pm_worldScale),
+							   polyVolume(volume),
+							   graphMan(manager)
 {
-	graphMan = manager;
-	chunkSize = pm_chunkSize;
 	initHavok();
 	initPlayer(startingHorizontalPos);
 
-	polyVolume = volume;
-	int x = polyVolume->getWidth() / chunkSize;
-	int y = polyVolume->getHeight() / chunkSize;
-	int z = polyVolume->getDepth() / chunkSize;
+	//int x = polyVolume->getWidth() / chunkSize;
+	//int y = polyVolume->getHeight() / chunkSize;
+	//int z = polyVolume->getDepth() / chunkSize;
 
-	worldScale = pm_worldScale;
 	maxPageSize = 45;
 	maxRender = 45;
 

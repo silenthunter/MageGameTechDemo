@@ -7,9 +7,11 @@ using std::cerr;
 using std::endl;
 using PolyVox::Vector3DInt32;
 
-GameParser::GameParser(const string& gp_gameDataFP, const string& gp_chunkDataFP)
-	: gameDataFP(gp_gameDataFP), 
-	chunkDataFP(gp_chunkDataFP)
+GameParser::GameParser(const string& gp_gameDataFP,
+					   const string& gp_chunkDataFP)
+					   :
+					   gameDataFP(gp_gameDataFP), 
+					   chunkDataFP(gp_chunkDataFP)
 {
 
 }
@@ -22,6 +24,11 @@ GameParser::~GameParser()
 void GameParser::SetChunkSize(int gp_chunkSize)
 {
 	chunkSize = gp_chunkSize;
+}
+
+void GameParser::SetVerticalChunk(int gp_verticalChunk)
+{
+	verticalChunk = gp_verticalChunk;
 }
 
 bool GameParser::ParseFile(const string& filepath, StrFloatMap& map)
@@ -112,80 +119,85 @@ void GameParser::SetPolyVolume(PolyVox::SimpleVolume<VoxelMat>* gp_polyVolume)
 	polyVolume = gp_polyVolume;
 }
 
-bool GameParser::StoreChunk(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff)
+bool GameParser::StoreChunks(int chunkNumX, int chunkNumZ, int xDiff, int zDiff)
 {
-	unsigned int iChunkStart = chunkNum.getX() * chunkSize;
-	unsigned int jChunkStart = chunkNum.getY() * chunkSize;
-	unsigned int kChunkStart = chunkNum.getZ() * chunkSize;
-	unsigned short chunkAddition = chunkSize - 1;
-
-	unsigned int iChunkEnd = iChunkStart + chunkAddition;
-	unsigned int jChunkEnd = jChunkStart + chunkAddition;
-	unsigned int kChunkEnd = kChunkStart + chunkAddition;
-
-	char chunkInfo[50];
-	sprintf(chunkInfo, "%d_%d_%d", chunkNum.getX() + xDiff, chunkNum.getY(), chunkNum.getZ() + zDiff);
-
-	string filepath = chunkDataFP;
-	filepath += chunkInfo;
-
-	ofstream chunkFile(filepath);
-	if(!chunkFile.is_open())
+	for(int i = 0; i < verticalChunk; ++i)
 	{
-		cerr << "Unable to open filepath to save chunk: " << filepath << endl;
-		return false;
-	}
+		unsigned int iChunkStart = chunkNumX * chunkSize;
+		unsigned int jChunkStart = i * chunkSize;
+		unsigned int kChunkStart = chunkNumZ * chunkSize;
+		unsigned short chunkAddition = chunkSize - 1;
 
-	for(int i = iChunkStart; i < iChunkEnd; ++i)
-	{
-		for(int j = jChunkStart; j < jChunkEnd; ++j)
+		unsigned int iChunkEnd = iChunkStart + chunkAddition;
+		unsigned int jChunkEnd = jChunkStart + chunkAddition;
+		unsigned int kChunkEnd = kChunkStart + chunkAddition;
+
+		char chunkInfo[50];
+		sprintf(chunkInfo, "%d_%d_%d", chunkNumX + xDiff, i, chunkNumZ + zDiff);
+
+		string filepath = chunkDataFP;
+		filepath += chunkInfo;
+
+		ofstream chunkFile(filepath);
+		if(!chunkFile.is_open())
 		{
-			for(int k = kChunkStart; k < kChunkEnd; ++k)
+			cerr << "Unable to open filepath to save chunk: " << filepath << endl;
+			return false;
+		}
+
+		for(int i = iChunkStart; i < iChunkEnd; ++i)
+		{
+			for(int j = jChunkStart; j < jChunkEnd; ++j)
 			{
-				VoxelMat vox = polyVolume->getVoxelAt(Vector3DInt32(i, j, k));
-				chunkFile << vox.getMaterial() << " ";
+				for(int k = kChunkStart; k < kChunkEnd; ++k)
+				{
+					VoxelMat vox = polyVolume->getVoxelAt(Vector3DInt32(i, j, k));
+					chunkFile << vox.getMaterial() << " ";
+				}
 			}
 		}
-	}
 
-	chunkFile.close();
+		chunkFile.close();
+	}
 	return true;
 }
 
-bool GameParser::LoadChunk(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff)
+bool GameParser::LoadChunks(int chunkNumX, int chunkNumZ, int xDiff, int zDiff)
 {
-	char chunkInfo[50];
-	sprintf(chunkInfo, "%d_%d_%d", chunkNum.getX() + xDiff, chunkNum.getY(), chunkNum.getZ() + zDiff);
-
-	string filepath = chunkDataFP;
-	filepath += chunkInfo;
-
-	ifstream chunkFile(filepath);
-	if(!chunkFile.is_open()) return false;
-
-	unsigned int iChunkStart = chunkNum.getX() * chunkSize;
-	unsigned int jChunkStart = chunkNum.getY() * chunkSize;
-	unsigned int kChunkStart = chunkNum.getZ() * chunkSize;
-	unsigned short chunkAddition = chunkSize - 1;
-
-	unsigned int iChunkEnd = iChunkStart + chunkAddition;
-	unsigned int jChunkEnd = jChunkStart + chunkAddition;
-	unsigned int kChunkEnd = kChunkStart + chunkAddition;
-
-	for(int i = iChunkStart; i < iChunkEnd; ++i)
+	for(int i = 0; i < verticalChunk; ++i)
 	{
-		for(int j = jChunkStart; j < jChunkEnd; ++j)
+		char chunkInfo[50];
+		sprintf(chunkInfo, "%d_%d_%d", chunkNumX + xDiff, i, chunkNumZ + zDiff);
+
+		string filepath = chunkDataFP;
+		filepath += chunkInfo;
+
+		ifstream chunkFile(filepath);
+		if(!chunkFile.is_open()) return false;
+
+		unsigned int iChunkStart = chunkNumX * chunkSize;
+		unsigned int jChunkStart = i * chunkSize;
+		unsigned int kChunkStart = chunkNumZ * chunkSize;
+		unsigned short chunkAddition = chunkSize - 1;
+
+		unsigned int iChunkEnd = iChunkStart + chunkAddition;
+		unsigned int jChunkEnd = jChunkStart + chunkAddition;
+		unsigned int kChunkEnd = kChunkStart + chunkAddition;
+
+		for(int i = iChunkStart; i < iChunkEnd; ++i)
 		{
-			for(int k = kChunkStart; k < kChunkEnd; ++k)
+			for(int j = jChunkStart; j < jChunkEnd; ++j)
 			{
-				VoxelMat vox = polyVolume->getVoxelAt(Vector3DInt32(i, j, k));
-				int currMat;
-				chunkFile >> currMat;
-				vox.setMaterial(currMat);
+				for(int k = kChunkStart; k < kChunkEnd; ++k)
+				{
+					VoxelMat vox = polyVolume->getVoxelAt(Vector3DInt32(i, j, k));
+					int currMat;
+					chunkFile >> currMat;
+					vox.setMaterial(currMat);
+				}
 			}
 		}
+		chunkFile.close();
 	}
-
-	chunkFile.close();
 	return true;
 }
