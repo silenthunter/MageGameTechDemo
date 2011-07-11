@@ -3,12 +3,11 @@ vertex_program ItemBlockTexture_VP cg
 	source ItemBlockTexture.cg
 	entry_point itemblocktexture_vp
 	profiles vs_1_1
-
+	
 	default_params
-    {
-		param_named_auto world world_matrix
-		param_named_auto viewProj viewproj_matrix
-    }
+	{
+		param_named_auto worldViewProj_m worldviewproj_matrix
+	}
 }
 
 fragment_program ItemBlockTexture_FP cg

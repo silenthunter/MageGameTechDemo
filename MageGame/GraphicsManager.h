@@ -87,6 +87,11 @@ private:
 	float blockItemHalfScale;
 	int verticalMax;
 	int verticalChunk;
+	float oneSixth;
+	float twoSixth;
+	float threeSixth;
+	float fourSixth;
+	float fiveSixth;
 	CEGUI::ProgressBar *bar;
 	CEGUI::DefaultWindow *rootWin;
 	CEGUI::FrameWindow *frame;

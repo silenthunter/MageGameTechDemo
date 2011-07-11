@@ -46,6 +46,12 @@ GraphicsManager::GraphicsManager(int gm_chunkSize,
 	playerChunk.setX(centerChunk);
 	playerChunk.setZ(centerChunk);
 
+	oneSixth = 1.0f / 6;
+	twoSixth = 2.0f / 6;
+	threeSixth = 3.0f / 6;
+	fourSixth = 4.0f / 6;
+	fiveSixth = 5.0f / 6;
+
 	int horizontalChunk = gm_viewDist * 2 + 1;
 	for(int i = 0; i < horizontalChunk; ++i)
 	{
@@ -274,8 +280,8 @@ void GraphicsManager::CloseGUI()
 void GraphicsManager::InitVoxels(int chunkNumX, int chunkNumZ, int xDiff, int zDiff)
 {
     float regionWidth = 1.0;
-    float regionHeight = 1.0;
     float regionDepth = 1.0;
+    float regionHeight = 1.0;
 
     int chunkX = (chunkNumX + xDiff) * regionWidth;
     int chunkZ = (chunkNumZ + zDiff) * regionHeight;
@@ -283,30 +289,36 @@ void GraphicsManager::InitVoxels(int chunkNumX, int chunkNumZ, int xDiff, int zD
     int xOffset = chunkNumX * chunkSize;
     int zOffset = chunkNumZ * chunkSize;
 
-    for(int x = 0; x < chunkSize; ++x)
-    {
-        for(int y = 0; y < verticalMax; ++y)
+	for(int i = 0; i < verticalChunk; ++i)
+	{
+		int chunkY = i * regionDepth;
+		int yOffset = i * chunkSize;
+		for(int x = 0; x < chunkSize; ++x)
 		{
-            for(int z = 0; z < chunkSize; ++z)
-            {
-                double nx = (double)x / chunkSize;
-                double ny = (double)y / verticalMax;
-                double nz = (double)z / chunkSize;
-
-                nx = chunkX + nx * regionWidth;
-                ny *= regionDepth;
-                nz = chunkZ + nz * regionHeight;
-
-				double v = wTer->worldTerrain.GetValue(nx, ny, nz);
-				if(v > 0)
+			for(int y = 0; y < chunkSize; ++y)
+			{
+				for(int z = 0; z < chunkSize; ++z)
 				{
-					VoxelMat vox;
-					vox.setMaterial(v);
-					polyVolume->setVoxelAt(x + xOffset, y, z + zOffset, vox);
+					double nx = (double)x / chunkSize;
+					double ny = (double)y / chunkSize;
+					double nz = (double)z / chunkSize;
+
+					nx = chunkX + nx * regionWidth;
+					ny = chunkY + ny * regionDepth;
+					nz = chunkZ + nz * regionHeight;
+
+					double v = wTer->worldTerrain.GetValue(nx, ny, nz);
+
+					if(v > 0)
+					{
+						VoxelMat vox;
+						vox.setMaterial(v);
+						polyVolume->setVoxelAt(x + xOffset, y + yOffset, z + zOffset, vox);
+					}
 				}
 			}
 		}
-    }
+	}
 }
 
 void GraphicsManager::LoadMO(int chunkNumX, int chunkNumZ, int xDiff, int zDiff)
@@ -666,74 +678,112 @@ void GraphicsManager::AddItemBlock(PolyVox::Vector3DInt32 blockPos, VoxelMat cub
 	
 	//Set the coordinates for the right texture in the texture atlas
 	uint16_t mat = cubeMat.getMaterial() - NUM_NONTEX_MATERIALS;
-	/*
-	r = u coords where the texture starts
-	g = v coords where the texture starts
-	b = direction of the block with 0.0, 0.25, 0.5, 0.75 as North, East, South, West
-	a = maybe used to flag that one of the faces uses a different texture?
-	*/
-	Ogre::ColourValue val;
-	val.r = mat * TEX_HEIGHT_NORMALIZED;
-	val.g = 0.0f;
-	val.b = 0.0f;
-	val.a = 1.0f;
+	float vCoordStart = mat * TEX_HEIGHT_NORMALIZED;
+	float vCoordEnd = vCoordStart + TEX_HEIGHT_NORMALIZED;
 
 	ManualObject *cubeMO = manager->createManualObject();
 
-	///Down face
+	///Bottom Face
 	cubeMO->begin("ItemBlockTexture", Ogre::RenderOperation::OT_TRIANGLE_FAN);
 	cubeMO->position(lowerPosX, lowerPosY, lowerPosZ); //0
+	cubeMO->normal(0, -1, 0);
+	cubeMO->textureCoord(oneSixth, vCoordEnd);
 	cubeMO->position(upperPosX, lowerPosY, lowerPosZ); //1
+	cubeMO->normal(0, -1, 0);
+	cubeMO->textureCoord(twoSixth, vCoordEnd);
 	cubeMO->position(upperPosX, lowerPosY, upperPosZ); //2
+	cubeMO->normal(0, -1, 0);
+	cubeMO->textureCoord(twoSixth, vCoordStart);
 	cubeMO->position(lowerPosX, lowerPosY, upperPosZ); //3
+	cubeMO->normal(0, -1, 0);
+	cubeMO->textureCoord(oneSixth, vCoordStart);
 	cubeMO->end();
 
 	//Left face
 	cubeMO->begin("ItemBlockTexture", Ogre::RenderOperation::OT_TRIANGLE_FAN);
 	cubeMO->position(lowerPosX, lowerPosY, upperPosZ); //3
+	cubeMO->normal(-1, 0, 0);
+	cubeMO->textureCoord(1, vCoordEnd);
 	cubeMO->position(lowerPosX, upperPosY, upperPosZ); //7
+	cubeMO->normal(-1, 0, 0);
+	cubeMO->textureCoord(1, vCoordStart);
 	cubeMO->position(lowerPosX, upperPosY, lowerPosZ); //4
+	cubeMO->normal(-1, 0, 0);
+	cubeMO->textureCoord(fiveSixth, vCoordStart);
 	cubeMO->position(lowerPosX, lowerPosY, lowerPosZ); //0
+	cubeMO->normal(-1, 0, 0);
+	cubeMO->textureCoord(fiveSixth, vCoordEnd);
 	cubeMO->end();
 
-	//Up face
+	//Top face
 	cubeMO->begin("ItemBlockTexture", Ogre::RenderOperation::OT_TRIANGLE_FAN);
 	cubeMO->position(lowerPosX, upperPosY, lowerPosZ); //4
+	cubeMO->normal(0, 1, 0);
+	cubeMO->textureCoord(0, vCoordStart);
 	cubeMO->position(lowerPosX, upperPosY, upperPosZ); //7
+	cubeMO->normal(0, 1, 0);
+	cubeMO->textureCoord(0, vCoordEnd);
 	cubeMO->position(upperPosX, upperPosY, upperPosZ); //6
+	cubeMO->normal(0, 1, 0);
+	cubeMO->textureCoord(oneSixth, vCoordEnd);
 	cubeMO->position(upperPosX, upperPosY, lowerPosZ); //5
+	cubeMO->normal(0, 1, 0);
+	cubeMO->textureCoord(oneSixth, vCoordStart);
 	cubeMO->end();
-
+	
 	//Right face
 	cubeMO->begin("ItemBlockTexture", Ogre::RenderOperation::OT_TRIANGLE_FAN);
 	cubeMO->position(upperPosX, lowerPosY, lowerPosZ); //1
+	cubeMO->normal(1, 0, 0);
+	cubeMO->textureCoord(fourSixth, vCoordEnd);
 	cubeMO->position(upperPosX, upperPosY, lowerPosZ); //5
+	cubeMO->normal(1, 0, 0);
+	cubeMO->textureCoord(fourSixth, vCoordStart);
 	cubeMO->position(upperPosX, upperPosY, upperPosZ); //6
+	cubeMO->normal(1, 0, 0);
+	cubeMO->textureCoord(threeSixth, vCoordStart);
 	cubeMO->position(upperPosX, lowerPosY, upperPosZ); //2
-	cubeMO->end();
- 
-	//Front face
-	cubeMO->begin("ItemBlockTexture", Ogre::RenderOperation::OT_TRIANGLE_FAN);
-	cubeMO->position(upperPosX, lowerPosY, lowerPosZ); //1
-	cubeMO->position(lowerPosX, lowerPosY, lowerPosZ); //0
-	cubeMO->position(lowerPosX, upperPosY, lowerPosZ); //4
-	cubeMO->position(upperPosX, upperPosY, lowerPosZ); //5
+	cubeMO->normal(1, 0, 0);
+	cubeMO->textureCoord(threeSixth, vCoordEnd);
 	cubeMO->end();
  
 	//Back face
 	cubeMO->begin("ItemBlockTexture", Ogre::RenderOperation::OT_TRIANGLE_FAN);
+	cubeMO->position(upperPosX, lowerPosY, lowerPosZ); //1
+	cubeMO->normal(0, 0, -1);
+	cubeMO->textureCoord(fourSixth, vCoordEnd);
+	cubeMO->position(lowerPosX, lowerPosY, lowerPosZ); //0
+	cubeMO->normal(0, 0, -1);
+	cubeMO->textureCoord(fiveSixth, vCoordEnd);
+	cubeMO->position(lowerPosX, upperPosY, lowerPosZ); //4
+	cubeMO->normal(0, 0, -1);
+	cubeMO->textureCoord(fiveSixth, vCoordStart);
+	cubeMO->position(upperPosX, upperPosY, lowerPosZ); //5
+	cubeMO->normal(0, 0, -1);
+	cubeMO->textureCoord(fourSixth, vCoordStart);
+	cubeMO->end();
+ 
+	//Front face
+	cubeMO->begin("ItemBlockTexture", Ogre::RenderOperation::OT_TRIANGLE_FAN);
 	cubeMO->position(upperPosX, lowerPosY, upperPosZ); //2
+	cubeMO->normal(0, 0, 1);
+	cubeMO->textureCoord(threeSixth, vCoordEnd);
 	cubeMO->position(upperPosX, upperPosY, upperPosZ); //6
+	cubeMO->normal(0, 0, 1);
+	cubeMO->textureCoord(threeSixth, vCoordStart);
 	cubeMO->position(lowerPosX, upperPosY, upperPosZ); //7
+	cubeMO->normal(0, 0, 1);
+	cubeMO->textureCoord(twoSixth, vCoordStart);
 	cubeMO->position(lowerPosX, lowerPosY, upperPosZ); //3
-	cubeMO->colour(val);
+	cubeMO->normal(0, 0, 1);
+	cubeMO->textureCoord(twoSixth, vCoordEnd);
 	cubeMO->end();
 
 	Ogre::SceneNode *cubeSN = manager->createSceneNode();
 	cubeSN->setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 	cubeSN->attachObject(cubeMO);
 	root_sn->addChild(cubeSN); //Attach the new sceneNode to the root scenenode
-
+	
 	ItemBlock cubeBlock = {cubeSN, time};
 	itemBlocks.push_back(cubeBlock); //Save it in the vector
 }

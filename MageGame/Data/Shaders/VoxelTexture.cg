@@ -5,6 +5,12 @@
 #define TEX_WIDTH_NORMALIZED (1.0 / NUM_TEX_PER_ROW)
 #define TEX_HEIGHT_NORMALIZED (1.0 / NUM_TEX_PER_COL)
 
+#define ONE_SIXTH (1.0 / 6)
+#define TWO_SIXTH (2.0 / 6)
+#define THREE_SIXTH (3.0 / 6)
+#define FOUR_SIXTH (4.0 / 6)
+#define FIVE_SIXTH (5.0 / 6)
+
 void voxeltexture_vp(
 	float4 inPosition			: POSITION,
 	float4 inColor				: COLOR,
@@ -41,7 +47,7 @@ void voxeltexture_fp(
         pos.x = frac(1 - inWorldPosition.z / WORLDSCALE + VOXELCENTEROFFSET);
 		pos.y = frac(1 - inWorldPosition.y / WORLDSCALE + VOXELCENTEROFFSET);
 		pos.x *= TEX_WIDTH_NORMALIZED;
-		pos.x += (3 / 6.0);
+		pos.x += (THREE_SIXTH);
     }
 	//Left
 	if(worldNormal.x < -0.5)
@@ -49,7 +55,7 @@ void voxeltexture_fp(
 		pos.x = frac(inWorldPosition.z / WORLDSCALE + VOXELCENTEROFFSET);
 		pos.y = frac(1 - inWorldPosition.y / WORLDSCALE + VOXELCENTEROFFSET);
 		pos.x *= TEX_WIDTH_NORMALIZED;
-		pos.x += (5 / 6.0);
+		pos.x += (FIVE_SIXTH);
     }
 	//Top
     if(worldNormal.y > 0.5)
@@ -63,7 +69,7 @@ void voxeltexture_fp(
 		pos.x = frac(inWorldPosition.x / WORLDSCALE + VOXELCENTEROFFSET);
 		pos.y = frac(1 - inWorldPosition.z / WORLDSCALE + VOXELCENTEROFFSET);
 		pos.x *= TEX_WIDTH_NORMALIZED;
-		pos.x += (1 / 6.0);
+		pos.x += (ONE_SIXTH);
     }
 	//Front
     if(worldNormal.z > 0.5)
@@ -71,7 +77,7 @@ void voxeltexture_fp(
 		pos.x = frac(inWorldPosition.x / WORLDSCALE + VOXELCENTEROFFSET);
 		pos.y = frac(1 - inWorldPosition.y / WORLDSCALE + VOXELCENTEROFFSET);
 		pos.x *= TEX_WIDTH_NORMALIZED;
-		pos.x += (2 / 6.0);
+		pos.x += (TWO_SIXTH);
     }
 	//Back
     if(worldNormal.z < -0.5)
@@ -79,7 +85,7 @@ void voxeltexture_fp(
         pos.x = frac(1 - inWorldPosition.x / WORLDSCALE + VOXELCENTEROFFSET);
 		pos.y = frac(1 - inWorldPosition.y / WORLDSCALE + VOXELCENTEROFFSET);
 		pos.x *= TEX_WIDTH_NORMALIZED;
-		pos.x += (4 / 6.0);
+		pos.x += (FOUR_SIXTH);
     }
 	
 	//Texture atlas v coordinate handling
