@@ -125,6 +125,7 @@ copy /Y "$(ProjectDir)Libnoise\bin\libnoise.dll" "$(TargetDir)"</Command>
     <ClCompile Include="Gradient.cpp" />
     <ClCompile Include="GraphicsManager.cpp" />
     <ClCompile Include="GameMain.cpp" />
+    <ClCompile Include="HillTurbulence.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="WorldTerrain.cpp" />
     <ClCompile Include="YTurbulence.cpp" />
@@ -136,6 +137,7 @@ copy /Y "$(ProjectDir)Libnoise\bin\libnoise.dll" "$(TargetDir)"</Command>
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="Gradient.h" />
     <ClInclude Include="GraphicsManager.h" />
+    <ClInclude Include="HillTurbulence.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="WorldTerrain.h" />
     <ClInclude Include="YTurbulence.h" />

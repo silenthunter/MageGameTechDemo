@@ -45,6 +45,9 @@
     <ClCompile Include="EnhancedTurbulence.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HillTurbulence.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GraphicsManager.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EnhancedTurbulence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HillTurbulence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

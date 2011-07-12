@@ -34,7 +34,7 @@ GraphicsManager::GraphicsManager(int gm_chunkSize,
 					chunkSize(gm_chunkSize),
 					worldScale(gm_worldScale),
 					blockItemHalfScale(gm_blockItemWorldScale / 2.0f),
-					centerChunk(gm_viewDist + 1),
+					centerChunk(gm_viewDist),
 					verticalMax(gm_verticalMax),
 					verticalChunk(gm_verticalMax / chunkSize),
 					polyVolume(volData),
@@ -283,38 +283,33 @@ void GraphicsManager::InitVoxels(int chunkNumX, int chunkNumZ, int xDiff, int zD
     float regionDepth = 1.0;
     float regionHeight = 1.0;
 
-    int chunkX = (chunkNumX + xDiff) * regionWidth;
-    int chunkZ = (chunkNumZ + zDiff) * regionHeight;
+    float chunkX = (chunkNumX + xDiff) * regionWidth;
+    float chunkZ = (chunkNumZ + zDiff) * regionHeight;
 
     int xOffset = chunkNumX * chunkSize;
     int zOffset = chunkNumZ * chunkSize;
 
-	for(int i = 0; i < verticalChunk; ++i)
+	for(int x = 0; x < chunkSize; ++x)
 	{
-		int chunkY = i * regionDepth;
-		int yOffset = i * chunkSize;
-		for(int x = 0; x < chunkSize; ++x)
+		for(int y = 0; y < verticalMax; ++y)
 		{
-			for(int y = 0; y < chunkSize; ++y)
+			for(int z = 0; z < chunkSize; ++z)
 			{
-				for(int z = 0; z < chunkSize; ++z)
+				double nx = (double)x / chunkSize;
+				double ny = (double)y / verticalMax;
+				double nz = (double)z / chunkSize;
+
+				nx = chunkX + nx * regionWidth;
+				ny *= regionDepth;
+				nz = chunkZ + nz * regionHeight;
+
+				double v = wTer->worldTerrain.GetValue(nx, ny, nz);
+
+				if(v > 0)
 				{
-					double nx = (double)x / chunkSize;
-					double ny = (double)y / chunkSize;
-					double nz = (double)z / chunkSize;
-
-					nx = chunkX + nx * regionWidth;
-					ny = chunkY + ny * regionDepth;
-					nz = chunkZ + nz * regionHeight;
-
-					double v = wTer->worldTerrain.GetValue(nx, ny, nz);
-
-					if(v > 0)
-					{
-						VoxelMat vox;
-						vox.setMaterial(v);
-						polyVolume->setVoxelAt(x + xOffset, y + yOffset, z + zOffset, vox);
-					}
+					VoxelMat vox;
+					vox.setMaterial(v);
+					polyVolume->setVoxelAt(x + xOffset, y, z + zOffset, vox);
 				}
 			}
 		}

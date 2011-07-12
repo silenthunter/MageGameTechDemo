@@ -6,8 +6,9 @@
 
 #include "GameGlobals.h"
 #include "Gradient.h"
-#include "YTurbulence.h"
 #include "EnhancedTurbulence.h"
+#include "YTurbulence.h"
+#include "HillTurbulence.h"
 
 class WorldTerrain
 {
@@ -38,11 +39,13 @@ private:
 	//Ground
 	noise::module::Gradient groundGradient;
 	noise::module::YTurbulence groundBase;
-	noise::module::YTurbulence groundHill;
+	noise::module::HillTurbulence groundHill;
 	noise::module::YTurbulence groundPlain;
 	noise::module::Perlin selectPerlin;
+	noise::module::Select groundBaseSelect;
+	noise::module::Select groundHillSelect;
+	noise::module::Select groundPlainSelect;
 	noise::module::Select groundSelect1;
-	noise::module::Select groundSelect2;
 	noise::module::Select groundFinalSelect;
 	noise::module::Cache groundFinal;
 
