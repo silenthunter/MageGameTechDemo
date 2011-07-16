@@ -105,9 +105,9 @@ void WorldTerrain::GenerateRegularWorld()
 	//worldTerrain.SetOctaveCount(WorldGenerationMap["PerlinOctave"]);
 
 	GenerateGround();
-	//GenerateCaves();
-	//worldTerrain.SetSourceModule(0, groundFinal);
-	//worldTerrain.SetSourceModule(1, caveFinal);
+	GenerateCaves();
+	worldTerrain.SetSourceModule(0, groundFinal);
+	worldTerrain.SetSourceModule(1, caveFinal);
 }
 
 void WorldTerrain::GenerateGround()
@@ -120,7 +120,7 @@ void WorldTerrain::GenerateGround()
 	groundBase.SetPower(0.2);
 	groundBase.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
 	groundBase.yDistortModule.SetOctaveCount(8);
-
+	
 	//Plain region
 	groundPlain.SetSeed(currSeed + 22);
 	groundPlain.SetSourceModule(0, groundGradient);
@@ -360,7 +360,7 @@ void WorldTerrain::GenerateGround()
 	groundMatSelect.SetBounds(0, 256);
 
 	//Final Result
-	worldTerrain.SetSourceModule(0, groundMatSelect);
+	groundFinal.SetSourceModule(0, groundMatSelect);
 }
 
 void WorldTerrain::GenerateCaves()
@@ -370,20 +370,26 @@ void WorldTerrain::GenerateCaves()
 	caveShape1.SetNoiseQuality(noise::QUALITY_BEST);
 	caveShape1.SetFrequency(2);
 
+	caveShapeSP1.SetSourceModule(0, caveShape1);
+	caveShapeSP1.SetYScale(0.7);
+
 	caveSelect1.SetSourceModule(0, const0);
-	caveSelect1.SetSourceModule(1, constDirt);
-	caveSelect1.SetControlModule(caveShape1);
-	caveSelect1.SetBounds(0.1, 256);
+	caveSelect1.SetSourceModule(1, constStone);
+	caveSelect1.SetControlModule(caveShapeSP1);
+	caveSelect1.SetBounds(-0.3, 256);
 
 	caveShape2.SetSeed(currSeed + 222);
 	caveShape2.SetOctaveCount(1);
 	caveShape2.SetNoiseQuality(noise::QUALITY_BEST);
 	caveShape2.SetFrequency(2);
 
+	caveShapeSP2.SetSourceModule(0, caveShape2);
+	caveShapeSP2.SetYScale(0.7);
+
 	caveSelect2.SetSourceModule(0, const0);
-	caveSelect2.SetSourceModule(1, constDirt);
-	caveSelect2.SetControlModule(caveShape2);
-	caveSelect2.SetBounds(0.1, 256);
+	caveSelect2.SetSourceModule(1, constStone);
+	caveSelect2.SetControlModule(caveShapeSP2);
+	caveSelect2.SetBounds(-0.3, 256);
 
 	caveMul.SetSourceModule(0, caveSelect1);
 	caveMul.SetSourceModule(1, caveSelect2);
@@ -405,5 +411,5 @@ void WorldTerrain::GenerateCaves()
 	caveInvert.SetScale(-1);
 	caveInvert.SetBias(1);
 
-	worldTerrain.SetSourceModule(0, caveSelect1);
+	caveFinal.SetSourceModule(0, caveInvert);
 }

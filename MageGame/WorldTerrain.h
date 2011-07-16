@@ -21,7 +21,7 @@ public:
 	void GenerateRegularWorld();
 
 	//Variables
-	noise::module::Cache worldTerrain;
+	noise::module::Multiply worldTerrain;
 	unsigned short currWidth;
 	unsigned short currDepth;
 	unsigned short currHeight;
@@ -88,7 +88,11 @@ private:
 
 	//Caves
 	noise::module::RidgedMulti caveShape1;
+	noise::module::ScalePoint caveShapeSP1;
+
 	noise::module::RidgedMulti caveShape2;
+	noise::module::ScalePoint caveShapeSP2;
+
 	noise::module::Select caveSelect1;
 	noise::module::Select caveSelect2;
 	noise::module::Multiply caveMul;
