@@ -15,7 +15,11 @@ HillTurbulence::HillTurbulence() : Module (GetSourceModuleCount ()), mx_power (D
 	zDistortModule.SetOctaveCount(DEFAULT_HILLTURBULENCE_ROUGHNESS);
 
 	ySPModule.SetSourceModule(0, yDistortModule);
+	ySPModule.SetXScale(0.4);
 	ySPModule.SetYScale(0);
+	ySPModule.SetZScale(0.4);
+
+	ySBModule.SetSourceModule(0, ySPModule);
 }
 
 HillTurbulence::~HillTurbulence()
@@ -40,8 +44,7 @@ double HillTurbulence::GetValue (double x, double y, double z) const
 	y2 = y + (11213.0 / 65536.0);
 	z2 = z + (44845.0 / 65536.0);
 	double xDistort = x + (xDistortModule.GetValue (x0, y0, z0) * mx_power);
-	//double yDistort = y + (yDistortModule.GetValue (x1, y1, z1) * my_power);
-	double yDistort = y + (ySPModule.GetValue (x1, y1, z1) * my_power);
+	double yDistort = y + (ySBModule.GetValue (x1, y1, z1) * my_power);
 	double zDistort = z + (zDistortModule.GetValue (x2, y2, z2) * mz_power);
 
 	return m_pSourceModule[0]->GetValue(xDistort, yDistort, zDistort);

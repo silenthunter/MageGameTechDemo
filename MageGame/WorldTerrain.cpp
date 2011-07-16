@@ -9,7 +9,10 @@ using std::variate_generator;
 
 WorldTerrain::WorldTerrain()
 {
-	constMat.SetConstValue(1); //Start with stone
+	constStone.SetConstValue(2);
+	constDirt.SetConstValue(4);
+	constGrass.SetConstValue(5);
+	constSand.SetConstValue(7);
 }
 
 WorldTerrain::~WorldTerrain()
@@ -111,12 +114,21 @@ void WorldTerrain::GenerateGround()
 {
 	groundGradient.SetGradient(0, 0, 0, 8, 0, 0);
 
+	//Basic ground
 	groundBase.SetSeed(currSeed);
 	groundBase.SetSourceModule(0, groundGradient);
 	groundBase.SetPower(0.2);
 	groundBase.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
 	groundBase.yDistortModule.SetOctaveCount(8);
 
+	//Plain region
+	groundPlain.SetSeed(currSeed + 22);
+	groundPlain.SetSourceModule(0, groundGradient);
+	groundPlain.SetPower(0.1);
+	groundPlain.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	groundPlain.yDistortModule.SetOctaveCount(2);
+
+	//Hilly region
 	groundHill.SetSeed(currSeed + 11);
 	groundHill.SetSourceModule(0, groundGradient);
 	groundHill.SetPower(0.3);
@@ -124,12 +136,7 @@ void WorldTerrain::GenerateGround()
 	groundHill.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
 	groundHill.yDistortModule.SetOctaveCount(3);
 
-	groundPlain.SetSeed(currSeed + 22);
-	groundPlain.SetSourceModule(0, groundGradient);
-	groundPlain.SetPower(0.1);
-	groundPlain.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
-	groundPlain.yDistortModule.SetOctaveCount(2);
-
+	//Rolling hills
 	groundRolling.SetSeed(currSeed + 33);
 	groundRolling.SetSourceModule(0, groundGradient);
 	groundRolling.SetPower(0.3);
@@ -137,82 +144,223 @@ void WorldTerrain::GenerateGround()
 	groundRolling.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
 	groundRolling.yDistortModule.SetOctaveCount(1);
 
+	//Small mountain ranges
+	groundSmallMountain.SetSourceModule(0, groundGradient);
+	groundSmallMountain.xDistortModule.SetSeed(currSeed + 44);
+	groundSmallMountain.yDistortModule.SetSeed(currSeed + 55);
+	groundSmallMountain.zDistortModule.SetSeed(currSeed + 66);
+	groundSmallMountain.xDistortModule.SetFrequency(2);
+	groundSmallMountain.yDistortModule.SetFrequency(3);
+	groundSmallMountain.zDistortModule.SetFrequency(2);
+	groundSmallMountain.xDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	groundSmallMountain.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	groundSmallMountain.zDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	groundSmallMountain.xDistortModule.SetOctaveCount(2);
+	groundSmallMountain.yDistortModule.SetOctaveCount(2);
+	groundSmallMountain.zDistortModule.SetOctaveCount(2);
+	groundSmallMountain.SetXPower(0.3);
+	groundSmallMountain.SetYPower(0.8);
+	groundSmallMountain.SetZPower(0.3);
+	groundSmallMountain.ySBModule.SetBias(-0.85);
+
+	//Medium mountain ranges
+	groundMediumMountain.SetSourceModule(0, groundGradient);
+	groundMediumMountain.xDistortModule.SetSeed(currSeed + 77);
+	groundMediumMountain.yDistortModule.SetSeed(currSeed + 88);
+	groundMediumMountain.zDistortModule.SetSeed(currSeed + 99);
+	groundMediumMountain.xDistortModule.SetFrequency(2);
+	groundMediumMountain.yDistortModule.SetFrequency(3);
+	groundMediumMountain.zDistortModule.SetFrequency(2);
+	groundMediumMountain.xDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	groundMediumMountain.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	groundMediumMountain.zDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	groundMediumMountain.xDistortModule.SetOctaveCount(2);
+	groundMediumMountain.yDistortModule.SetOctaveCount(2);
+	groundMediumMountain.zDistortModule.SetOctaveCount(2);
+	groundMediumMountain.SetXPower(0.3);
+	groundMediumMountain.SetYPower(0.8);
+	groundMediumMountain.SetZPower(0.3);
+	groundMediumMountain.ySBModule.SetBias(-1.4);
+
+	//Tall mountain ranges
 	groundMountain.SetSourceModule(0, groundGradient);
-	groundMountain.xDistortModule.SetSeed(currSeed + 44);
-	groundMountain.yDistortModule.SetSeed(currSeed + 55);
-	groundMountain.zDistortModule.SetSeed(currSeed + 66);
-	groundMountain.xDistortModule.SetFrequency(3);
+	groundMountain.xDistortModule.SetSeed(currSeed + 110);
+	groundMountain.yDistortModule.SetSeed(currSeed + 121);
+	groundMountain.zDistortModule.SetSeed(currSeed + 132);
+	groundMountain.xDistortModule.SetFrequency(2);
 	groundMountain.yDistortModule.SetFrequency(3);
-	groundMountain.zDistortModule.SetFrequency(3);
+	groundMountain.zDistortModule.SetFrequency(2);
 	groundMountain.xDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
 	groundMountain.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
 	groundMountain.zDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
-	groundMountain.xDistortModule.SetOctaveCount(1);
-	groundMountain.yDistortModule.SetOctaveCount(1);
-	groundMountain.zDistortModule.SetOctaveCount(1);
-	groundMountain.SetXPower(0.6);
+	groundMountain.xDistortModule.SetOctaveCount(2);
+	groundMountain.yDistortModule.SetOctaveCount(2);
+	groundMountain.zDistortModule.SetOctaveCount(2);
+	groundMountain.SetXPower(0.3);
 	groundMountain.SetYPower(0.8);
-	groundMountain.SetZPower(0.6);
+	groundMountain.SetZPower(0.3);
+	groundMountain.ySBModule.SetBias(-2.25);
 
-	selectPerlin.SetSeed(currSeed + 77);
-	selectPerlin.SetFrequency(0.5);
-	selectPerlin.SetPersistence(0.25);
+	//Small chasms
+	groundSmallChasm.SetSourceModule(0, groundGradient);
+	groundSmallChasm.xDistortModule.SetSeed(currSeed + 143);
+	groundSmallChasm.yDistortModule.SetSeed(currSeed + 154);
+	groundSmallChasm.zDistortModule.SetSeed(currSeed + 165);
+	groundSmallChasm.xDistortModule.SetFrequency(2);
+	groundSmallChasm.yDistortModule.SetFrequency(3);
+	groundSmallChasm.zDistortModule.SetFrequency(2);
+	groundSmallChasm.xDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	groundSmallChasm.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	groundSmallChasm.zDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	groundSmallChasm.xDistortModule.SetOctaveCount(2);
+	groundSmallChasm.yDistortModule.SetOctaveCount(2);
+	groundSmallChasm.zDistortModule.SetOctaveCount(2);
+	groundSmallChasm.SetXPower(0.3);
+	groundSmallChasm.SetYPower(0.8);
+	groundSmallChasm.SetZPower(0.3);
+	groundSmallChasm.ySBModule.SetBias(0.5);
 
-	selectSP.SetSourceModule(0, selectPerlin);
-	selectSP.SetYScale(0);
-	
-	groundBaseSelect.SetSourceModule(0, const0);
-	groundBaseSelect.SetSourceModule(1, constMat);
-	groundBaseSelect.SetControlModule(groundBase);
-	groundBaseSelect.SetBounds(-0.015, 256);
+	//Huge chasms
+	groundChasm.SetSourceModule(0, groundGradient);
+	groundChasm.xDistortModule.SetSeed(currSeed + 176);
+	groundChasm.yDistortModule.SetSeed(currSeed + 187);
+	groundChasm.zDistortModule.SetSeed(currSeed + 198);
+	groundChasm.xDistortModule.SetFrequency(2);
+	groundChasm.yDistortModule.SetFrequency(3);
+	groundChasm.zDistortModule.SetFrequency(2);
+	groundChasm.xDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	groundChasm.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	groundChasm.zDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
+	groundChasm.xDistortModule.SetOctaveCount(2);
+	groundChasm.yDistortModule.SetOctaveCount(2);
+	groundChasm.zDistortModule.SetOctaveCount(2);
+	groundChasm.SetXPower(0.3);
+	groundChasm.SetYPower(0.8);
+	groundChasm.SetZPower(0.3);
+	groundChasm.ySBModule.SetBias(1.25);
 
-	groundHillSelect.SetSourceModule(0, const0);
-	groundHillSelect.SetSourceModule(1, constMat);
-	groundHillSelect.SetControlModule(groundHill);
-	groundHillSelect.SetBounds(0, 256);
+	//Selection begins
 
-	groundPlainSelect.SetSourceModule(0, const0);
-	groundPlainSelect.SetSourceModule(1, constMat);
-	groundPlainSelect.SetControlModule(groundPlain);
-	groundPlainSelect.SetBounds(0, 256);
+	//Medium mountain + tall mountain
+	selPer1.SetSeed(currSeed + 209);
+	selPer1.SetFrequency(0.5);
+	selPer1.SetPersistence(0.25);
 
-	groundRollingSelect.SetSourceModule(0, const0);
-	groundRollingSelect.SetSourceModule(1, constMat);
-	groundRollingSelect.SetControlModule(groundRolling);
-	groundRollingSelect.SetBounds(0, 256);
+	selSP1.SetSourceModule(0, selPer1);
+	selSP1.SetYScale(0);
 
-	groundMountainSelect.SetSourceModule(0, const0);
-	groundMountainSelect.SetSourceModule(1, constMat);
-	groundMountainSelect.SetControlModule(groundMountain);
-	groundMountainSelect.SetBounds(-0.2, 256);
+	groundMediumTallMtnSelect.SetSourceModule(0, groundMountain);
+	groundMediumTallMtnSelect.SetSourceModule(1, groundMediumMountain);
+	groundMediumTallMtnSelect.SetControlModule(selSP1);
+	groundMediumTallMtnSelect.SetBounds(-0.1, 256);
+	groundMediumTallMtnSelect.SetEdgeFalloff(0.125);
 
-	groundSelect1.SetSourceModule(0, groundMountainSelect);
-	groundSelect1.SetSourceModule(1, groundRollingSelect);
-	groundSelect1.SetControlModule(selectSP);
-	groundSelect1.SetBounds(0, 256);
+	//Small mountain + medium mountain + tall mountain
+	selPer2.SetSeed(currSeed + 231);
+	selPer2.SetFrequency(0.5);
+	selPer2.SetPersistence(0.25);
 
-	selectPerlin.SetSeed(currSeed + 88);
+	selSP2.SetSourceModule(0, selPer2);
+	selSP2.SetYScale(0);
 
-	groundSelect2.SetSourceModule(0, groundHillSelect);
-	groundSelect2.SetSourceModule(1, groundPlainSelect);
-	groundSelect2.SetControlModule(selectSP);
-	groundSelect2.SetBounds(0, 256);
+	groundMountainSelect.SetSourceModule(0, groundMediumTallMtnSelect);
+	groundMountainSelect.SetSourceModule(1, groundSmallMountain);
+	groundMountainSelect.SetControlModule(selSP2);
+	groundMountainSelect.SetBounds(-0.1, 256);
+	groundMountainSelect.SetEdgeFalloff(0.125);
 
-	selectPerlin.SetSeed(currSeed + 99);
+	//Small chasm + huge chasm
+	selPer3.SetSeed(currSeed + 242);
+	selPer3.SetFrequency(0.5);
+	selPer3.SetPersistence(0.25);
 
-	groundSelect3.SetSourceModule(0, groundBaseSelect);
-	groundSelect3.SetSourceModule(1, groundSelect2);
-	groundSelect3.SetControlModule(selectSP);
-	groundSelect3.SetBounds(0, 256);
+	selSP3.SetSourceModule(0, selPer3);
+	selSP3.SetYScale(0);
 
-	selectPerlin.SetSeed(currSeed + 110);
+	groundChasmSelect.SetSourceModule(0, groundChasm);
+	groundChasmSelect.SetSourceModule(1, groundSmallChasm);
+	groundChasmSelect.SetControlModule(selSP3);
+	groundChasmSelect.SetBounds(-0.2, 256);
+	groundChasmSelect.SetEdgeFalloff(0.125);
 
-	groundFinalSelect.SetSourceModule(0, groundSelect3);
-	groundFinalSelect.SetSourceModule(1, groundSelect1);
-	groundFinalSelect.SetControlModule(selectSP);
-	groundFinalSelect.SetBounds(0.1, 256);
+	//Hill + rolling hills
+	selPer4.SetSeed(currSeed + 253);
+	selPer4.SetFrequency(0.5);
+	selPer4.SetPersistence(0.25);
 
-	worldTerrain.SetSourceModule(0, groundFinalSelect);
+	selSP4.SetSourceModule(0, selPer4);
+	selSP4.SetYScale(0);
+
+	groundHillRollingSelect.SetSourceModule(0, groundRolling);
+	groundHillRollingSelect.SetSourceModule(1, groundHill);
+	groundHillRollingSelect.SetControlModule(selSP4);
+	groundHillRollingSelect.SetBounds(-0.2, 256);
+	groundHillRollingSelect.SetEdgeFalloff(0.125);
+
+	//Plain + hill + rolling hills
+	selPer5.SetSeed(currSeed + 264);
+	selPer5.SetFrequency(0.5);
+	selPer5.SetPersistence(0.25);
+
+	selSP5.SetSourceModule(0, selPer5);
+	selSP5.SetYScale(0);
+
+	groundPlainHillRollingSelect.SetSourceModule(0, groundHillRollingSelect);
+	groundPlainHillRollingSelect.SetSourceModule(1, groundPlain);
+	groundPlainHillRollingSelect.SetControlModule(selSP5);
+	groundPlainHillRollingSelect.SetBounds(0, 256);
+	groundPlainHillRollingSelect.SetEdgeFalloff(0.125);
+
+	//Basic + plain + hill + sand dunes
+	selPer6.SetSeed(currSeed + 275);
+	selPer6.SetFrequency(0.5);
+	selPer6.SetPersistence(0.25);
+
+	selSP6.SetSourceModule(0, selPer6);
+	selSP6.SetYScale(0);
+
+	groundBaseSelect.SetSourceModule(0, groundPlainHillRollingSelect);
+	groundBaseSelect.SetSourceModule(1, groundBase);
+	groundBaseSelect.SetControlModule(selSP6);
+	groundBaseSelect.SetBounds(0, 256);
+	groundBaseSelect.SetEdgeFalloff(0.125);
+
+	//Base + mountains
+	selPer7.SetSeed(currSeed + 286);
+	selPer7.SetFrequency(0.5);
+	selPer7.SetPersistence(0.25);
+
+	selSP7.SetSourceModule(0, selPer7);
+	selSP7.SetYScale(0);
+
+	groundBaseMtnSelect.SetSourceModule(0, groundMountainSelect);
+	groundBaseMtnSelect.SetSourceModule(1, groundBaseSelect);
+	groundBaseMtnSelect.SetControlModule(selSP7);
+	groundBaseMtnSelect.SetBounds(-0.1, 256);
+	groundBaseMtnSelect.SetEdgeFalloff(0.125);
+
+	//Final Terrain
+	selPer8.SetSeed(currSeed + 297);
+	selPer8.SetFrequency(0.5);
+	selPer8.SetPersistence(0.25);
+
+	selSP8.SetSourceModule(0, selPer8);
+	selSP8.SetYScale(0);
+
+	groundFinalSelect.SetSourceModule(0, groundChasmSelect);
+	groundFinalSelect.SetSourceModule(1, groundBaseMtnSelect);
+	groundFinalSelect.SetControlModule(selSP8);
+	groundFinalSelect.SetBounds(-0.1, 256);
+	groundFinalSelect.SetEdgeFalloff(0.125);
+
+	//Final Selection
+	groundMatSelect.SetSourceModule(0, const0);
+	groundMatSelect.SetSourceModule(1, constGrass);
+	groundMatSelect.SetControlModule(groundFinalSelect);
+	groundMatSelect.SetBounds(0, 256);
+
+	//Final Result
+	worldTerrain.SetSourceModule(0, groundMatSelect);
 }
 
 void WorldTerrain::GenerateCaves()
@@ -223,7 +371,7 @@ void WorldTerrain::GenerateCaves()
 	caveShape1.SetFrequency(2);
 
 	caveSelect1.SetSourceModule(0, const0);
-	caveSelect1.SetSourceModule(1, constMat);
+	caveSelect1.SetSourceModule(1, constDirt);
 	caveSelect1.SetControlModule(caveShape1);
 	caveSelect1.SetBounds(0.1, 256);
 
@@ -233,7 +381,7 @@ void WorldTerrain::GenerateCaves()
 	caveShape2.SetFrequency(2);
 
 	caveSelect2.SetSourceModule(0, const0);
-	caveSelect2.SetSourceModule(1, constMat);
+	caveSelect2.SetSourceModule(1, constDirt);
 	caveSelect2.SetControlModule(caveShape2);
 	caveSelect2.SetBounds(0.1, 256);
 

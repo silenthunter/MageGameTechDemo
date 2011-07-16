@@ -1,5 +1,6 @@
 #include <noise\module\perlin.h>
 #include <noise\module\scalepoint.h>
+#include <noise\module\scalebias.h>
 
 namespace noise
 {
@@ -59,6 +60,7 @@ namespace noise
 			Perlin yDistortModule;
 			Perlin zDistortModule;
 			ScalePoint ySPModule;
+			ScaleBias ySBModule;
 
 		protected:
 			//Variables

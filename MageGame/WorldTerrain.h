@@ -34,29 +34,56 @@ private:
 	//Variables
 	int currSeed;
 	noise::module::Const const0;
-	noise::module::Const constMat;
+	noise::module::Const constStone;
+	noise::module::Const constSand;
+	noise::module::Const constDirt;
+	noise::module::Const constGrass;
 
 	//Ground
 	noise::module::Gradient groundGradient;
 	noise::module::YTurbulence groundBase;
-	noise::module::YTurbulence groundHill;
 	noise::module::YTurbulence groundPlain;
+	noise::module::YTurbulence groundHill;
 	noise::module::YTurbulence groundRolling;
+	noise::module::HillTurbulence groundSmallMountain;
+	noise::module::HillTurbulence groundMediumMountain;
 	noise::module::HillTurbulence groundMountain;
+	noise::module::HillTurbulence groundSmallChasm;
+	noise::module::HillTurbulence groundChasm;
 
-	noise::module::Perlin selectPerlin;
-	noise::module::ScalePoint selectSP;
+	noise::module::Perlin selPer1;
+	noise::module::ScalePoint selSP1;
+	noise::module::Select groundMediumTallMtnSelect;
 
-	noise::module::Select groundBaseSelect;
-	noise::module::Select groundHillSelect;
-	noise::module::Select groundPlainSelect;
-	noise::module::Select groundRollingSelect;
+	noise::module::Perlin selPer2;
+	noise::module::ScalePoint selSP2;
 	noise::module::Select groundMountainSelect;
 
-	noise::module::Select groundSelect1;
-	noise::module::Select groundSelect2;
-	noise::module::Select groundSelect3;
+	noise::module::Perlin selPer3;
+	noise::module::ScalePoint selSP3;
+	noise::module::Select groundChasmSelect;
+
+	noise::module::Perlin selPer4;
+	noise::module::ScalePoint selSP4;
+	noise::module::Select groundHillRollingSelect;
+
+	noise::module::Perlin selPer5;
+	noise::module::ScalePoint selSP5;
+	noise::module::Select groundPlainHillRollingSelect;
+
+	noise::module::Perlin selPer6;
+	noise::module::ScalePoint selSP6;
+	noise::module::Select groundBaseSelect;
+
+	noise::module::Perlin selPer7;
+	noise::module::ScalePoint selSP7;
+	noise::module::Select groundBaseMtnSelect;
+
+	noise::module::Perlin selPer8;
+	noise::module::ScalePoint selSP8;
 	noise::module::Select groundFinalSelect;
+
+	noise::module::Select groundMatSelect;
 	noise::module::Cache groundFinal;
 
 	//Caves

@@ -1,7 +1,7 @@
 #include "GraphicsManager.h"
 
 #define NUM_TEX_PER_ROW 6
-#define NUM_TEX_PER_COL 16
+#define NUM_TEX_PER_COL 17
 #define NUM_NONTEX_MATERIALS 1
 #define TEX_WIDTH_NORMALIZED (1.0 / NUM_TEX_PER_ROW)
 #define TEX_HEIGHT_NORMALIZED (1.0 / NUM_TEX_PER_COL)
