@@ -6,7 +6,8 @@ vertex_program ItemBlockTexture_VP cg
 	
 	default_params
 	{
-		param_named_auto worldViewProj_m worldviewproj_matrix
+		param_named_auto worldViewProj worldviewproj_matrix
+		param_named_auto inverseTransposeWorld inverse_transpose_world_matrix
 	}
 }
 

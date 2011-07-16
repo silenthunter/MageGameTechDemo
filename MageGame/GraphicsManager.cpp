@@ -280,7 +280,7 @@ void GraphicsManager::CloseGUI()
 void GraphicsManager::InitVoxels(int chunkNumX, int chunkNumZ, int xDiff, int zDiff)
 {
     float regionWidth = 1.0;
-    float regionDepth = 1.0;
+    float regionDepth = 8.0;
     float regionHeight = 1.0;
 
     float chunkX = (chunkNumX + xDiff) * regionWidth;

@@ -1,5 +1,5 @@
 #include <noise\module\perlin.h>
-#include <noise\module\scalebias.h>
+#include <noise\module\scalepoint.h>
 
 namespace noise
 {
@@ -17,19 +17,20 @@ namespace noise
 			HillTurbulence();
 			~HillTurbulence();
 
-			double GetFrequency () const;
-
-			double GetPower () const
+			double GetXPower () const
 			{
-				return m_power;
+				return mx_power;
 			}
 
-			int GetRoughnessCount () const
+			double GetYPower () const
 			{
-				return yDistortModule.GetOctaveCount ();
+				return my_power;
 			}
 
-			int GetSeed () const;
+			double GetZPower () const
+			{
+				return mz_power;
+			}
 
 			virtual int GetSourceModuleCount () const
 			{
@@ -38,30 +39,32 @@ namespace noise
 
 			virtual double GetValue (double x, double y, double z) const;
 
-			void SetFrequency (double frequency)
+			void SetXPower (double power)
 			{
-				yDistortModule.SetFrequency (frequency);
+				mx_power = power;
 			}
 
-			void SetPower (double power)
+			void SetYPower (double power)
 			{
-				m_power = power;
+				my_power = power;
 			}
 
-			void SetRoughness (int roughness)
+			void SetZPower (double power)
 			{
-				yDistortModule.SetOctaveCount (roughness);
+				mz_power = power;
 			}
-
-			void SetSeed (int seed);
 
 			//Variables
+			Perlin xDistortModule;
 			Perlin yDistortModule;
-			ScaleBias scaleBiasModule;
+			Perlin zDistortModule;
+			ScalePoint ySPModule;
 
 		protected:
 			//Variables
-			double m_power;
+			double mx_power;
+			double my_power;
+			double mz_power;
 		};
 	}
 }

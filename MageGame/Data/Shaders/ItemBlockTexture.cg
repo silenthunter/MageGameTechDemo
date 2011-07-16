@@ -1,27 +1,21 @@
-#define VOXELCENTEROFFSET 0.5
-#define WORLDSCALE 0.2
-#define NUM_TEX_PER_ROW 6
-#define NUM_TEX_PER_COL 16
-#define TEX_WIDTH_NORMALIZED (1.0 / NUM_TEX_PER_ROW)
-#define TEX_HEIGHT_NORMALIZED (1.0 / NUM_TEX_PER_COL)
-
 void itemblocktexture_vp(
 	float4 inPosition			: POSITION,
 	float2 inTex				: TEXCOORD0,
-	float3 inNormal				: NORMAL,
+	float4 inNormal				: NORMAL,
 
 	out float4 outPosition		: POSITION,
 	out float2 outTex			: TEXCOORD0,
 	out float3 cubeNormal		: TEXCOORD1,
 	
-	uniform float4x4 worldViewProj_m
+	uniform float4x4 worldViewProj,
+	uniform float4x4 inverseTransposeWorld
 )
 {
-	outPosition = mul(worldViewProj_m, inPosition);
+	outPosition = mul(worldViewProj, inPosition);
 
 	outTex = inTex;
 	
-	cubeNormal = inNormal;
+	cubeNormal = mul(inverseTransposeWorld, inNormal).xyz;
 }
 
 void itemblocktexture_fp(

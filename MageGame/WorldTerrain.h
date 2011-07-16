@@ -21,7 +21,7 @@ public:
 	void GenerateRegularWorld();
 
 	//Variables
-	noise::module::Multiply worldTerrain;
+	noise::module::Cache worldTerrain;
 	unsigned short currWidth;
 	unsigned short currDepth;
 	unsigned short currHeight;
@@ -30,7 +30,7 @@ private:
 	//Functions
 	void GenerateGround();
 	void GenerateCaves();
-
+	
 	//Variables
 	int currSeed;
 	noise::module::Const const0;
@@ -39,13 +39,23 @@ private:
 	//Ground
 	noise::module::Gradient groundGradient;
 	noise::module::YTurbulence groundBase;
-	noise::module::HillTurbulence groundHill;
+	noise::module::YTurbulence groundHill;
 	noise::module::YTurbulence groundPlain;
+	noise::module::YTurbulence groundRolling;
+	noise::module::HillTurbulence groundMountain;
+
 	noise::module::Perlin selectPerlin;
+	noise::module::ScalePoint selectSP;
+
 	noise::module::Select groundBaseSelect;
 	noise::module::Select groundHillSelect;
 	noise::module::Select groundPlainSelect;
+	noise::module::Select groundRollingSelect;
+	noise::module::Select groundMountainSelect;
+
 	noise::module::Select groundSelect1;
+	noise::module::Select groundSelect2;
+	noise::module::Select groundSelect3;
 	noise::module::Select groundFinalSelect;
 	noise::module::Cache groundFinal;
 
