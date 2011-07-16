@@ -51,6 +51,8 @@ GraphicsManager::GraphicsManager(int gm_chunkSize,
 	threeSixth = 3.0f / 6;
 	fourSixth = 4.0f / 6;
 	fiveSixth = 5.0f / 6;
+	pageSize = 100;
+	renderSize = 27;
 
 	int horizontalChunk = gm_viewDist * 2 + 1;
 	for(int i = 0; i < horizontalChunk; ++i)
@@ -328,6 +330,46 @@ void GraphicsManager::LoadMO(int chunkNumX, int chunkNumZ, int xDiff, int zDiff)
 		Vector3DInt32 start(xChunkSize, yChunkSize, zChunkSize);
 		Vector3DInt32 end(xChunkSize + chunkAddition, yChunkSize + chunkAddition, zChunkSize + chunkAddition);
 
+		//Print current chunk information
+		char str[50];
+		sprintf(str, "%d_%d_%d", chunkNumX + xDiff, i, chunkNumZ + zDiff);
+
+		//Check page for object
+		bool pageContains = false;
+		int pagePos = 0;
+		std::vector<PolyVox::Vector3DInt32>::iterator itr;
+		for(itr = pageQueue.begin(); itr != pageQueue.end(); itr++, pagePos++)
+		{
+			if(start == *itr)
+			{
+				pageContains = true;
+				pageQueue.erase(itr);
+				break;
+			}
+		}
+
+		pageQueue.push_back(start);
+
+		//Unload old MO's if necessary
+		if(pageQueue.size() > pageSize)
+		{
+			PolyVox::Vector3DInt32 vec = pageQueue.front();
+			pageQueue.erase(pageQueue.begin());
+			Ogre::ManualObject* oldMO = NULL;//TODO: Retrieve MO
+
+		}
+
+		//Load a paged MO if one is found
+		if(pageContains)
+		{
+			if(pagePos < pageSize - renderSize)
+			{
+				Ogre::ManualObject* loadedObj = manualObjects[str];
+				root_sn->attachObject(loadedObj);
+			}
+			return;
+		}
+
 		SurfaceMesh<PositionMaterial> mesh;
 		CubicSurfaceExtractor<SimpleVolume, VoxelMat> surfaceExtractor(polyVolume, Region(start, end), &mesh);
 		surfaceExtractor.execute();
@@ -342,10 +384,6 @@ void GraphicsManager::LoadMO(int chunkNumX, int chunkNumZ, int xDiff, int zDiff)
 		//Get both the index and vertex data
 		const vector<uint32_t> &vecIndices = mesh.getIndices();
 		const vector<PositionMaterial> &vecVertices = mesh.getVertices();
-				
-		//Print current chunk information
-		char str[50];
-		sprintf(str, "%d_%d_%d", chunkNumX + xDiff, i, chunkNumZ + zDiff);
 
 		//Set the object with the render operation and the .material
 		obj->begin("VoxelTexture", Ogre::RenderOperation::OT_TRIANGLE_LIST);

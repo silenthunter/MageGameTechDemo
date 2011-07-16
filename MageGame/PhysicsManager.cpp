@@ -267,12 +267,13 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 	//The chunk is still in memory
 	if(isPaged)
 	{
-		if(queuePos >= maxRender)//This chunk currently isn't in the world
+		if(queuePos < maxPageSize - maxRender)//This chunk currently isn't in the world
 		{
 			hkpRigidBody *body = physicsMap[chunk];
-			world->lock();
-			world->addEntity(body);
-			world->unlock();
+			if(body && !body->getWorld())//Make sure the body isn't null and hasn't been added to the world yet
+			{
+				readyRigidBodies.enqueue(body);
+			}
 		}
 		mu.unlock();
 		return;
