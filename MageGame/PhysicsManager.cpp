@@ -647,6 +647,7 @@ hkResult PhysicsManager::breakOffSubPart(const ContactImpulseLimitBreachedEvent&
 void PhysicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos)
 {
 	hkpRigidBody* body = physicsMap[chunk];
+	if(!body) return;
 	
 	std::map<Vector3DInt32, hkpShapeKey> *keyMap = (std::map<Vector3DInt32, hkpShapeKey>*)body->getUserData();
 	hkpShapeKey key = (*keyMap)[blockPos];
@@ -667,6 +668,8 @@ void PhysicsManager::SpawnCube(hkVector4 &pos)
 	info.m_shape = box;
 	info.m_motionType = hkpMotion::MOTION_DYNAMIC;
 	info.m_position = pos;
+	info.m_allowedPenetrationDepth = halfExtents(0);
+	info.m_qualityType = hkpCollidableQualityType::HK_COLLIDABLE_QUALITY_DEBRIS_SIMPLE_TOI;
 
 	hkpRigidBody* body = new hkpRigidBody(info);
 

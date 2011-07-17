@@ -1,3 +1,8 @@
+/**
+@mainpage MageGame
+A description of the project will go here
+*/
+
 #include <Ogre.h>
 #include <OIS.h>
 #include <PolyVoxUtil/VolumeChangeTracker.h>
