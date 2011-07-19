@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\PolyVoxImpl">
+      <UniqueIdentifier>{7eade700-58e8-4caf-aae9-21ba1ce4b5c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PolyVoxImpl">
+      <UniqueIdentifier>{f3c7b1bc-8e0b-4216-a545-bf075943e106}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\PolyVoxCore">
+      <UniqueIdentifier>{12adb775-2b41-4988-b52e-a61b78f98239}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\ArraySizes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\AStarPathfinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GradientEstimators.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Log.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\MeshDecimator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Region.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\VertexTypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\VoxelFilters.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\PolyVoxImpl\MarchingCubesTables.cpp">
+      <Filter>Source Files\PolyVoxImpl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\PolyVoxImpl\RandomUnitVectors.cpp">
+      <Filter>Source Files\PolyVoxImpl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\PolyVoxImpl\RandomVectors.cpp">
+      <Filter>Source Files\PolyVoxImpl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\PolyVoxImpl\Utility.cpp">
+      <Filter>Source Files\PolyVoxImpl</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\PolyVoxCore\AmbientOcclusionCalculator.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\Array.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\ArraySizes.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\AStarPathfinder.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\ConstVolumeProxy.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\CubicSurfaceExtractor.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\CubicSurfaceExtractorWithNormals.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\Density.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\Filters.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\GradientEstimators.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\LargeVolume.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\Log.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\Material.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\MaterialDensityPair.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\MeshDecimator.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\PolyVoxForwardDeclarations.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\RawVolume.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\Raycast.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\RaycastWithCallback.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\Region.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\SimpleVolume.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\SurfaceEdge.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\SurfaceExtractor.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\SurfaceMesh.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\SurfaceTypes.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\Vector.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\VertexTypes.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\VolumeResampler.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxCore\VoxelFilters.h">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxImpl\ArraySizesImpl.h">
+      <Filter>Header Files\PolyVoxImpl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxImpl\AStarPathfinderImpl.h">
+      <Filter>Header Files\PolyVoxImpl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxImpl\Block.h">
+      <Filter>Header Files\PolyVoxImpl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxImpl\MarchingCubesTables.h">
+      <Filter>Header Files\PolyVoxImpl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxImpl\RandomUnitVectors.h">
+      <Filter>Header Files\PolyVoxImpl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxImpl\RandomVectors.h">
+      <Filter>Header Files\PolyVoxImpl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxImpl\SubArray.h">
+      <Filter>Header Files\PolyVoxImpl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxImpl\TypeDef.h">
+      <Filter>Header Files\PolyVoxImpl</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PolyVoxImpl\Utility.h">
+      <Filter>Header Files\PolyVoxImpl</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\PolyVoxCore\AmbientOcclusionCalculator.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\Array.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\AStarPathfinder.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\CubicSurfaceExtractor.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\CubicSurfaceExtractorWithNormals.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\Filters.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\GradientEstimators.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\LargeVolume.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\LargeVolumeSampler.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\MeshDecimator.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\RawVolume.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\RawVolumeSampler.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\Raycast.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\RaycastWithCallback.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\SimpleVolume.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\SimpleVolumeBlock.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\SimpleVolumeSampler.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\SurfaceExtractor.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\SurfaceMesh.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\Vector.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxCore\VolumeResampler.inl">
+      <Filter>Header Files\PolyVoxCore</Filter>
+    </None>
+    <None Include="include\PolyVoxImpl\ArraySizesImpl.inl">
+      <Filter>Header Files\PolyVoxImpl</Filter>
+    </None>
+    <None Include="include\PolyVoxImpl\Block.inl">
+      <Filter>Header Files\PolyVoxImpl</Filter>
+    </None>
+    <None Include="include\PolyVoxImpl\SubArray.inl">
+      <Filter>Header Files\PolyVoxImpl</Filter>
+    </None>
+  </ItemGroup>
+</Project>

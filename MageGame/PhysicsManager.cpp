@@ -367,6 +367,7 @@ void PhysicsManager::Thread_UpdateChunk(Vector3DInt32* chunk)
 		info.m_numShapeKeysInContactPointProperties = -1;
 
 		hkpRigidBody *body = new hkpRigidBody(info);
+		HK_REMOVE_GEOMETRY((hkUlong)body);
 
 		mu.lock();
 		physicsMap[*chunk] = body;

@@ -2,6 +2,17 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MageGame", "MageGame\MageGame.vcxproj", "{651AAB27-4F60-4168-9815-237648006697}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D6B1A605-404B-4184-B0A7-47F46049AF96} = {D6B1A605-404B-4184-B0A7-47F46049AF96}
+		{85B5D111-1105-427D-A889-5A7FC02B98E5} = {85B5D111-1105-427D-A889-5A7FC02B98E5}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PolyVoxCore", "PolyVoxCore\PolyVoxCore.vcxproj", "{85B5D111-1105-427D-A889-5A7FC02B98E5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PolyVoxUtil", "PolyVoxUtil\PolyVoxUtil.vcxproj", "{D6B1A605-404B-4184-B0A7-47F46049AF96}"
+	ProjectSection(ProjectDependencies) = postProject
+		{85B5D111-1105-427D-A889-5A7FC02B98E5} = {85B5D111-1105-427D-A889-5A7FC02B98E5}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +24,14 @@ Global
 		{651AAB27-4F60-4168-9815-237648006697}.Debug|Win32.Build.0 = Debug|Win32
 		{651AAB27-4F60-4168-9815-237648006697}.Release|Win32.ActiveCfg = Release|Win32
 		{651AAB27-4F60-4168-9815-237648006697}.Release|Win32.Build.0 = Release|Win32
+		{85B5D111-1105-427D-A889-5A7FC02B98E5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{85B5D111-1105-427D-A889-5A7FC02B98E5}.Debug|Win32.Build.0 = Debug|Win32
+		{85B5D111-1105-427D-A889-5A7FC02B98E5}.Release|Win32.ActiveCfg = Release|Win32
+		{85B5D111-1105-427D-A889-5A7FC02B98E5}.Release|Win32.Build.0 = Release|Win32
+		{D6B1A605-404B-4184-B0A7-47F46049AF96}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D6B1A605-404B-4184-B0A7-47F46049AF96}.Debug|Win32.Build.0 = Debug|Win32
+		{D6B1A605-404B-4184-B0A7-47F46049AF96}.Release|Win32.ActiveCfg = Release|Win32
+		{D6B1A605-404B-4184-B0A7-47F46049AF96}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
