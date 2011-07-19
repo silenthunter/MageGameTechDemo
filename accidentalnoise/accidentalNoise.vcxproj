@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{EB55976D-69A1-4852-A895-997746F28254}</ProjectGuid>
+    <RootNamespace>accidentalNoise</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(ProjectDir)include\;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(ProjectDir)include\;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <OutputFile>$(SolutionDir)Libs\$(TargetName)_d$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <OutputFile>$(SolutionDir)Libs\$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\cellulargen.cpp" />
+    <ClCompile Include="src\hsv.cpp" />
+    <ClCompile Include="src\implicitautocorrect.cpp" />
+    <ClCompile Include="src\implicitbasisfunction.cpp" />
+    <ClCompile Include="src\implicitbias.cpp" />
+    <ClCompile Include="src\implicitblend.cpp" />
+    <ClCompile Include="src\implicitbrightcontrast.cpp" />
+    <ClCompile Include="src\implicitcache.cpp" />
+    <ClCompile Include="src\implicitcellular.cpp" />
+    <ClCompile Include="src\implicitclamp.cpp" />
+    <ClCompile Include="src\implicitcombiner.cpp" />
+    <ClCompile Include="src\implicitconstant.cpp" />
+    <ClCompile Include="src\implicitcos.cpp" />
+    <ClCompile Include="src\implicitcosdomain.cpp" />
+    <ClCompile Include="src\implicitextractdomain.cpp" />
+    <ClCompile Include="src\implicitextractrgbachannel.cpp" />
+    <ClCompile Include="src\implicitfractal.cpp" />
+    <ClCompile Include="src\implicitgain.cpp" />
+    <ClCompile Include="src\implicitgradient.cpp" />
+    <ClCompile Include="src\implicitinvert.cpp" />
+    <ClCompile Include="src\implicitrotatedomain.cpp" />
+    <ClCompile Include="src\implicitscaledomain.cpp" />
+    <ClCompile Include="src\implicitscaleoffset.cpp" />
+    <ClCompile Include="src\implicitselect.cpp" />
+    <ClCompile Include="src\implicitsin.cpp" />
+    <ClCompile Include="src\implicitsindomain.cpp" />
+    <ClCompile Include="src\implicitsphere.cpp" />
+    <ClCompile Include="src\implicittranslatedomain.cpp" />
+    <ClCompile Include="src\implicitturbulence.cpp" />
+    <ClCompile Include="src\mapping.cpp" />
+    <ClCompile Include="src\noise_gen.cpp" />
+    <ClCompile Include="src\noise_lut.cpp" />
+    <ClCompile Include="src\rgbablend.cpp" />
+    <ClCompile Include="src\rgbablendops.cpp" />
+    <ClCompile Include="src\rgbacomposechannels.cpp" />
+    <ClCompile Include="src\rgbaconstant.cpp" />
+    <ClCompile Include="src\rgbahsvtorgba.cpp" />
+    <ClCompile Include="src\rgbaimplicitgrayscale.cpp" />
+    <ClCompile Include="src\rgbargbatohsv.cpp" />
+    <ClCompile Include="src\rgbarotatecolor.cpp" />
+    <ClCompile Include="src\rgbaselect.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\anl.h" />
+    <ClInclude Include="include\cellulargen.h" />
+    <ClInclude Include="include\hsv.h" />
+    <ClInclude Include="include\implicitautocorrect.h" />
+    <ClInclude Include="include\implicitbasisfunction.h" />
+    <ClInclude Include="include\implicitbias.h" />
+    <ClInclude Include="include\implicitblend.h" />
+    <ClInclude Include="include\implicitbrightcontrast.h" />
+    <ClInclude Include="include\implicitcache.h" />
+    <ClInclude Include="include\implicitcellular.h" />
+    <ClInclude Include="include\implicitclamp.h" />
+    <ClInclude Include="include\implicitcombiner.h" />
+    <ClInclude Include="include\implicitconstant.h" />
+    <ClInclude Include="include\implicitcos.h" />
+    <ClInclude Include="include\implicitcosdomain.h" />
+    <ClInclude Include="include\implicitextractdomain.h" />
+    <ClInclude Include="include\implicitextractrgbachannel.h" />
+    <ClInclude Include="include\implicitfractal.h" />
+    <ClInclude Include="include\implicitgain.h" />
+    <ClInclude Include="include\implicitgradient.h" />
+    <ClInclude Include="include\implicitinvert.h" />
+    <ClInclude Include="include\implicitmodifier.h" />
+    <ClInclude Include="include\implicitmodulebase.h" />
+    <ClInclude Include="include\implicitrotatedomain.h" />
+    <ClInclude Include="include\implicitscaledomain.h" />
+    <ClInclude Include="include\implicitscaleoffset.h" />
+    <ClInclude Include="include\implicitselect.h" />
+    <ClInclude Include="include\implicitsin.h" />
+    <ClInclude Include="include\implicitsindomain.h" />
+    <ClInclude Include="include\implicitsphere.h" />
+    <ClInclude Include="include\implicittransform.h" />
+    <ClInclude Include="include\implicittranslatedomain.h" />
+    <ClInclude Include="include\implicitturbulence.h" />
+    <ClInclude Include="include\mapping.h" />
+    <ClInclude Include="include\noise_gen.h" />
+    <ClInclude Include="include\noise_lut.h" />
+    <ClInclude Include="include\random_gen.h" />
+    <ClInclude Include="include\rgba.h" />
+    <ClInclude Include="include\rgbablend.h" />
+    <ClInclude Include="include\rgbablendops.h" />
+    <ClInclude Include="include\rgbacomposechannels.h" />
+    <ClInclude Include="include\rgbaconstant.h" />
+    <ClInclude Include="include\rgbahsvtorgba.h" />
+    <ClInclude Include="include\rgbaimplicitgrayscale.h" />
+    <ClInclude Include="include\rgbamodulebase.h" />
+    <ClInclude Include="include\rgbargbatohsv.h" />
+    <ClInclude Include="include\rgbarotatecolor.h" />
+    <ClInclude Include="include\rgbaselect.h" />
+    <ClInclude Include="include\templates\tarrays.h" />
+    <ClInclude Include="include\templates\tcurve.h" />
+    <ClInclude Include="include\utility.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

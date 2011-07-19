@@ -5,6 +5,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MageGame", "MageGame\MageGa
 	ProjectSection(ProjectDependencies) = postProject
 		{D6B1A605-404B-4184-B0A7-47F46049AF96} = {D6B1A605-404B-4184-B0A7-47F46049AF96}
 		{85B5D111-1105-427D-A889-5A7FC02B98E5} = {85B5D111-1105-427D-A889-5A7FC02B98E5}
+		{EB55976D-69A1-4852-A895-997746F28254} = {EB55976D-69A1-4852-A895-997746F28254}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PolyVoxCore", "PolyVoxCore\PolyVoxCore.vcxproj", "{85B5D111-1105-427D-A889-5A7FC02B98E5}"
@@ -13,6 +14,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PolyVoxUtil", "PolyVoxUtil\
 	ProjectSection(ProjectDependencies) = postProject
 		{85B5D111-1105-427D-A889-5A7FC02B98E5} = {85B5D111-1105-427D-A889-5A7FC02B98E5}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "accidentalNoise", "accidentalnoise\accidentalNoise.vcxproj", "{EB55976D-69A1-4852-A895-997746F28254}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +35,10 @@ Global
 		{D6B1A605-404B-4184-B0A7-47F46049AF96}.Debug|Win32.Build.0 = Debug|Win32
 		{D6B1A605-404B-4184-B0A7-47F46049AF96}.Release|Win32.ActiveCfg = Release|Win32
 		{D6B1A605-404B-4184-B0A7-47F46049AF96}.Release|Win32.Build.0 = Release|Win32
+		{EB55976D-69A1-4852-A895-997746F28254}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EB55976D-69A1-4852-A895-997746F28254}.Debug|Win32.Build.0 = Debug|Win32
+		{EB55976D-69A1-4852-A895-997746F28254}.Release|Win32.ActiveCfg = Release|Win32
+		{EB55976D-69A1-4852-A895-997746F28254}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
