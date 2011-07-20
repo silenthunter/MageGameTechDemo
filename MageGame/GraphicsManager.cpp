@@ -305,7 +305,7 @@ void GraphicsManager::InitVoxels(int chunkNumX, int chunkNumZ, int xDiff, int zD
 				ny *= regionDepth;
 				nz = chunkZ + nz * regionHeight;
 
-				double v = wTer->worldTerrain.GetValue(nx, ny, nz);
+				double v = wTer->worldTerrain.get(nx, ny, nz);
 
 				if(v > 0)
 				{

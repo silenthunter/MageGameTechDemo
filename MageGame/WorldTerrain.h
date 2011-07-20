@@ -1,14 +1,15 @@
 #pragma once
-#include <noise/noise.h>
 #include <time.h>
 #include <iostream>
 #include <random>
 
 #include "GameGlobals.h"
-#include "Gradient.h"
-#include "EnhancedTurbulence.h"
-#include "YTurbulence.h"
-#include "HillTurbulence.h"
+
+#include "implicitconstant.h"
+#include "implicitgradient.h"
+#include "implicitselect.h"
+#include "implicitfractal.h"
+#include "implicitscaleoffset.h"
 
 class WorldTerrain
 {
@@ -21,7 +22,8 @@ public:
 	void GenerateRegularWorld();
 
 	//Variables
-	noise::module::Multiply worldTerrain;
+	//noise::module::Multiply worldTerrain;
+	anl::CImplicitSelect worldTerrain;
 	unsigned short currWidth;
 	unsigned short currDepth;
 	unsigned short currHeight;
@@ -33,14 +35,14 @@ private:
 	
 	//Variables
 	int currSeed;
-	noise::module::Const const0;
-	noise::module::Const constStone;
-	noise::module::Const constSand;
-	noise::module::Const constDirt;
-	noise::module::Const constGrass;
+	anl::CImplicitConstant const0;
+	anl::CImplicitConstant constStone;
 
 	//Ground
-	noise::module::Gradient groundGradient;
+	anl::CImplicitGradient groundGradient;
+	anl::CImplicitFractal lowLand;
+	anl::CImplicitScaleOffset lowLandScaleOff;
+	/*
 	noise::module::YTurbulence groundBase;
 	noise::module::YTurbulence groundPlain;
 	noise::module::YTurbulence groundHill;
@@ -99,4 +101,5 @@ private:
 	noise::module::EnhancedTurbulence caveTurb;
 	noise::module::ScaleBias caveInvert;
 	noise::module::Cache caveFinal;
+	*/
 };

@@ -37,12 +37,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)Libnoise\include\;$(Havok)Source\;$(SolutionDir)includes\;$(SolutionDir)OGRE\;$(SolutionDir)PolyVoxCore\include\;$(SolutionDir)PolyVoxUtil\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Libs\;$(SolutionDir)OGRE\Lib\debug\;$(Havok)Lib\win32_net_9-0\debug_multithreaded_dll\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(Havok)Source\;$(SolutionDir)includes\;$(SolutionDir)OGRE\;$(SolutionDir)PolyVoxCore\include\;$(SolutionDir)PolyVoxUtil\;$(SolutionDir)accidentalNoise\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Libs\;$(SolutionDir)OGRE\Lib\debug\;$(Havok)Lib\win32_net_9-0\debug_multithreaded_dll\;$(SolutionDir)accidentalNoise\Libs\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)Libnoise\include\;$(Havok)Source\;$(SolutionDir)includes\;$(SolutionDir)OGRE\;$(SolutionDir)PolyVoxCore\include\;$(SolutionDir)PolyVoxUtil\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Libs\;$(Havok)Lib\win32_net_9-0\release_multithreaded_dll\;$(SolutionDir)OGRE\Lib\release\;$(ProjectDir)Libnoise\bin\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(Havok)Source\;$(SolutionDir)includes\;$(SolutionDir)OGRE\;$(SolutionDir)PolyVoxCore\include\;$(SolutionDir)PolyVoxUtil\;$(SolutionDir)accidentalNoise\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Libs\;$(Havok)Lib\win32_net_9-0\release_multithreaded_dll\;$(SolutionDir)OGRE\Lib\release\;$(SolutionDir)accidentalNoise\Libs\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -52,7 +52,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libnoise.lib;hkBase.lib;hkCompat.lib;hkGeometryUtilities.lib;hkInternal.lib;hkSceneData.lib;hkpConstraintSolver.lib;hkpCollide.lib;hkpDynamics.lib;hkpInternal.lib;hkpUtilities.lib;hkpVehicle.lib;hkSerialize.lib;hkVisualize.lib;OgreMain_d.lib;OIS_d.lib;PolyVoxCore_d.lib;PolyVoxUtil_d.lib;CEGUIBase_d.lib;CEGUIOgreRenderer_d.lib;libtcmalloc_minimal-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hkBase.lib;hkCompat.lib;hkGeometryUtilities.lib;hkInternal.lib;hkSceneData.lib;hkpConstraintSolver.lib;hkpCollide.lib;hkpDynamics.lib;hkpInternal.lib;hkpUtilities.lib;hkpVehicle.lib;hkSerialize.lib;hkVisualize.lib;OgreMain_d.lib;OIS_d.lib;PolyVoxCore_d.lib;PolyVoxUtil_d.lib;CEGUIBase_d.lib;CEGUIOgreRenderer_d.lib;libtcmalloc_minimal-debug.lib;accidentalNoise_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ForceSymbolReferences>__tcmalloc</ForceSymbolReferences>
     </Link>
     <PostBuildEvent>
@@ -75,8 +75,7 @@ copy /Y "$(ProjectDir)Data\GUI\" "$(TargetDir)Data\GUI\"
 
 copy /Y "$(ProjectDir)plugins.cfg" "$(TargetDir)"
 copy /Y "$(ProjectDir)resources.cfg" "$(TargetDir)"
-copy /Y "$(SolutionDir)OGRE\Bin\debug" "$(TargetDir)"
-copy /Y "$(ProjectDir)Libnoise\bin\libnoise.dll" "$(TargetDir)"</Command>
+copy /Y "$(SolutionDir)OGRE\Bin\debug" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -90,7 +89,7 @@ copy /Y "$(ProjectDir)Libnoise\bin\libnoise.dll" "$(TargetDir)"</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libnoise.lib;hkBase.lib;hkCompat.lib;hkGeometryUtilities.lib;hkInternal.lib;hkSceneData.lib;hkpConstraintSolver.lib;hkpCollide.lib;hkpDynamics.lib;hkpInternal.lib;hkpUtilities.lib;hkpVehicle.lib;hkSerialize.lib;hkVisualize.lib;OgreMain.lib;OIS.lib;PolyVoxCore.lib;PolyVoxUtil.lib;CEGUIBase.lib;CEGUIOgreRenderer.lib;libtcmalloc_minimal.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hkBase.lib;hkCompat.lib;hkGeometryUtilities.lib;hkInternal.lib;hkSceneData.lib;hkpConstraintSolver.lib;hkpCollide.lib;hkpDynamics.lib;hkpInternal.lib;hkpUtilities.lib;hkpVehicle.lib;hkSerialize.lib;hkVisualize.lib;OgreMain.lib;OIS.lib;PolyVoxCore.lib;PolyVoxUtil.lib;CEGUIBase.lib;CEGUIOgreRenderer.lib;libtcmalloc_minimal.lib;accidentalNoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ForceSymbolReferences>__tcmalloc</ForceSymbolReferences>
     </Link>
     <PostBuildEvent>
@@ -113,34 +112,25 @@ copy /Y "$(ProjectDir)Data\GUI\" "$(TargetDir)Data\GUI\"
 
 copy /Y "$(ProjectDir)plugins_release.cfg" "$(TargetDir)"
 copy /Y "$(ProjectDir)resources.cfg" "$(TargetDir)"
-copy /Y "$(SolutionDir)OGRE\Bin\release" "$(TargetDir)"
-copy /Y "$(ProjectDir)Libnoise\bin\libnoise.dll" "$(TargetDir)"</Command>
+copy /Y "$(SolutionDir)OGRE\Bin\release" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="EnhancedTurbulence.cpp" />
     <ClCompile Include="GameGlobals.cpp" />
     <ClCompile Include="GameParser.cpp" />
     <ClCompile Include="GameTimer.cpp" />
-    <ClCompile Include="Gradient.cpp" />
     <ClCompile Include="GraphicsManager.cpp" />
     <ClCompile Include="GameMain.cpp" />
-    <ClCompile Include="HillTurbulence.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="WorldTerrain.cpp" />
-    <ClCompile Include="YTurbulence.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EnhancedTurbulence.h" />
     <ClInclude Include="GameGlobals.h" />
     <ClInclude Include="GameParser.h" />
     <ClInclude Include="GameTimer.h" />
-    <ClInclude Include="Gradient.h" />
     <ClInclude Include="GraphicsManager.h" />
-    <ClInclude Include="HillTurbulence.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="WorldTerrain.h" />
-    <ClInclude Include="YTurbulence.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

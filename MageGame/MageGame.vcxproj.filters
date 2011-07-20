@@ -36,18 +36,6 @@
     <ClCompile Include="WorldTerrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Gradient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="YTurbulence.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EnhancedTurbulence.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HillTurbulence.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GraphicsManager.h">
@@ -66,18 +54,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WorldTerrain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Gradient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="YTurbulence.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnhancedTurbulence.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HillTurbulence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
