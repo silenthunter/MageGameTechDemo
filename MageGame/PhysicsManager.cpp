@@ -226,7 +226,15 @@ static int threadNum = 0;
 
 void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 {
-	if(threadNum > 5) return;//TOO MANY THREADS
+	//Determines if the player is in this chunk or not
+	hkVector4 playerPos = GetPlayerPosition();
+	Vector3DInt32 playerPosPoly(playerPos(0) / chunkSize, playerPos(1) / chunkSize, playerPos(2) / chunkSize);
+	bool playerInChunk = false;
+
+	if(playerPosPoly.getX() == chunk.getX() && playerPosPoly.getY() == chunk.getY() && playerPosPoly.getZ() == chunk.getZ())
+		playerInChunk = true;
+
+	if(threadNum > 5 && !playerInChunk) return;//TOO MANY THREADS
 
 	int upperX = polyVolume->getWidth() / chunkSize;
 	int upperY = polyVolume->getHeight() / chunkSize;
@@ -281,8 +289,18 @@ void PhysicsManager::UpdateChunk(Vector3DInt32 &chunk)
 	mu.unlock();
 
 	Vector3DInt32* chunkPtr = new Vector3DInt32(chunk.getX(), chunk.getY(), chunk.getZ());
+
 	boost::thread t(&PhysicsManager::Thread_UpdateChunk, this, chunkPtr);
-	t.detach();
+
+#ifdef _DEBUG
+	t.join();
+#else
+	//If the player is in this chunk, we need to block while loading
+	if(playerInChunk)
+		t.join();
+	else
+		t.detach();
+#endif
 }
 
 void PhysicsManager::Thread_UpdateChunk(Vector3DInt32* chunk)
@@ -431,6 +449,11 @@ void PhysicsManager::UpdateChunkRange(Vector3DInt32 &start, Vector3DInt32 &end)
 
 void PhysicsManager::StepSimulation(float deltaTime)
 {
+#ifdef _DEBUG
+	//Debug should run at a consant rate to compensate for the various delays that lower the framerate
+	deltaTime = 1.f/60.f;
+#endif
+
 	if(deltaTime <= 0) return; //You can't simulate nothing!
 
 	//Load next available chunk

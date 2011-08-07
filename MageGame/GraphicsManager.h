@@ -80,10 +80,7 @@ private:
 	PolyVox::SimpleVolume<VoxelMat> *polyVolume;
 	GameParser *gameParser;
 	std::map<std::string, Ogre::ManualObject*> manualObjects;
-	std::vector<PolyVox::Vector3DInt32> pageQueue;
 	std::vector<ItemBlock> itemBlocks;
-	int pageSize;
-	int renderSize;
 	int chunkSize;
 	int centerChunk;
 	float worldScale;
