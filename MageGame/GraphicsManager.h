@@ -40,7 +40,7 @@ public:
 	void LoadMO(int chunkNumX, int chunkNumZ, int xDiff, int zDiff);
 	void DestroyMO(int chunkNumX, int chunkNumZ, int xDiff, int zDiff);
 	VoxelMat RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Vector3DInt32 blockPos);
-	void UpdateChunk(PolyVox::Vector3DInt32 chunkNum, int xDiff, int zDiff);
+	void UpdateChunk(int x, int y, int z, int xDiff, int zDiff);
 	void MoveNorth();
 	void MoveSouth();
 	void MoveEast();

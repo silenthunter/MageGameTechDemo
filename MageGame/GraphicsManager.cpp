@@ -404,8 +404,6 @@ VoxelMat GraphicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Ve
 
 	int xDiff = playerChunk.getX() - centerChunk;
 	int zDiff = playerChunk.getZ() - centerChunk;
-
-	UpdateChunk(chunk, xDiff, zDiff);
 	
 	int posX = blockPos.getX();
 	int posY = blockPos.getY();
@@ -415,48 +413,49 @@ VoxelMat GraphicsManager::RemoveBlock(PolyVox::Vector3DInt32 &chunk, PolyVox::Ve
 	int chunkZ = chunk.getZ();
 	unsigned short chunkSizeEnd = chunkSize - 1;
 
+	int relativeChunkX = chunkX + xDiff;
+	int relativeChunkZ = chunkZ + zDiff;
+
+	UpdateChunk(relativeChunkX, chunkY, relativeChunkZ, xDiff, zDiff);
+
 	if(posX != 0 && posX % chunkSize == 0)
 	{
-		UpdateChunk(Vector3DInt32(chunkX - 1, chunkY, chunkZ), xDiff, zDiff);
+		UpdateChunk(relativeChunkX - 1, chunkY, relativeChunkZ, xDiff, zDiff);
 	}
 	else if(posX != wTer->currWidth - 1 && posX % chunkSize == chunkSizeEnd)
 	{
-		UpdateChunk(Vector3DInt32(chunkX + 1, chunkY, chunkZ), xDiff, zDiff);
+		UpdateChunk(relativeChunkX + 1, chunkY, relativeChunkZ, xDiff, zDiff);
 	}
 
 	if(posY != 0 && posY % chunkSize == 0)
 	{
-		UpdateChunk(Vector3DInt32(chunkX, chunkY - 1, chunkZ), xDiff, zDiff);
+		UpdateChunk(relativeChunkX, chunkY - 1, relativeChunkZ, xDiff, zDiff);
 	}
 	else if(posY != wTer->currDepth - 1 && posY % chunkSize == chunkSizeEnd)
 	{
-		UpdateChunk(Vector3DInt32(chunkX, chunkY + 1, chunkZ), xDiff, zDiff);
+		UpdateChunk(relativeChunkX, chunkY + 1, relativeChunkZ, xDiff, zDiff);
 	}
 
 	if(posZ != 0 && posZ % chunkSize == 0)
 	{
-		UpdateChunk(Vector3DInt32(chunkX, chunkY, chunkZ - 1), xDiff, zDiff);
+		UpdateChunk(relativeChunkX, chunkY, relativeChunkZ - 1, xDiff, zDiff);
 	}
 	else if(posZ != wTer->currHeight - 1 && posZ % chunkSize == chunkSizeEnd)
 	{
-		UpdateChunk(Vector3DInt32(chunkX, chunkY, chunkZ + 1), xDiff, zDiff);
+		UpdateChunk(relativeChunkX, chunkY, relativeChunkZ + 1, xDiff, zDiff);
 	}
 
 	return vox;
 }
 
-void GraphicsManager::UpdateChunk(Vector3DInt32 chunkNum, int xDiff, int zDiff)
+void GraphicsManager::UpdateChunk(int x, int y, int z, int xDiff, int zDiff)
 {
-	int i = chunkNum.getX();
-	int j = chunkNum.getY();
-	int k = chunkNum.getZ();
-
 	char str[50];
-	sprintf(str, "%d_%d_%d", i + xDiff, j, k + zDiff);
+	sprintf(str, "%d_%d_%d", x, y, z);
 
-	unsigned int iChunkSize = i * chunkSize;
-	unsigned int jChunkSize = j * chunkSize;
-	unsigned int kChunkSize = k * chunkSize;
+	unsigned int iChunkSize = x * chunkSize;
+	unsigned int jChunkSize = y * chunkSize;
+	unsigned int kChunkSize = z * chunkSize;
 	unsigned short chunkAddition = chunkSize - 1;
 
 	Vector3DInt32 start(iChunkSize, jChunkSize, kChunkSize);
@@ -467,6 +466,8 @@ void GraphicsManager::UpdateChunk(Vector3DInt32 chunkNum, int xDiff, int zDiff)
 	surfaceExtractor.execute();
 
 	ManualObject *obj = manualObjects[str];
+
+	if(obj->getNumSections() == 0) return; //No point updating the section if it doesn't contain any vertices and indices
 
 	obj->estimateVertexCount(mesh.getNoOfVertices());
 	obj->estimateIndexCount(mesh.getNoOfIndices());
