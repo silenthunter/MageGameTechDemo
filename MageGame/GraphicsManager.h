@@ -59,6 +59,8 @@ public:
 	Ogre::Root* GetRoot();
 	Ogre::Quaternion GetPlayerRotation();
 	PolyVox::Vector3DInt32 playerChunk;
+	Ogre::SceneNode *player;
+	Ogre::SceneNode *c_sn;
 
 private:
 	//Functions
@@ -67,8 +69,6 @@ private:
 	void SetUpWindow(std::string name);
 
 	//Variables
-	Ogre::SceneNode *c_sn;
-	Ogre::SceneNode *player;
 	Ogre::Root *root;
 	std::map<std::string,Ogre::RenderWindow*> render_windows;
 	Ogre::SceneNode *root_sn;

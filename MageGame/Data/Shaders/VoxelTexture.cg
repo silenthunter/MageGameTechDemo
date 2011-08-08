@@ -22,7 +22,10 @@ void voxeltexture_vp(
 	uniform float4x4 world,
 	uniform float4x4 viewProj)
 {
-	outWorldPosition = mul(world, inPosition);
+	float4 center = float4(0, 0, 0, 0);
+	float dist = distance(center, inPosition);
+	float scaler = dist / 100;
+	outWorldPosition = mul(world, float4(inPosition.xyz, scaler));
 	
 	outPosition = mul(viewProj, outWorldPosition);
 	

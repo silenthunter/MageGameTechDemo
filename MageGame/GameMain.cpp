@@ -78,10 +78,6 @@ int main(int argc, char* argv[])
 	ogreWindow->getCustomAttribute("WINDOW", &hWnd);
 #pragma endregion
 
-#pragma region PhysicsManager
-	PhysicsManager physicsManager((viewDist + 0.5f) * chunkSize, chunkSize, worldScale, &volData, &graphicsManager);
-#pragma endregion
-
 #pragma region Keyboard and Mouse
 	OIS::InputManager *m_InputManager = OIS::InputManager::createInputSystem(hWnd);
 	OIS::Keyboard *m_Keyboard = static_cast<OIS::Keyboard*>(m_InputManager->createInputObject(OIS::OISKeyboard, false));
@@ -91,7 +87,7 @@ int main(int argc, char* argv[])
 	graphicsManager.CloseGUI();
 
 	GameTimer timer;
-	float speed = 250.f;
+	float speed = 100.f;
 	int count = 0;
 	char lastState[256];
 
@@ -100,7 +96,6 @@ int main(int argc, char* argv[])
 		count++;
 		double elapsed = timer.getElapsedTimeSec();
 		root->renderOneFrame(elapsed);
-		physicsManager.StepSimulation(elapsed);
 		Ogre::WindowEventUtilities::messagePump();
 
 #pragma region Mouse Update
@@ -114,84 +109,41 @@ int main(int argc, char* argv[])
 
 		m_Keyboard->capture();
 
-		//Update physics character
-		Ogre::Quaternion playerOri = c_sn->_getDerivedOrientation();
-		physicsManager.UpdatePlayer(m_Keyboard, m_Mouse, hkQuaternion(playerOri.x, playerOri.y, playerOri.z, playerOri.w), elapsed);
-
-		//Sync physics character with Ogre
-		hkVector4 hkPos = physicsManager.GetPlayerPosition();
-		player->setPosition(hkPos(0), hkPos(1), hkPos(2));
-		physicsManager.SyncItemBlocks(graphicsManager.getItemBlocks());
-
-		PolyVox::Vector3DFloat voxPos(hkPos(0), hkPos(1) + 0.4f, hkPos(2));
-
-		if(m_Keyboard->isKeyDown(OIS::KC_F) || (m_Keyboard->isKeyDown(OIS::KC_E) && !lastState[OIS::KC_E]))
+		if(m_Keyboard->isKeyDown(OIS::KC_W))
 		{
-			Vector3 forward(0, 0, -1);
-			forward = c_sn->_getDerivedOrientation() * forward;
-			Vector3DFloat rayDirection(forward.x, forward.y, forward.z);
-			rayDirection *= 1000;
-
-			PolyVox::RaycastResult rayResults;
-			PolyVox::Raycast<SimpleVolume, VoxelMat> ray(&volData, voxPos, rayDirection, rayResults);
-			ray.execute();
-
-			if(rayResults.foundIntersection)
-			{
-				Vector3DInt32 chunkNum = rayResults.intersectionVoxel / chunkSize;
-				VoxelMat blockMat = graphicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
-				physicsManager.RemoveBlock(chunkNum, rayResults.intersectionVoxel);
-				graphicsManager.AddItemBlock(rayResults.intersectionVoxel, blockMat, timer.getElapsedTimeSec());
-				hkVector4 spawnPos(rayResults.intersectionVoxel.getX(), rayResults.intersectionVoxel.getY(), rayResults.intersectionVoxel.getZ());
-				physicsManager.SpawnCube(spawnPos);
-			}
+			Ogre::Vector3 vec(0, 0, -speed * elapsed);
+			vec = graphicsManager.c_sn->_getDerivedOrientation() * vec;
+			graphicsManager.player->translate(vec);
 		}
-
-#pragma region Player Movement and Chunk Paging
-		/*
-		//Check player movement
-		Vector3DInt32 currPlayerChunk(hkPos(0) / chunkSize, hkPos(1) / chunkSize, hkPos(2) / chunkSize);
-
-		//East-West
-		int playerChunkX = currPlayerChunk.getX() - graphicsManager.playerChunk.getX();
-		if(playerChunkX > 0) //East
+		if(m_Keyboard->isKeyDown(OIS::KC_S))
 		{
-			graphicsManager.MoveEast();
+			Ogre::Vector3 vec(0, 0, speed * elapsed);
+			vec = graphicsManager.c_sn->_getDerivedOrientation() * vec;
+			graphicsManager.player->translate(vec);
 		}
-		else if(playerChunkX < 0) //West
+		if(m_Keyboard->isKeyDown(OIS::KC_A))
 		{
-			graphicsManager.MoveWest();
+			Ogre::Vector3 vec(-speed * elapsed, 0, 0);
+			vec = graphicsManager.c_sn->_getDerivedOrientation() * vec;
+			graphicsManager.player->translate(vec);
 		}
-			
-		//North-South
-		int playerChunkZ = currPlayerChunk.getZ() - graphicsManager.playerChunk.getZ();
-		if(playerChunkZ > 0) //South
+		if(m_Keyboard->isKeyDown(OIS::KC_D))
 		{
-			graphicsManager.MoveSouth();
+			Ogre::Vector3 vec(speed * elapsed, 0, 0);
+			vec = graphicsManager.c_sn->_getDerivedOrientation() * vec;
+			graphicsManager.player->translate(vec);
 		}
-		else if(playerChunkZ < 0) //North
-		{
-			graphicsManager.MoveNorth();
-		}
-		*/
-#pragma endregion
 
 		if(count % 50 == 0)
 		{
 #pragma region Print Statements
-			//cout << "Chunk: " << currPlayerChunk.getX() << ", " << currPlayerChunk.getY() << ", " << currPlayerChunk.getZ() << endl;
-			cout << "Position: " << hkPos(0) << ", " << hkPos(1) << ", " << hkPos(2) << endl;
 			cout << "FPS: " << 1 / elapsed << endl;
-			cout << endl;
 #pragma endregion
 
 			//Set player listener position for sound
 			//fslSetListenerPosition(btVec.x(), btVec.y(), btVec.z());
 		}
 
-		//Sleep(10);
-
-		//audioUpdate();
 		m_Keyboard->copyKeyStates(lastState);
 	}
 
