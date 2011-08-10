@@ -2,6 +2,7 @@
 
 namespace anl
 {
+    CImplicitConstant::CImplicitConstant() : m_constant(0){}
     CImplicitConstant::CImplicitConstant(double c) : m_constant(c){}
 	CImplicitConstant::~CImplicitConstant(){}
 

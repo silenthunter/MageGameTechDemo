@@ -7,12 +7,51 @@ using std::uniform_int;
 using std::uniform_real;
 using std::variate_generator;
 
+using anl::FBM;
+using anl::GRADIENT;
+using anl::QUINTIC;
+using anl::RIDGEDMULTI;
+using anl::BILLOW;
+using anl::MULT;
+
 WorldTerrain::WorldTerrain()
 	:
 	const0(0),
 	constStone(5),
-	lowLand(anl::FBM, anl::GRADIENT, anl::QUINTIC),
-	lowLandScaleOff(0.5, 0.0)
+
+	//Ground
+
+	//Plain
+	plainFractal(FBM, GRADIENT, QUINTIC),
+	plainScaleOff(0.2, -0.07),
+	//Rolling Plain
+	rollingFractal(FBM, GRADIENT, QUINTIC),
+	rollingScaleOff(0.4, -0.07),
+	//Highland
+	highlandFractal(RIDGEDMULTI, GRADIENT, QUINTIC),
+	highlandScaleOff(0.45, -0.85),
+	//Mountain
+	mountainFractal(BILLOW, GRADIENT, QUINTIC),
+	mountainScaleOff(0.75, -2.025),
+	//Chasm
+	chasmFractal(BILLOW, GRADIENT, QUINTIC),
+	chasmScaleOff(0.75, 1.1),
+	//Terrain type fractal for select control
+	plain_rolling_Control(FBM, GRADIENT, QUINTIC),
+	highland_mountain_Control(FBM, GRADIENT, QUINTIC),
+	plain_rolling_highland_mountain_Control(FBM, GRADIENT, QUINTIC),
+	plain_rolling_highland_mountain_chasm_Control(FBM, GRADIENT, QUINTIC),
+
+	//Caves
+
+	caveBias(0.45),
+	caveShape1(RIDGEDMULTI, GRADIENT, QUINTIC),
+	caveShape2(RIDGEDMULTI, GRADIENT, QUINTIC),
+	caveShapeBias(MULT),
+	cavePerturb(FBM, GRADIENT, QUINTIC),
+	cavePerturbScaleOff(0.5, 0.0),
+
+	worldTerrain(MULT)
 {
 }
 
@@ -34,152 +73,213 @@ void WorldTerrain::InputNewBoundary(unsigned short width, unsigned short depth, 
 
 void WorldTerrain::GenerateRegularWorld()
 {
-	/*
-	mt19937 randGen((time_t) seedVar);
-
-	//Mountain Terrain
-	module::RidgedMulti mountainTerrain;
-	mountainTerrain.SetSeed(seedVar);
-
-	mountainTerrain.SetOctaveCount(RandomWorldGenerationMap["MountainOctave"]);
-	//////////
-
-	//Really flat terrain
-	module::Billow baseFlatTerrain;
-	baseFlatTerrain.SetSeed(seedVar);
-
-	baseFlatTerrain.SetOctaveCount(RandomWorldGenerationMap["BaseFlatOctave"]);
-
-	uniform_real<> baseFlatFrequencyRange(RandomWorldGenerationMap["BaseFlatFrequencyMin"], RandomWorldGenerationMap["BaseFlatFrequencyMax"]);
-	baseFlatTerrain.SetFrequency(baseFlatFrequencyRange(randGen)); //Higher <value> means more but smaller lumps
-	//////////
-
-	//Modifying the flat terrain
-	module::ScaleBias flatTerrain;
-	flatTerrain.SetSourceModule(0, baseFlatTerrain);
-
-	uniform_real<> flatScaleRange(RandomWorldGenerationMap["FlatScaleMin"], RandomWorldGenerationMap["FlatScaleMax"]);
-	flatTerrain.SetScale(flatScaleRange(randGen)); //Shorten height by 1/<value>
-
-	uniform_real<> flatBiasRange(RandomWorldGenerationMap["FlatBiasMin"], RandomWorldGenerationMap["FlatBiasMax"]);
-	flatTerrain.SetBias(flatBiasRange(randGen)); //Translate height by <value>
-
-	//////////
-
-	//Perlin
-	module::Perlin terrainType;
-	terrainType.SetSeed(seedVar);
-
-	terrainType.SetOctaveCount(RandomWorldGenerationMap["PerlinOctave"]); //Higher <value> increases detail
-
-	//Low frequency and persistence value will create large areas of similar terrain in the final height map
-	uniform_real<> perlinFrequencyRange(RandomWorldGenerationMap["PerlinFrequencyMin"], RandomWorldGenerationMap["PerlinFrequencyMax"]);
-	terrainType.SetFrequency(perlinFrequencyRange(randGen));
-
-	uniform_real<> perlinPersistenceRange(RandomWorldGenerationMap["PerlinPersistenceMin"], RandomWorldGenerationMap["PerlinPersistenceMax"]);
-	terrainType.SetPersistence(perlinPersistenceRange(randGen));
-
-	//Combining flat and mountain terrain, then using perlin as the controller
-	module::Select terrainSelector;
-	terrainSelector.SetSourceModule(0, flatTerrain);
-	terrainSelector.SetSourceModule(1, mountainTerrain);
-	terrainSelector.SetControlModule(terrainType);
-	terrainSelector.SetBounds(0.0, 1000.0);
-
-	uniform_real<> terrainEdgeFallOffRange(RandomWorldGenerationMap["TerrainEdgeFallOffMin"], RandomWorldGenerationMap["TerrainEdgeFallOffMax"]);
-	terrainSelector.SetEdgeFalloff(terrainEdgeFallOffRange(randGen)); //Higher <value> means more smoothing
-
-	//Setting it all as the final terrain
-	module::Turbulence finalTerrain;
-	finalTerrain.SetSeed(seedVar);
-
-	finalTerrain.SetSourceModule(0, terrainSelector);
-
-	uniform_real<> terrainFrequencyRange(RandomWorldGenerationMap["TerrainFrequencyMin"], RandomWorldGenerationMap["TerrainFrequencyMax"]);
-	finalTerrain.SetFrequency(terrainFrequencyRange(randGen)); //<value> determines how often the coordinates of the input value changes
-
-	uniform_real<> terrainPowerRange(RandomWorldGenerationMap["TerrainPowerMin"], RandomWorldGenerationMap["TerrainPowerMax"]);
-	finalTerrain.SetPower(terrainPowerRange(randGen)); //<value> determines the magnitude of these changes
-	*/
-
-	//worldTerrain.SetSeed(currSeed);
-	//worldTerrain.SetOctaveCount(WorldGenerationMap["PerlinOctave"]);
-
 	GenerateGround();
-	//GenerateCaves();
-	//worldTerrain.SetSourceModule(0, groundFinal);
-	//worldTerrain.SetSourceModule(1, caveFinal);
+	GenerateCaves();
+	worldTerrain.setSource(0, &groundSelect);
+	worldTerrain.setSource(1, &caveSelect);
+}
+
+void WorldTerrain::TestFractal(double low, double high)
+{
+	double mx=-10000;
+	double mn=10000;
+
+	for(int c=0; c<10000; ++c)
+	{
+			double nx=(double)rand()/(double)RAND_MAX * 4.0;
+			double ny=(double)rand()/(double)RAND_MAX * 4.0;
+			double nz=(double)rand()/(double)RAND_MAX * 4.0;
+			double v=plainFractal.get(nx,ny,nz);
+			if(v>mx) mx=v;
+			if(v<mn) mn=v;
+	}
+
+	double scale=(high - low) / (mx-mn);
+    double offset=low-mn*scale;
+
+	cout << "min: " << mn << endl;
+	cout << "max: " << mx << endl;
+	cout << "scale: " << scale << endl;
+	cout << "offset: " << offset << endl;
 }
 
 void WorldTerrain::GenerateGround()
 {
 	groundGradient.setGradient(0, 0, 0, 8, 0, 0);
 
-	worldTerrain.setLowSource(&const0);
-	worldTerrain.setHighSource(&constStone);
-	worldTerrain.setControlSource(&groundGradient);
-	worldTerrain.setThreshold(0.005);
-	return;
+	//Plain
+	plainFractal.setSeed(currSeed);
+	plainFractal.setNumOctaves(2);
+	plainFractal.setFrequency(1);
 
-	lowLand.setNumOctaves(6);
-	lowLand.setFrequency(2);
+	plainScaleOff.setSource(&plainFractal);
 
-	lowLandScaleOff.setSource(&groundGradient);
+	plainScaleDomain.setSource(&plainScaleOff);
+	plainScaleDomain.setYScale(0.0);
+
+	plainTerrain.setSeed(currSeed + 11);
+	plainTerrain.setSource(&groundGradient);
+	plainTerrain.setYAxisSource(&plainScaleDomain);
+
+	//Rolling Plain
+	rollingFractal.setSeed(currSeed + 22);
+	rollingFractal.setNumOctaves(2);
+	rollingFractal.setFrequency(1);
+
+	rollingScaleOff.setSource(&rollingFractal);
+
+	rollingScaleDomain.setSource(&rollingScaleOff);
+	rollingScaleDomain.setYScale(0.0);
+
+	rollingTerrain.setSeed(currSeed + 33);
+	rollingTerrain.setSource(&groundGradient);
+	rollingTerrain.setYAxisSource(&rollingScaleDomain);
+
+	//Highland (threshold -0.11)
+	highlandFractal.setSeed(currSeed + 44);
+	highlandFractal.setNumOctaves(2);
+	highlandFractal.setFrequency(1);
+
+	highlandScaleOff.setSource(&highlandFractal);
+
+	highlandScaleDomain.setSource(&highlandScaleOff);
+	highlandScaleDomain.setYScale(0.0);
+
+	highlandTerrain.setSeed(currSeed + 55);
+	highlandTerrain.setSource(&groundGradient);
+	highlandTerrain.setYAxisSource(&highlandScaleDomain);
+
+	//Mountain
+	mountainFractal.setSeed(currSeed + 66);
+	mountainFractal.setNumOctaves(4);
+	mountainFractal.setFrequency(0.5);
+
+	mountainScaleOff.setSource(&mountainFractal);
+
+	mountainScaleDomain.setSource(&mountainScaleOff);
+	mountainScaleDomain.setYScale(0.1);
+
+	mountainTerrain.setSeed(currSeed + 77);
+	mountainTerrain.setSource(&groundGradient);
+	mountainTerrain.setYAxisSource(&mountainScaleDomain);
+
+	//Chasm
+	chasmFractal.setSeed(currSeed + 88);
+	chasmFractal.setNumOctaves(4);
+	chasmFractal.setFrequency(1);
+
+	chasmScaleOff.setSource(&chasmFractal);
+
+	chasmScaleDomain.setSource(&chasmScaleOff);
+	chasmScaleDomain.setYScale(0.1);
+
+	chasmTerrain.setSeed(currSeed + 99);
+	chasmTerrain.setSource(&groundGradient);
+	chasmTerrain.setYAxisSource(&chasmScaleDomain);
+
+	//--------------------------------------------------------------------
+	//Terrain type fractal for select control
+
+	//Plain + Rolling Plain
+	plain_rolling_Control.setSeed(currSeed + 110);
+	plain_rolling_Control.setNumOctaves(3);
+	plain_rolling_Control.setFrequency(0.5);
+
+	plain_rolling_scaleDomain.setSource(&plain_rolling_Control);
+	plain_rolling_scaleDomain.setYScale(0.1);
+
+	//Highland + Mountain
+	highland_mountain_Control.setSeed(currSeed + 121);
+	highland_mountain_Control.setNumOctaves(3);
+	highland_mountain_Control.setFrequency(0.5);
+
+	highland_mountain_scaleDomain.setSource(&highland_mountain_Control);
+	highland_mountain_scaleDomain.setYScale(0.1);
+
+	//Plain + Rolling Plain + Highland + Mountain
+	plain_rolling_highland_mountain_Control.setSeed(currSeed + 132);
+	plain_rolling_highland_mountain_Control.setNumOctaves(3);
+	plain_rolling_highland_mountain_Control.setFrequency(0.5);
+
+	plain_rolling_highland_mountain_scaleDomain.setSource(&plain_rolling_highland_mountain_Control);
+	plain_rolling_highland_mountain_scaleDomain.setYScale(0.1);
+
+	//Plain + Rolling Plain + Highland + Mountain + Chasm
+	plain_rolling_highland_mountain_chasm_Control.setSeed(currSeed + 143);
+	plain_rolling_highland_mountain_chasm_Control.setNumOctaves(3);
+	plain_rolling_highland_mountain_chasm_Control.setFrequency(0.5);
+
+	plain_rolling_highland_mountain_chasm_scaleDomain.setSource(&plain_rolling_highland_mountain_chasm_Control);
+	plain_rolling_highland_mountain_chasm_scaleDomain.setYScale(0.1);
+	
+	//Selects
+
+	//Plain + Highland + Mountain
+	plain_rolling_select.setLowSource(&plainTerrain);
+	plain_rolling_select.setHighSource(&rollingTerrain);
+	plain_rolling_select.setControlSource(&plain_rolling_scaleDomain);
+	plain_rolling_select.setThreshold(0.1);
+	plain_rolling_select.setFalloff(0.15);
+
+	//Highland + Mountain
+	highland_mountain_select.setLowSource(&highlandTerrain);
+	highland_mountain_select.setHighSource(&mountainTerrain);
+	highland_mountain_select.setControlSource(&highland_mountain_scaleDomain);
+	highland_mountain_select.setThreshold(0.2);
+	highland_mountain_select.setFalloff(0.15);
+
+	//Plain + Rolling + Highland + Mountain
+	plain_rolling_highland_mountain_select.setLowSource(&plain_rolling_select);
+	plain_rolling_highland_mountain_select.setHighSource(&highland_mountain_select);
+	plain_rolling_highland_mountain_select.setControlSource(&plain_rolling_highland_mountain_scaleDomain);
+	plain_rolling_highland_mountain_select.setThreshold(0.25);
+	plain_rolling_highland_mountain_select.setFalloff(0.15);
+
+	//Plain + Rolling + Highland + Mountain + Chasm
+	plain_rolling_highland_mountain_chasm_select.setLowSource(&plain_rolling_highland_mountain_select);
+	plain_rolling_highland_mountain_chasm_select.setHighSource(&chasmTerrain);
+	plain_rolling_highland_mountain_chasm_select.setControlSource(&plain_rolling_highland_mountain_chasm_scaleDomain);
+	plain_rolling_highland_mountain_chasm_select.setThreshold(0.4);
+	plain_rolling_highland_mountain_chasm_select.setFalloff(0.15);
+
+	//--------------------------------------------------------------------
+	//Final Ground Terrain
+	groundTerrain.setSource(&plain_rolling_highland_mountain_chasm_select);
+
+	groundSelect.setLowSource(&const0);
+	groundSelect.setHighSource(&constStone);
+	groundSelect.setControlSource(&groundTerrain);
+	groundSelect.setThreshold(0.0);
 }
 
-/*
+
 void WorldTerrain::GenerateCaves()
 {
-	caveShape1.SetSeed(currSeed + 111);
-	caveShape1.SetOctaveCount(1);
-	caveShape1.SetNoiseQuality(noise::QUALITY_BEST);
-	caveShape1.SetFrequency(2);
+	caveBias.setSource(&groundTerrain);
 
-	caveShapeSP1.SetSourceModule(0, caveShape1);
-	caveShapeSP1.SetXScale(0.7);
-	caveShapeSP1.SetYScale(0.7);
-	caveShapeSP1.SetZScale(0.7);
+	caveShape1.setSeed(currSeed + 7);
+	caveShape1.setNumOctaves(1);
+	caveShape1.setFrequency(4);
 
-	caveSelect1.SetSourceModule(0, const0);
-	caveSelect1.SetSourceModule(1, constStone);
-	caveSelect1.SetControlModule(caveShapeSP1);
-	caveSelect1.SetBounds(-0.3, 256);
+	caveShape2.setSeed(currSeed + 14);
+	caveShape2.setNumOctaves(1);
+	caveShape2.setFrequency(4);
 
-	caveShape2.SetSeed(currSeed + 222);
-	caveShape2.SetOctaveCount(1);
-	caveShape2.SetNoiseQuality(noise::QUALITY_BEST);
-	caveShape2.SetFrequency(2);
+	caveShapeBias.setSource(0, &caveShape1);
+	caveShapeBias.setSource(1, &caveBias);
+	caveShapeBias.setSource(2, &caveShape2);
 
-	caveShapeSP2.SetSourceModule(0, caveShape2);
-	caveShapeSP2.SetXScale(0.7);
-	caveShapeSP2.SetYScale(0.7);
-	caveShapeSP2.SetZScale(0.7);
+	cavePerturb.setSeed(currSeed + 21);
+	cavePerturb.setNumOctaves(6);
+	cavePerturb.setFrequency(3);
 
-	caveSelect2.SetSourceModule(0, const0);
-	caveSelect2.SetSourceModule(1, constStone);
-	caveSelect2.SetControlModule(caveShapeSP2);
-	caveSelect2.SetBounds(-0.3, 256);
+	cavePerturbScaleOff.setSource(&cavePerturb);
 
-	caveMul.SetSourceModule(0, caveSelect1);
-	caveMul.SetSourceModule(1, caveSelect2);
-	
-	caveTurb.SetSourceModule(0, caveMul);
-	caveTurb.xDistortModule.SetSeed(currSeed + 333);
-	caveTurb.yDistortModule.SetSeed(currSeed + 433);
-	caveTurb.zDistortModule.SetSeed(currSeed + 533);
-	caveTurb.xDistortModule.SetFrequency(2);
-	caveTurb.zDistortModule.SetFrequency(2);
-	caveTurb.xDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
-	caveTurb.yDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
-	caveTurb.zDistortModule.SetNoiseQuality(noise::QUALITY_BEST);
-	caveTurb.SetXPower(0.25);
-	caveTurb.SetYPower(0.25);
-	caveTurb.SetZPower(0.25);
+	caveTranslateDomain.setSource(&caveShapeBias);
+	caveTranslateDomain.setXAxisSource(&cavePerturbScaleOff);
 
-	caveInvert.SetSourceModule(0, caveTurb);
-	caveInvert.SetScale(-1);
-	caveInvert.SetBias(1);
-
-	caveFinal.SetSourceModule(0, caveInvert);
+	caveSelect.setLowSource(&constStone);
+	caveSelect.setHighSource(&const0);
+	caveSelect.setControlSource(&caveTranslateDomain);
+	caveSelect.setThreshold(0.25);
 }
-*/

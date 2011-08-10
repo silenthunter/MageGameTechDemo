@@ -161,7 +161,7 @@ void CImplicitFractal::fBm_calcWeights()
         m_correct[i][0]=scale;
         m_correct[i][1]=bias;
 
-        std::cout << minvalue << " " << maxvalue << " " << scale << " " << bias << std::endl;
+        //std::cout << minvalue << " " << maxvalue << " " << scale << " " << bias << std::endl;
     }
 }
 

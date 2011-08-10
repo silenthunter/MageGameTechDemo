@@ -7,6 +7,7 @@ namespace anl
     class CImplicitConstant : public CImplicitModuleBase
     {
         public:
+        CImplicitConstant();
         CImplicitConstant(double c);
         ~CImplicitConstant();
 

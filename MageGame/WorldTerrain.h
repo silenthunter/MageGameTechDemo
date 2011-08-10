@@ -7,9 +7,14 @@
 
 #include "implicitconstant.h"
 #include "implicitgradient.h"
-#include "implicitselect.h"
 #include "implicitfractal.h"
 #include "implicitscaleoffset.h"
+#include "implicitscaledomain.h"
+#include "implicittranslatedomain.h"
+#include "implicitselect.h"
+#include "implicitcache.h"
+#include "implicitcombiner.h"
+#include "implicitbias.h"
 
 class WorldTerrain
 {
@@ -22,14 +27,15 @@ public:
 	void GenerateRegularWorld();
 
 	//Variables
-	//noise::module::Multiply worldTerrain;
-	anl::CImplicitSelect worldTerrain;
+	anl::CImplicitCombiner worldTerrain;
 	unsigned short currWidth;
 	unsigned short currDepth;
 	unsigned short currHeight;
 
 private:
 	//Functions
+	void TestFractal(double low, double high);
+
 	void GenerateGround();
 	void GenerateCaves();
 	
@@ -38,68 +44,66 @@ private:
 	anl::CImplicitConstant const0;
 	anl::CImplicitConstant constStone;
 
-	//Ground
 	anl::CImplicitGradient groundGradient;
-	anl::CImplicitFractal lowLand;
-	anl::CImplicitScaleOffset lowLandScaleOff;
-	/*
-	noise::module::YTurbulence groundBase;
-	noise::module::YTurbulence groundPlain;
-	noise::module::YTurbulence groundHill;
-	noise::module::YTurbulence groundRolling;
-	noise::module::HillTurbulence groundSmallMountain;
-	noise::module::HillTurbulence groundMediumMountain;
-	noise::module::HillTurbulence groundMountain;
-	noise::module::HillTurbulence groundSmallChasm;
-	noise::module::HillTurbulence groundChasm;
 
-	noise::module::Perlin selPer1;
-	noise::module::ScalePoint selSP1;
-	noise::module::Select groundMediumTallMtnSelect;
+	//Ground
+	//Plain
+	anl::CImplicitFractal plainFractal;
+	anl::CImplicitScaleOffset plainScaleOff;
+	anl::CImplicitScaleDomain plainScaleDomain;
+	anl::CImplicitTranslateDomain plainTerrain;
 
-	noise::module::Perlin selPer2;
-	noise::module::ScalePoint selSP2;
-	noise::module::Select groundMountainSelect;
+	//Rolling Plain
+	anl::CImplicitFractal rollingFractal;
+	anl::CImplicitScaleOffset rollingScaleOff;
+	anl::CImplicitScaleDomain rollingScaleDomain;
+	anl::CImplicitTranslateDomain rollingTerrain;
 
-	noise::module::Perlin selPer3;
-	noise::module::ScalePoint selSP3;
-	noise::module::Select groundChasmSelect;
+	//Highland
+	anl::CImplicitFractal highlandFractal;
+	anl::CImplicitScaleOffset highlandScaleOff;
+	anl::CImplicitScaleDomain highlandScaleDomain;
+	anl::CImplicitTranslateDomain highlandTerrain;
 
-	noise::module::Perlin selPer4;
-	noise::module::ScalePoint selSP4;
-	noise::module::Select groundHillRollingSelect;
+	//Mountain
+	anl::CImplicitFractal mountainFractal;
+	anl::CImplicitScaleOffset mountainScaleOff;
+	anl::CImplicitScaleDomain mountainScaleDomain;
+	anl::CImplicitTranslateDomain mountainTerrain;
 
-	noise::module::Perlin selPer5;
-	noise::module::ScalePoint selSP5;
-	noise::module::Select groundPlainHillRollingSelect;
+	//Chasm
+	anl::CImplicitFractal chasmFractal;
+	anl::CImplicitScaleOffset chasmScaleOff;
+	anl::CImplicitScaleDomain chasmScaleDomain;
+	anl::CImplicitTranslateDomain chasmTerrain;
 
-	noise::module::Perlin selPer6;
-	noise::module::ScalePoint selSP6;
-	noise::module::Select groundBaseSelect;
+	//Terrain Type (for Select)
+	anl::CImplicitFractal plain_rolling_Control;
+	anl::CImplicitScaleDomain plain_rolling_scaleDomain;
+	anl::CImplicitFractal highland_mountain_Control;
+	anl::CImplicitScaleDomain highland_mountain_scaleDomain;
+	anl::CImplicitFractal plain_rolling_highland_mountain_Control;
+	anl::CImplicitScaleDomain plain_rolling_highland_mountain_scaleDomain;
+	anl::CImplicitFractal plain_rolling_highland_mountain_chasm_Control;
+	anl::CImplicitScaleDomain plain_rolling_highland_mountain_chasm_scaleDomain;
 
-	noise::module::Perlin selPer7;
-	noise::module::ScalePoint selSP7;
-	noise::module::Select groundBaseMtnSelect;
+	anl::CImplicitSelect plain_rolling_select;
+	anl::CImplicitSelect highland_mountain_select;
+	anl::CImplicitSelect plain_rolling_highland_mountain_select;
+	anl::CImplicitSelect plain_rolling_highland_mountain_chasm_select;
 
-	noise::module::Perlin selPer8;
-	noise::module::ScalePoint selSP8;
-	noise::module::Select groundFinalSelect;
+	anl::CImplicitCache groundTerrain;
 
-	noise::module::Select groundMatSelect;
-	noise::module::Cache groundFinal;
+	anl::CImplicitSelect groundSelect;
+
 
 	//Caves
-	noise::module::RidgedMulti caveShape1;
-	noise::module::ScalePoint caveShapeSP1;
-
-	noise::module::RidgedMulti caveShape2;
-	noise::module::ScalePoint caveShapeSP2;
-
-	noise::module::Select caveSelect1;
-	noise::module::Select caveSelect2;
-	noise::module::Multiply caveMul;
-	noise::module::EnhancedTurbulence caveTurb;
-	noise::module::ScaleBias caveInvert;
-	noise::module::Cache caveFinal;
-	*/
+	anl::CImplicitBias caveBias;
+	anl::CImplicitFractal caveShape1;
+	anl::CImplicitFractal caveShape2;
+	anl::CImplicitCombiner caveShapeBias;
+	anl::CImplicitFractal cavePerturb;
+	anl::CImplicitScaleOffset cavePerturbScaleOff;
+	anl::CImplicitTranslateDomain caveTranslateDomain;
+	anl::CImplicitSelect caveSelect;
 };

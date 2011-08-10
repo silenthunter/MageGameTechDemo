@@ -38,7 +38,8 @@ double CImplicitGradient::get(double x, double y)
     double dp=dx*m_x+dy*m_y;
     dp/=m_vlen;
     //dp=clamp(dp/m_vlen,0.0,1.0);
-    return lerp(dp,1.0,-1.0);
+    //return lerp(dp,1.0,-1.0);
+    return dp;
 }
 
 double CImplicitGradient::get(double x, double y, double z)
@@ -49,7 +50,8 @@ double CImplicitGradient::get(double x, double y, double z)
     double dp=dx*m_x+dy*m_y+dz*m_z;
     dp/=m_vlen;
     //dp=clamp(dp/m_vlen,0.0,1.0);
-    return lerp(dp,1.0,-1.0);
+    //return lerp(dp,1.0,-1.0);
+    return dp;
 }
 
 double CImplicitGradient::get(double x, double y, double z, double w)
@@ -61,7 +63,8 @@ double CImplicitGradient::get(double x, double y, double z, double w)
     double dp=dx*m_x+dy*m_y+dz*m_z+dw*m_w;
     dp/=m_vlen;
     //dp=clamp(dp/m_vlen,0.0,1.0);
-    return lerp(dp,1.0,-1.0);
+    //return lerp(dp,1.0,-1.0);
+    return dp;
 }
 
 double CImplicitGradient::get(double x, double y, double z, double w, double u, double v)
@@ -75,6 +78,7 @@ double CImplicitGradient::get(double x, double y, double z, double w, double u, 
     double dp=dx*m_x+dy*m_y+dz*m_z+dw*m_w+du*m_u+dv*m_v;
     dp/=m_vlen;
     //dp=clamp(dp/m_vlen,0.0,1.0);
-    return lerp(clamp(dp,0.0,1.0),1.0,-1.0);
+    //return lerp(clamp(dp,0.0,1.0),1.0,-1.0);
+    return dp;
 }
 };

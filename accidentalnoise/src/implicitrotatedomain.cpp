@@ -15,7 +15,7 @@ namespace anl
 
     void CImplicitRotateDomain::calculateRotMatrix(double x, double y)
     {
-        double angle=m_angledeg.get(x,y) * 3.14159265/180.0;
+        double angle=m_angledeg.get(x,y)*360.0 * 3.14159265/180.0;
         double ax=m_ax.get(x,y);
         double ay=m_ay.get(x,y);
         double az=m_az.get(x,y);
@@ -38,7 +38,7 @@ namespace anl
 
     void CImplicitRotateDomain::calculateRotMatrix(double x, double y, double z)
     {
-        double angle=m_angledeg.get(x,y,z) * 3.14159265/180.0;
+        double angle=m_angledeg.get(x,y,z)*360.0 * 3.14159265/180.0;
         double ax=m_ax.get(x,y,z);
         double ay=m_ay.get(x,y,z);
         double az=m_az.get(x,y,z);
@@ -60,7 +60,7 @@ namespace anl
     }
     void CImplicitRotateDomain::calculateRotMatrix(double x, double y, double z, double w)
     {
-        double angle=m_angledeg.get(x,y,z,w) * 3.14159265/180.0;
+        double angle=m_angledeg.get(x,y,z,w)*360.0 * 3.14159265/180.0;
         double ax=m_ax.get(x,y,z,w);
         double ay=m_ay.get(x,y,z,w);
         double az=m_az.get(x,y,z,w);
@@ -82,7 +82,7 @@ namespace anl
     }
     void CImplicitRotateDomain::calculateRotMatrix(double x, double y, double z, double w, double u, double v)
     {
-        double angle=m_angledeg.get(x,y,z,w,u,v) * 3.14159265/180.0;
+        double angle=m_angledeg.get(x,y,z,w,u,v)*360.0 * 3.14159265/180.0;
         double ax=m_ax.get(x,y,z,w,u,v);
         double ay=m_ay.get(x,y,z,w,u,v);
         double az=m_az.get(x,y,z,w,u,v);
@@ -152,7 +152,7 @@ namespace anl
     double CImplicitRotateDomain::get(double x, double y)
     {
         double nx,ny;
-        double angle=m_angledeg.get(x,y) * 3.14159265/180.0;
+        double angle=m_angledeg.get(x,y)*360.0 * 3.14159265/180.0;
         double cos2d=cos(angle);
         double sin2d=sin(angle);
         nx = x*cos2d-y*sin2d;
